@@ -1,7 +1,7 @@
 module RewriteTester where 
 
-import Rewrite
-import Terms
+import TermRewriting.Rewrite
+import Terms.Terms
 
 x = V ('x', 1)
 y = V ('y', 1)

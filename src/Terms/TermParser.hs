@@ -1,8 +1,8 @@
 {-# LANGUAGE InstanceSigs #-}
 
-module TermParser where 
+module Terms.TermParser where 
 
-import Terms
+import Terms.Terms
 import Control.Applicative
 import Data.Char
 import Control.Monad

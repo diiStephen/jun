@@ -1,5 +1,7 @@
 {-# LANGUAGE GADTs, StandaloneKindSignatures, DataKinds #-}
 
+module Terms.Terms2 where 
+
 import Data.Kind
 
 data Nat = Zero | S Nat  
