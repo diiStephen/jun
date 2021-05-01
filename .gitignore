@@ -20,8 +20,4 @@ cabal.sandbox.config
 cabal.project.local
 cabal.project.local~
 .HTF/
-<<<<<<< HEAD
 .ghc.environment.*
-=======
-.ghc.environment.*
->>>>>>> 15f33425d97bf5bded93ff879408045d2d78d37b
