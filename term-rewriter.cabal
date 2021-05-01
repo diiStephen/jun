@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 32b2773f277e66df184ddf0498d45f14d137378e1b975b9fae42be801e52fe0a
+-- hash: e143315b6ac82b50a71189c841c4ab871b9e5c4b21e70174a55bac3dbfdaf3a6
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -28,13 +28,13 @@ source-repository head
 library
   exposed-modules:
       Lib
-      Rewrite
       RewriteTester
-      Substitutions
-      TermParser
-      Terms
-      Terms2
-      Unification
+      Substitution.Substitutions
+      TermRewriting.Rewrite
+      Terms.TermParser
+      Terms.Terms
+      Terms.Terms2
+      Unification.Unification
       UnifTest
   other-modules:
       Paths_term_rewriter

@@ -1,8 +1,8 @@
-module Rewrite where 
+module TermRewriting.Rewrite where 
 
-import Terms 
-import Unification 
-import Substitutions
+import Terms.Terms 
+import Unification.Unification 
+import Substitution.Substitutions
 
 {-Feels like this should be a 1 liner-}
 rewrite :: (Term, Term) -> Term -> Maybe Term

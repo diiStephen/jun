@@ -1,12 +1,12 @@
-module Unification (
+module Unification.Unification (
     unify,
     unify',
     match,
     match'  
 ) where 
 
-import Terms
-import Substitutions
+import Terms.Terms
+import Substitution.Substitutions
 
 match' :: Term -> Term -> Maybe Subst 
 match' s t = match [(s,t)] [] 

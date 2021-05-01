@@ -1,4 +1,4 @@
-module Terms (
+module Terms.Terms (
     VName,
     Term (V, T),
     occurs

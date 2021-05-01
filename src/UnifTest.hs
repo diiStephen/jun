@@ -5,9 +5,9 @@ module UnifTest (
     matchProb
 ) where 
 
-import Terms
-import Substitutions
-import Unification
+import Terms.Terms
+import Substitution.Substitutions
+import Unification.Unification
 
 x = V ('x', 1)
 y = V ('y', 1)
