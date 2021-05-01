@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e143315b6ac82b50a71189c841c4ab871b9e5c4b21e70174a55bac3dbfdaf3a6
+-- hash: 63be14f2712e367be951d579350d32ff9b56e9ce95d284768681d55677dfb36d
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -42,6 +42,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , hspec >=2.7.8
   default-language: Haskell2010
 
 executable term-rewriter-exe
@@ -53,6 +54,7 @@ executable term-rewriter-exe
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , hspec >=2.7.8
     , term-rewriter
   default-language: Haskell2010
 
@@ -66,5 +68,6 @@ test-suite term-rewriter-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , hspec >=2.7.8
     , term-rewriter
   default-language: Haskell2010
