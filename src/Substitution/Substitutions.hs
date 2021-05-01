@@ -1,11 +1,11 @@
-module Substitutions (
+module Substitution.Substitutions (
     Subst,
     apply,
     applyLifted,
     indom
 ) where 
 
-import Terms
+import Terms.Terms
 
 type Subst = [(VName, Term)]
  
