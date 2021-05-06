@@ -3,12 +3,27 @@ module TermRewriting.Rewrite where
 import Terms.Terms 
 import Unification.Unification 
 import Substitution.Substitutions
+import Control.Applicative
 
 {-Feels like this should be a 1 liner-}
 rewrite :: (Term, Term) -> Term -> Maybe Term
 rewrite (l,r) s = case match' l s of 
                 Just sigma -> Just (applyLifted sigma r)
                 Nothing    -> Nothing 
+
+{-Handles the failure case as bind is defined according to Just a / Nothing -}
+rewrite2 :: (Term, Term) -> Term -> Maybe Term 
+rewrite2 (l,r) s = do 
+    sigma <- match' l s 
+    return (applyLifted sigma r)  
+
+{-Removing the sugar-}
+rewrite3 :: (Term, Term) -> Term -> Maybe Term 
+rewrite3 (l,r) s = match' l s >>= \sigma -> return (applyLifted sigma r)
+
+{-Monad free!-}
+rewrite3 :: (Term, Term) -> Term -> Maybe Term 
+rewrite4 (l,r) s = pure applyLifted <*> (match' l s) <*> pure r
 
 rewriteAll :: [(Term, Term)] -> Term -> Maybe Term 
 rewriteAll [] _ = Nothing
