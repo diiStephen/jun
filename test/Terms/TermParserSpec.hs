@@ -18,3 +18,4 @@ main = hspec $ do
 
         it "should parse a string representing the term x" $ do 
             parse (topLevel []) "x" `shouldBe` [(V ('x',1), "")]
+
