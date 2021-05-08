@@ -21,4 +21,9 @@ main = hspec $ do
             let t4 = termGenerator ['f','a'] "f(a)"
             let unifProb = [(t3,t4), (t1,t2)]
             (unify unifProb []) `shouldBe` Just [(('y',1),T "f" [T "a" []]),(('x',1),T "f" [T "a" []])]
-            
+        
+        it "should produce Nothing for the equations {x =^ g(x)}" $ do 
+            let t1 = termGenerator ['g'] "g(x)"
+            let t2 = termGenerator [] "x"
+            let unifProb = [(t2, t1)]
+            (unify unifProb []) `shouldBe` Nothing 
