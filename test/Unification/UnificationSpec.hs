@@ -14,7 +14,7 @@ termGenerator sig s = fst $ head $ parse (topLevel sig) s
 main :: IO () 
 main = hspec $ do 
     describe "The basic syntactic unification algorithm" $ do 
-        it "should produce a correct mgu given the equations" $ do 
+        it "should produce a correct mgu given the equations {x =^? f(a), g(x,x) =^? g(x,y)}" $ do 
             let t1 = termGenerator ['g','a'] "g(x,x)"
             let t2 = termGenerator ['g','a'] "g(x,y)"
             let t3 = termGenerator ['g','a'] "x"
