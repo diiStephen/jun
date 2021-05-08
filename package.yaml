@@ -22,6 +22,7 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.7 && < 5
 - hspec >= 2.7.8
+- QuickCheck >= 2.14.2
 
 library:
   source-dirs: src
@@ -38,8 +39,8 @@ executables:
     - term-rewriter
 
 tests:
-  term-rewriter-test:
-    main:                Spec.hs
+  Term-Parser-Tests:
+    main:                Terms.TermParserSpec
     source-dirs:         test
     ghc-options:
     - -threaded
