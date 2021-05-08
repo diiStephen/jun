@@ -34,3 +34,10 @@ main = hspec $ do
             let t2 = termGenerator sig "f(f(a,b),x)"
             let unifProb = [(t1,t2)] 
             (unify unifProb []) `shouldBe` Just [(('y',1),T "f" [T "a" [],T "b" []]),(('x',1),T "f" [T "a" [],T "b" []])] 
+
+        it "should produce Nothing for the equations {g(x) = f(y)}" $ do 
+            let sig = ['f', 'g']
+            let t1 = termGenerator sig "g(x)"
+            let t2 = termGenerator sig "f(y)"
+            let unifProb = [(t1,t2)]
+            (unify unifProb []) `shouldBe` Nothing
