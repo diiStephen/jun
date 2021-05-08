@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 63be14f2712e367be951d579350d32ff9b56e9ce95d284768681d55677dfb36d
+-- hash: fc00c55ea27be355dcadd93002c7087dce81a3598364f0761318186a33cb81cd
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -62,6 +62,7 @@ test-suite term-rewriter-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Terms.TermParserSpec
       Paths_term_rewriter
   hs-source-dirs:
       test
