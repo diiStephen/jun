@@ -48,3 +48,12 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - term-rewriter
+  Basic-Unification-Tests:
+    main:               Unification.UnificationSpec
+    source-dirs:        test 
+    ghc-options: 
+    - -threaded
+    - -rtsopts 
+    - -with-rtsopts=-N
+    dependencies: 
+      - term-rewriter 

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 687eff1d54df3e40f617883d2de6edee2ddc4f05cd38d372385a597aa331e5b0
+-- hash: 61568232c75f6d9880b66f3365fc1d764ffc5a6110148b54d3d5790a7ec051d9
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -60,10 +60,27 @@ executable term-rewriter-exe
     , term-rewriter
   default-language: Haskell2010
 
+test-suite Basic-Unification-Tests
+  type: exitcode-stdio-1.0
+  main-is: Unification/UnificationSpec.hs
+  other-modules:
+      Terms.TermParserSpec
+      Paths_term_rewriter
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Unification.UnificationSpec
+  build-depends:
+      QuickCheck >=2.14.2
+    , base >=4.7 && <5
+    , hspec >=2.7.8
+    , term-rewriter
+  default-language: Haskell2010
+
 test-suite Term-Parser-Tests
   type: exitcode-stdio-1.0
   main-is: Terms/TermParserSpec.hs
   other-modules:
+      Unification.UnificationSpec
       Paths_term_rewriter
   hs-source-dirs:
       test
