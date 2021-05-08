@@ -4,8 +4,11 @@ import Test.Hspec
 import Test.QuickCheck 
 import Control.Exception (evaluate)
 
+import Terms.TermParser 
+import Terms.Terms 
+
 main :: IO ()
 main = hspec $ do 
-    describe "Prelude.head" $ do 
-        it "returns the first element of a list" $ do 
-            head [23,24] `shouldBe` (23 :: Int)
+    describe "The term parser topLevel function" $ do 
+        it "should parse a string representing a term" $ do 
+            parse (topLevel ['f']) "f(x,y)" `shouldBe` [(T "f" [V ('x',1),V ('y',1)],"")] 
