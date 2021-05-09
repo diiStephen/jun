@@ -22,7 +22,7 @@ rewrite3 :: (Term, Term) -> Term -> Maybe Term
 rewrite3 (l,r) s = match' l s >>= \sigma -> return (applyLifted sigma r)
 
 {-Monad free!-}
-rewrite3 :: (Term, Term) -> Term -> Maybe Term 
+rewrite4 :: (Term, Term) -> Term -> Maybe Term 
 rewrite4 (l,r) s = pure applyLifted <*> (match' l s) <*> pure r
 
 rewriteAll :: [(Term, Term)] -> Term -> Maybe Term 

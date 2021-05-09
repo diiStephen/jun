@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 63be14f2712e367be951d579350d32ff9b56e9ce95d284768681d55677dfb36d
+-- hash: a877fd7f57fefe2f2d503f6c21b375fd9ff1844874179e00f9ef173c9a553fe0
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -28,20 +28,19 @@ source-repository head
 library
   exposed-modules:
       Lib
-      RewriteTester
       Substitution.Substitutions
       TermRewriting.Rewrite
       Terms.TermParser
       Terms.Terms
       Terms.Terms2
       Unification.Unification
-      UnifTest
   other-modules:
       Paths_term_rewriter
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      QuickCheck >=2.14.2
+    , base >=4.7 && <5
     , hspec >=2.7.8
   default-language: Haskell2010
 
@@ -53,21 +52,59 @@ executable term-rewriter-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      QuickCheck >=2.14.2
+    , base >=4.7 && <5
     , hspec >=2.7.8
     , term-rewriter
   default-language: Haskell2010
 
-test-suite term-rewriter-test
+test-suite Basic-Unification-Tests
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: Unification/UnificationSpec.hs
   other-modules:
+      TermRewriting.RewriteSpec
+      Terms.TermParserSpec
       Paths_term_rewriter
   hs-source-dirs:
       test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Unification.UnificationSpec
   build-depends:
-      base >=4.7 && <5
+      QuickCheck >=2.14.2
+    , base >=4.7 && <5
+    , hspec >=2.7.8
+    , term-rewriter
+  default-language: Haskell2010
+
+test-suite Rewrite-Tests
+  type: exitcode-stdio-1.0
+  main-is: TermRewriting/RewriteSpec.hs
+  other-modules:
+      Terms.TermParserSpec
+      Unification.UnificationSpec
+      Paths_term_rewriter
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is TermRewriting.RewriteSpec
+  build-depends:
+      QuickCheck >=2.14.2
+    , base >=4.7 && <5
+    , hspec >=2.7.8
+    , term-rewriter
+  default-language: Haskell2010
+
+test-suite Term-Parser-Tests
+  type: exitcode-stdio-1.0
+  main-is: Terms/TermParserSpec.hs
+  other-modules:
+      TermRewriting.RewriteSpec
+      Unification.UnificationSpec
+      Paths_term_rewriter
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Terms.TermParserSpec
+  build-depends:
+      QuickCheck >=2.14.2
+    , base >=4.7 && <5
     , hspec >=2.7.8
     , term-rewriter
   default-language: Haskell2010
