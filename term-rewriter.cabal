@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a877fd7f57fefe2f2d503f6c21b375fd9ff1844874179e00f9ef173c9a553fe0
+-- hash: 9ea4193a43941fbbce92f1f4b71692753f8f497f4b831b917a11f02153d89edf
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -28,6 +28,7 @@ source-repository head
 library
   exposed-modules:
       Lib
+      Orders.PolyOrders
       Substitution.Substitutions
       TermRewriting.Rewrite
       Terms.TermParser
