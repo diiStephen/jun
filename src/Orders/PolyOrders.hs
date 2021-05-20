@@ -9,3 +9,6 @@ lexOrd x []  = EGT
 lexOrd (x:xs) (y:ys) | x < y     = ELT  
                      | x > y     = EGT  
                      | otherwise = lexOrd xs ys
+
+multiSetOrd :: Ord a => [a] -> [a] -> EEQ 
+multiSetOrd = undefined
