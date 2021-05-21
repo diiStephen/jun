@@ -1,14 +1,10 @@
 module Orders.PolyOrders where
 
-data EEQ = ELT | EEQ | EGT deriving (Show) 
+data Order = GR | E | NGE deriving (Show)
 
-lexOrd :: Ord a => [a] -> [a] -> EEQ
-lexOrd [] [] = EEQ
-lexOrd [] y  = ELT
-lexOrd x []  = EGT  
-lexOrd (x:xs) (y:ys) | x < y     = ELT  
-                     | x > y     = EGT  
-                     | otherwise = lexOrd xs ys
-
-multiSetOrd :: Ord a => [a] -> [a] -> EEQ 
-multiSetOrd = undefined
+lexOrd :: (a -> b -> Order) -> [a] -> [b] -> Order 
+lexOrd _ [] [] = E 
+lexOrd order (x:xs) (y:ys) = case order x y of 
+    GR -> GR 
+    E -> lexOrd order xs ys  
+    NGE -> NGE  
