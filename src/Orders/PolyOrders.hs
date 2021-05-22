@@ -8,6 +8,9 @@ class Orderable a where
 lexOrd :: Orderable a => [a] -> [a] -> Order 
 lexOrd [] [] = E 
 lexOrd (x:xs) (y:ys) = case order x y of 
-    GR -> GR 
-    E -> lexOrd xs ys  
-    NGE -> NGE  
+    GR  -> GR 
+    E   -> lexOrd xs ys  
+    NGE -> NGE
+
+multiOrder :: Orderable a => [a] -> [a] -> Order 
+multiOrder = undefined 
