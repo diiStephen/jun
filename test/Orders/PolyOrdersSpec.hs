@@ -35,3 +35,8 @@ main = hspec $ do
                 let x = ([5,3,1,1] :: [Int])
                 let y = ([4,3,3,1] :: [Int])
                 (multiOrder x y) `shouldBe` GR 
+
+            it "should return E on [1] >_mul [1]" $ do 
+                let x = ([1] :: [Int])
+                let y = ([1] :: [Int])
+                (multiOrder x y) `shouldBe` E
