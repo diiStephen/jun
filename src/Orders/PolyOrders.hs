@@ -1,6 +1,8 @@
 module Orders.PolyOrders where
 
-data Order = GR | E | NGE deriving (Show)
+import Data.List(find)
+
+data Order = GR | E | NGE deriving (Show, Eq)
 
 class Orderable a where 
     order :: a -> a -> Order 
@@ -17,8 +19,16 @@ lexOrd (x:xs) (y:ys) = case order x y of
     E   -> lexOrd xs ys  
     NGE -> NGE
 
+-- M >_mul N <=> M \not = N /\ \forall n \in N - M. \exists m \in M - N . m > n 
 multiOrder :: Orderable a => [a] -> [a] -> Order 
-multiOrder ms ns = undefined  
+multiOrder ms ns = if (null x) && (null y) then E else verify x y 
+    where 
+        x = multiSetMinus ns ms 
+        y = multiSetMinus ms ns 
+        verify [] v     = GR
+        verify (u:us) v = case find (\p -> (order p u) == GR) v of 
+            Just t -> verify us v 
+            Nothing -> NGE  
 
 multiSetMinus :: Orderable a => [a] -> [a] -> [a]
 multiSetMinus xs []     = xs 
