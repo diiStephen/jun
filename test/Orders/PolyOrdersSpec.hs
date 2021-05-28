@@ -20,3 +20,7 @@ main = hspec $ do
                 let y = ([1,1,1] :: [Int])
                 (lexOrd x y) `shouldBe` GR
 
+            it "should return NGE on [1,1] >_lex [2,2]" $ do 
+                let x = ([1,1] :: [Int])
+                let y = ([2,2] :: [Int])
+                (lexOrd x y) `shouldBe` NGE 
