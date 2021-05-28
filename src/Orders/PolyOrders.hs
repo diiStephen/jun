@@ -1,16 +1,11 @@
 module Orders.PolyOrders where
 
-import Data.List(find, any, all)
+import Data.List(any, all)
 
 data Order = GR | E | NGE deriving (Show, Eq)
 
 class Orderable a where 
     order :: a -> a -> Order 
-
-instance Orderable Int where 
-    order x y | x == y = E 
-              | x < y  = NGE 
-              | x > y  = GR
 
 lexOrd :: Orderable a => [a] -> [a] -> Order 
 lexOrd [] []         = E 

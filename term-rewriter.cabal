@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c616c3f45b5e3f901cb733e31594132ed595057beface506910568ad2b82badb
+-- hash: cf84e7d154d1b9a6ec495e22c7edd3c6c5336bca475cc43acb6330b1065d9c38
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -64,6 +64,7 @@ test-suite Basic-Unification-Tests
   type: exitcode-stdio-1.0
   main-is: Unification/UnificationSpec.hs
   other-modules:
+      Orders.PolyOrdersSpec
       TermRewriting.RewriteSpec
       Terms.TermParserSpec
       Paths_term_rewriter
@@ -81,6 +82,7 @@ test-suite Rewrite-Tests
   type: exitcode-stdio-1.0
   main-is: TermRewriting/RewriteSpec.hs
   other-modules:
+      Orders.PolyOrdersSpec
       Terms.TermParserSpec
       Unification.UnificationSpec
       Paths_term_rewriter
@@ -98,6 +100,7 @@ test-suite Term-Parser-Tests
   type: exitcode-stdio-1.0
   main-is: Terms/TermParserSpec.hs
   other-modules:
+      Orders.PolyOrdersSpec
       TermRewriting.RewriteSpec
       Unification.UnificationSpec
       Paths_term_rewriter
