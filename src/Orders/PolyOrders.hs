@@ -7,8 +7,8 @@ class Orderable a where
 
 instance Orderable Int where 
     order x y | x == y = E 
-              | x < y = NGE 
-              | x > y = GR
+              | x < y  = NGE 
+              | x > y  = GR
 
 lexOrd :: Orderable a => [a] -> [a] -> Order 
 lexOrd [] [] = E 
@@ -25,7 +25,7 @@ multiSetMinus xs []     = xs
 multiSetMinus xs (y:ys) = multiSetMinus (dropOne xs y) ys 
 
 dropOne :: Orderable a => [a] -> a -> [a]
-dropOne [] _ = [] 
+dropOne [] _     = [] 
 dropOne (x:xs) y = case order x y of 
     E -> xs 
     _ -> x : (dropOne xs y)
