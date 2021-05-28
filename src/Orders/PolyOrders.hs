@@ -28,7 +28,7 @@ multiOrder ms ns = if (null x) && (null y) then E else verify x y
         verify :: Orderable a => [a] -> [a] -> Order 
         verify [] v     = GR
         verify (u:us) v = case find (\p -> (order p u) == GR) v of 
-            Just t -> verify us v 
+            Just t  -> verify us v 
             Nothing -> NGE  
 
 multiSetMinus :: Orderable a => [a] -> [a] -> [a]
