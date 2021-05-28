@@ -40,3 +40,8 @@ main = hspec $ do
                 let x = ([1] :: [Int])
                 let y = ([1] :: [Int])
                 (multiOrder x y) `shouldBe` E
+            
+            it "should return NGE on [6,4,4,1] >_mul [7,4,4,1]" $ do 
+                let x = ([6,4,4,1] :: [Int])
+                let y = ([7,4,4,1] :: [Int])
+                (multiOrder x y) `shouldBe` NGE
