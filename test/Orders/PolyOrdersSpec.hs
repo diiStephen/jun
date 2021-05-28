@@ -24,3 +24,9 @@ main = hspec $ do
                 let x = ([1,1] :: [Int])
                 let y = ([2,2] :: [Int])
                 (lexOrd x y) `shouldBe` NGE 
+        
+        describe "The multiOrder implementation" $ do 
+            it "should return GR on [5,3,1,1] >_mul [4,3,3,1]" $ do 
+                let x = ([5,3,1,1] :: [Int])
+                let y = ([4,3,3,1] :: [Int])
+                (multiOrder x y) `shouldBe` GR 
