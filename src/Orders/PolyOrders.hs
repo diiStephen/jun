@@ -18,7 +18,7 @@ lexOrd (x:xs) (y:ys) = case order x y of
     NGE -> NGE
 
 multiOrder :: Orderable a => [a] -> [a] -> Order 
-multiOrder = undefined 
+multiOrder ms ns = undefined  
 
 multiSetMinus :: Orderable a => [a] -> [a] -> [a]
 multiSetMinus xs []     = xs 
