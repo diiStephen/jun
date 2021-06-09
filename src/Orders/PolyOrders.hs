@@ -1,8 +1,16 @@
-module Orders.PolyOrders where
+module Orders.PolyOrders (
+    Order(..),
+    Orderable,
+    lexOrd,
+    multiOrder
+) where
 
 import Data.List(any, all)
 
-data Order = GR | E | NGE deriving (Show, Eq)
+data Order 
+    = GR 
+    | E 
+    | NGE deriving (Show, Eq)
 
 class Orderable a where 
     order :: a -> a -> Order 
