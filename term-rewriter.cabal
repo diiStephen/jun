@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9acabd9e125b37b2338ee48e8849d7b7d4c25812d5f6a08a72ae65a1c222624c
+-- hash: 8a496836af68717622ed5970fb3f26a7a12985068d83d64cb1973e2f89ff08c8
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -52,7 +52,7 @@ executable term-rewriter-exe
       Paths_term_rewriter
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wincomplete-patterns
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5

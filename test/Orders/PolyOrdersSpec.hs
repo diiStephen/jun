@@ -6,10 +6,9 @@ import Control.Exception (evaluate)
 
 import Orders.PolyOrders
 
-instance Orderable Int where 
-    order x y | x == y = E 
-              | x < y  = NGE 
-              | x > y  = GR
+order x y | x == y = E 
+          | x < y  = NGE 
+          | x > y  = GR
 
 main :: IO ()
 main = hspec $ do 
@@ -18,30 +17,30 @@ main = hspec $ do
             it "should return GR on [1,1,2] >_lex [1,1,1]" $ do
                 let x = ([1,1,2] :: [Int]) 
                 let y = ([1,1,1] :: [Int])
-                (lexOrd x y) `shouldBe` GR
+                (lexOrd order x y) `shouldBe` GR
 
             it "should return NGE on [1,1] >_lex [2,2]" $ do 
                 let x = ([1,1] :: [Int])
                 let y = ([2,2] :: [Int])
-                (lexOrd x y) `shouldBe` NGE 
+                (lexOrd order x y) `shouldBe` NGE 
             
             it "should return E on [3,3,3] >_lex [3,3,3]" $ do 
                 let x = ([3,3,3] :: [Int])
                 let y = ([3,3,3] :: [Int])
-                (lexOrd x y) `shouldBe` E 
+                (lexOrd order x y) `shouldBe` E 
         
         describe "The multiOrder implementation" $ do 
             it "should return GR on [5,3,1,1] >_mul [4,3,3,1]" $ do 
                 let x = ([5,3,1,1] :: [Int])
                 let y = ([4,3,3,1] :: [Int])
-                (multiOrder x y) `shouldBe` GR 
+                (multiOrder order x y) `shouldBe` GR 
 
             it "should return E on [1] >_mul [1]" $ do 
                 let x = ([1] :: [Int])
                 let y = ([1] :: [Int])
-                (multiOrder x y) `shouldBe` E
+                (multiOrder order x y) `shouldBe` E
             
             it "should return NGE on [6,4,4,1] >_mul [7,4,4,1]" $ do 
                 let x = ([6,4,4,1] :: [Int])
                 let y = ([7,4,4,1] :: [Int])
-                (multiOrder x y) `shouldBe` NGE
+                (multiOrder order x y) `shouldBe` NGE

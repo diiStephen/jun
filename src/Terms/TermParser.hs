@@ -76,17 +76,17 @@ sep p s =  (:) <$> p <*> many (s >> p) <|> pure []
 isRoot :: Foldable t => t Char -> Parser Char 
 isRoot sig = sat (`elem` sig)
 
-root :: Foldable t => t Char -> Parser ([Term] -> Term)
-root sig = T <$> ((:[]) <$> (isRoot sig))
+rootSym :: Foldable t => t Char -> Parser ([Term] -> Term)
+rootSym sig = T <$> ((:[]) <$> (isRoot sig))
 
 var :: [Char] -> Parser Term 
 var _ = V <$> ((,) <$> item <*> pure 1)
 
 rootParser :: [Char] -> Parser Term 
-rootParser sig = (root sig <* (symbol "(")) <*> sep (topLevel sig) (symbol ",") <* (symbol ")")
+rootParser sig = (rootSym sig <* (symbol "(")) <*> sep (topLevel sig) (symbol ",") <* (symbol ")")
 
 constSym :: [Char] -> Parser Term 
-constSym sig = root sig <*> pure [] 
+constSym sig = rootSym sig <*> pure [] 
 
 topLevel :: [Char] -> Parser Term 
 topLevel sig = choice [rootParser sig, constSym sig, var sig]

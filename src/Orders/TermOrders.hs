@@ -4,16 +4,15 @@ import Orders.PolyOrders
 import Terms.Terms 
 import Data.List (elemIndex, any, all)
 
-type FSym       = String 
-type OrderedSig = [FSym]
-
 lpo :: OrderedSig -> Term -> Term -> Order 
-lpo sig s (V x) = if occurs x s then GR else NGE 
-lpo sig (T f ss) (T g ts) | any (\si -> (lpo sig si (T g ts) == GR) || (si == (T g ts))) ss = GR
-                          | (sym sig f g == GR) && (all (\tj -> lpo sig (T f ss) tj == GR) ts) = GR 
-                          | (sym sig f g == E) && (all (\tj -> lpo sig (T f ss) tj == GR) ts) && ((lexOrd (lpo sig) ss ts) == GR) = GR 
-                          | otherwise = NGE 
-lpo sig (V x) _ = NGE 
+lpo _ s (V x) = if occurs x s then GR else NGE
+lpo _ (V x) _ = NGE 
+lpo sig s t | any (\si -> lpo sig si t == GR || si == t) (subterms s) = GR
+            | rootComp == GR && all (\tj -> lpo sig s tj == GR) (subterms t) = GR
+            | rootComp == E && all (\tj -> lpo sig s tj == GR) (subterms t) && lexOrd (lpo sig) (subterms s) (subterms t) == GR = GR 
+            | otherwise = NGE 
+            where 
+                rootComp = sym sig (root s) (root t)
 
 sym :: OrderedSig -> FSym -> FSym -> Order 
 sym sig f g | f == g = E 

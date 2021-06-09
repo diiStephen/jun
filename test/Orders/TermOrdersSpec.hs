@@ -6,6 +6,7 @@ import Control.Exception (evaluate)
 
 import Orders.TermOrders
 import Terms.TermParser
+import Terms.Terms 
 
 getTerm :: [Char] -> String -> Term 
-getTerm sig s = head $ fst $ parse (topLevel sig) s
+getTerm sig s = fst $ head $ parse (topLevel sig) s
