@@ -1,30 +1,17 @@
-{-# LANGUAGE GADTs, StandaloneKindSignatures, DataKinds #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module Terms.Terms2 where 
 
-import Data.Kind
+type FSym       = String 
+type VName      = (String, Int)
+type OrderedSig = [FSym]
 
-data Nat = Zero | S Nat  
+data Term a 
+    = T { root :: FSym, subterms :: [Term a] }
+    | V a
+    deriving (Show, Eq)
 
-type GFunSym :: Nat -> Type 
-data GFunSym n where 
-    GF :: String -> Nat -> GFunSym n
-
-data FunSym     = F String Int deriving (Show)
-data VName      = Vn String Int
-data Term       = V VName | T FunSym [Term] 
-data Signature  = Sig [FunSym] deriving (Show)
-data Equation   = E Term Term 
-data Theory     = Th [Equation]
-
-newtype TermParser a = P (String -> [(a, String)])
-
-mkFunSyms :: [(String, Int)] -> [FunSym]
-mkFunSyms []         = []
-mkFunSyms ((f,a):fs) = (F f a) : (mkFunSyms fs)
-
-sig :: [(String,Int)] -> Signature
-sig = Sig . mkFunSyms
-
-arity :: FunSym -> Int 
-arity (F _ a) = a 
+instance Functor Term where 
+    fmap :: (a -> b) -> Term a -> Term b 
+    fmap f (V x) = V $ f x
+    fmap f t     = T (root t) (fmap (fmap f) (subterms t))
