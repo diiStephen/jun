@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d08e2c8281fa7a39b0ce2572467704327cd62b254eee5d1035303f41ef5b9e14
+-- hash: 9acabd9e125b37b2338ee48e8849d7b7d4c25812d5f6a08a72ae65a1c222624c
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -52,7 +52,7 @@ executable term-rewriter-exe
       Paths_term_rewriter
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wincomplete-patterns
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
@@ -65,6 +65,7 @@ test-suite Basic-Unification-Tests
   main-is: Unification/UnificationSpec.hs
   other-modules:
       Orders.PolyOrdersSpec
+      Orders.TermOrdersSpec
       TermRewriting.RewriteSpec
       Terms.TermParserSpec
       Paths_term_rewriter
@@ -82,6 +83,7 @@ test-suite PolyOrders-Tests
   type: exitcode-stdio-1.0
   main-is: Orders/PolyOrdersSpec.hs
   other-modules:
+      Orders.TermOrdersSpec
       TermRewriting.RewriteSpec
       Terms.TermParserSpec
       Unification.UnificationSpec
@@ -101,6 +103,7 @@ test-suite Rewrite-Tests
   main-is: TermRewriting/RewriteSpec.hs
   other-modules:
       Orders.PolyOrdersSpec
+      Orders.TermOrdersSpec
       Terms.TermParserSpec
       Unification.UnificationSpec
       Paths_term_rewriter
@@ -119,6 +122,7 @@ test-suite Term-Parser-Tests
   main-is: Terms/TermParserSpec.hs
   other-modules:
       Orders.PolyOrdersSpec
+      Orders.TermOrdersSpec
       TermRewriting.RewriteSpec
       Unification.UnificationSpec
       Paths_term_rewriter

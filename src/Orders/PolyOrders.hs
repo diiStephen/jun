@@ -1,25 +1,22 @@
 module Orders.PolyOrders (
     Order(..),
-    Orderable,
+    Orderable (order),
     lexOrd,
     multiOrder
 ) where
 
 import Data.List(any, all)
 
-data Order 
-    = GR 
-    | E 
-    | NGE deriving (Show, Eq)
+data Order = GR | E | NGE deriving (Show, Eq)
 
 class Orderable a where 
     order :: a -> a -> Order 
 
-lexOrd :: Orderable a => [a] -> [a] -> Order 
-lexOrd [] []         = E 
-lexOrd (x:xs) (y:ys) = case order x y of 
+lexOrd :: (a -> a -> Order) -> [a] -> [a] -> Order 
+lexOrd _ [] []         = E 
+lexOrd order (x:xs) (y:ys) = case order x y of 
     GR  -> GR 
-    E   -> lexOrd xs ys  
+    E   -> lexOrd order xs ys  
     NGE -> NGE
 
 -- M >_mul N <=> M \not = N /\ \forall n \in N - M. \exists m \in M - N . m > n 
