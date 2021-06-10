@@ -14,6 +14,9 @@ lpo sig s t | any (\si -> lpo sig si t == GR || si == t) (subterms s) = GR
             where 
                 rootComp = sym sig (root s) (root t)
 
+rpo :: OrderedSig -> Term -> Term -> Order 
+rpo = undefined 
+
 sym :: OrderedSig -> FSym -> FSym -> Order 
 sym sig f g | f == g = E 
             | fIndex < gIndex = NGE 
