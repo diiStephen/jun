@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8a496836af68717622ed5970fb3f26a7a12985068d83d64cb1973e2f89ff08c8
+-- hash: 2623cac29725f42b9b83ef3fdc6b64c6a2bd679516a181d4f0f483a855ac03c2
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -44,6 +44,7 @@ library
       QuickCheck >=2.14.2
     , base >=4.7 && <5
     , hspec >=2.7.8
+    , mtl >=2.2.2
   default-language: Haskell2010
 
 executable term-rewriter-exe
@@ -57,6 +58,7 @@ executable term-rewriter-exe
       QuickCheck >=2.14.2
     , base >=4.7 && <5
     , hspec >=2.7.8
+    , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010
 
@@ -76,6 +78,7 @@ test-suite Basic-Unification-Tests
       QuickCheck >=2.14.2
     , base >=4.7 && <5
     , hspec >=2.7.8
+    , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010
 
@@ -95,6 +98,7 @@ test-suite PolyOrders-Tests
       QuickCheck >=2.14.2
     , base >=4.7 && <5
     , hspec >=2.7.8
+    , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010
 
@@ -114,6 +118,7 @@ test-suite Rewrite-Tests
       QuickCheck >=2.14.2
     , base >=4.7 && <5
     , hspec >=2.7.8
+    , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010
 
@@ -133,5 +138,6 @@ test-suite Term-Parser-Tests
       QuickCheck >=2.14.2
     , base >=4.7 && <5
     , hspec >=2.7.8
+    , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010
