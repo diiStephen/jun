@@ -14,12 +14,16 @@ data Order
     | NGE 
     deriving (Show, Eq)
 
+instance Semigroup Order where 
+    (<>) E x = x 
+    (<>) GR _ = GR 
+    (<>) NGE _ = NGE 
+
+instance Monoid Order where 
+    mempty = E
+
 lexOrd :: (a -> a -> Order) -> [a] -> [a] -> Order 
-lexOrd _ [] []         = E 
-lexOrd order (x:xs) (y:ys) = case order x y of 
-    GR  -> GR 
-    E   -> lexOrd order xs ys  
-    NGE -> NGE
+lexOrd order xs ys = mconcat (zipWith order xs ys)
 
 -- M >_mul N <=> M != N /\ \forall n \in N - M. \exists m \in M - N . m > n 
 multiOrder :: forall a . (a -> a -> Order) -> [a] -> [a] -> Order 
