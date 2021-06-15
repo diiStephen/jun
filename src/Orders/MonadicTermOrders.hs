@@ -2,21 +2,21 @@ module Orders.MonadicTermOrders (
     mLpo
 ) where 
 
-import Orders.PolyOrders (Order(..))
-import Terms.Terms 
-import Data.List (elemIndex, any, all, find)
-import Control.Monad.Reader (Reader(..), ask, asks, runReader)
+import Orders.PolyOrders    ( Order(..) )
+import Terms.Terms          ( Term(..), OrderedSig, FSym, occurs, root, subterms ) 
+import Data.List            ( elemIndex, any, all, find )
+import Control.Monad.Reader ( Reader(..), ask, asks, runReader, zipWithM )
 
 mLpo :: Term -> Term -> Reader OrderedSig Order
 
-mLpo s (V x) = return $ if s == (V x) then E 
+mLpo s (V x) = return $ if s == V x then E 
                else if occurs x s then GR else NGE 
 
 mLpo (V _) (T _ _) = return NGE 
 
 mLpo s t = do 
-    terms <- mapM (\si -> mLpo si t) (subterms s)
-    if any (== GR) terms then 
+    terms <- mapM (`mLpo` t) (subterms s)
+    if GR `elem` terms then 
         return GR 
     else
         do
@@ -27,12 +27,14 @@ mLpo s t = do
                       then return GR else return NGE 
 
                 E -> if all (== GR) domSet 
-                     then do 
-                         lexExt <- mapM (uncurry mLpo) (zip (subterms s) (subterms t))
+                     then do
+                         lexExt <- zipWithM mLpo (subterms s) (subterms t)
                          case find (/= E) lexExt of 
                              Just r  -> return r 
-                             Nothing -> return E 
-                     else return NGE  
+                             Nothing -> return E  
+                     else return NGE
+
+                NGE -> return NGE 
 
 mSym :: FSym -> FSym -> OrderedSig -> Order 
 mSym f g sig | f == g = E 

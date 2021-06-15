@@ -3,13 +3,15 @@ module Orders.TermOrders (
     rpo  
 ) where 
 
-import Orders.PolyOrders (Order(..), lexOrd) 
-import Terms.Terms 
-import Data.List (elemIndex, any, all)
+import Orders.PolyOrders ( Order(..), lexOrd ) 
+import Terms.Terms       ( Term(..), OrderedSig, FSym, occurs, root, subterms ) 
+import Data.List         ( elemIndex, any, all )
  
 lpo :: OrderedSig -> Term -> Term -> Order 
-lpo _ s (V x) = if s == (V x) then E 
-                else if occurs x s then GR else NGE
+lpo _ s (V x) | s == V x = E
+              | occurs x s = GR 
+              | otherwise = NGE 
+
 lpo _ (V _) (T _ _) = NGE 
 lpo sig s t = if any (\si -> lpo sig si t == GR || si == t) (subterms s) 
               then GR 
@@ -26,9 +28,11 @@ lpo sig s t = if any (\si -> lpo sig si t == GR || si == t) (subterms s)
             where 
                 rootComp = sym sig (root s) (root t)
 
---rpo :: OrderedSig -> (FSym -> ([a] -> [a] -> Order) -> [a] -> [a] -> Order) -> Term -> Term -> Order 
-rpo _ _ s (V x) = if s == (V x) then E 
-                  else if occurs x s then GR else NGE 
+rpo :: [FSym] -> (FSym -> (Term -> Term -> Order) -> [Term] -> [Term] -> Order) -> Term -> Term -> Order
+rpo _ _ s (V x) | s == V x = E 
+                | occurs x s = GR 
+                | otherwise = NGE 
+      
 rpo _ _ (V _) (T _ _) = NGE 
 rpo sig stat s t = if any (\si -> rpo sig stat si t == GR || si == t) (subterms s)
                    then GR 
@@ -38,7 +42,7 @@ rpo sig stat s t = if any (\si -> rpo sig stat si t == GR || si == t) (subterms 
                              then GR else NGE 
 
                        E ->  if all (\tj -> rpo sig stat s tj == GR) (subterms t)
-                             then (stat (root s)) (rpo sig stat) (subterms s) (subterms t)
+                             then stat (root s) (rpo sig stat) (subterms s) (subterms t)
                              else NGE 
                         
                        NGE -> NGE 
