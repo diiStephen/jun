@@ -8,7 +8,11 @@ module Orders.PolyOrders (
 
 import Data.List(any, all)
 
-data Order = GR | E | NGE deriving (Show, Eq)
+data Order 
+    = GR 
+    | E 
+    | NGE 
+    deriving (Show, Eq)
 
 lexOrd :: (a -> a -> Order) -> [a] -> [a] -> Order 
 lexOrd _ [] []         = E 
