@@ -21,23 +21,23 @@ lexOrd order (x:xs) (y:ys) = case order x y of
     E   -> lexOrd order xs ys  
     NGE -> NGE
 
--- M >_mul N <=> M \not = N /\ \forall n \in N - M. \exists m \in M - N . m > n 
+-- M >_mul N <=> M != N /\ \forall n \in N - M. \exists m \in M - N . m > n 
 multiOrder :: forall a . (a -> a -> Order) -> [a] -> [a] -> Order 
-multiOrder order ms ns = if (null nMinusM) && (null mMinusN) 
-    then E else verify order nMinusM mMinusN 
-    where 
-        nMinusM = multiSetMinus order ns ms 
-        mMinusN = multiSetMinus order ms ns
-        verify :: (a -> a -> Order) -> [a] -> [a] -> Order 
-        verify order u v = if all (\n -> any (\m -> (order m n) == GR) mMinusN) nMinusM 
-            then GR else NGE 
+multiOrder order ms ns | null nMinusM && null mMinusN = E  
+                       | otherwise = verify order nMinusM mMinusN 
+                       where 
+                           nMinusM = multiSetMinus order ns ms 
+                           mMinusN = multiSetMinus order ms ns
+                           verify :: (a -> a -> Order) -> [a] -> [a] -> Order 
+                           verify order u v = if all (\n -> any (\m -> order m n == GR) mMinusN) nMinusM 
+                                              then GR else NGE 
 
 multiSetMinus :: (a -> a -> Order) -> [a] -> [a] -> [a]
-multiSetMinus _ xs []     = xs 
+multiSetMinus _ xs []         = xs 
 multiSetMinus order xs (y:ys) = multiSetMinus order (dropOne order xs y) ys 
 
 dropOne :: (a -> a -> Order) -> [a] -> a -> [a]
-dropOne _ [] _     = [] 
+dropOne _ [] _         = [] 
 dropOne order (x:xs) y = case order x y of 
     E -> xs 
-    _ -> x : (dropOne order xs y)
+    _ -> x : dropOne order xs y
