@@ -1,4 +1,6 @@
-module Orders.MonadicTermOrders where 
+module Orders.MonadicTermOrders (
+    mLpo
+) where 
 
 import Orders.PolyOrders (Order(..))
 import Terms.Terms 
