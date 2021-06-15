@@ -1,6 +1,9 @@
-module Orders.TermOrders where 
+module Orders.TermOrders (
+    lpo, 
+    rpo  
+) where 
 
-import Orders.PolyOrders    
+import Orders.PolyOrders (Order(..), lexOrd) 
 import Terms.Terms 
 import Data.List (elemIndex, any, all)
 
@@ -18,7 +21,7 @@ lpo sig s t = if any (\si -> lpo sig si t == GR || si == t) (subterms s)
                   E -> if all (\tj -> lpo sig s tj == GR) (subterms t) 
                        then lexOrd (lpo sig) (subterms s) (subterms t)
                        else NGE
-                        
+
                   NGE -> NGE 
             where 
                 rootComp = sym sig (root s) (root t)
