@@ -1,33 +1,13 @@
 module Orders.TermOrders (
+    rpo,
     lpo, 
-    rpo  
+    mpo,    
 ) where 
 
-import Orders.PolyOrders ( Order(..), lexOrd ) 
+import Orders.PolyOrders ( Order(..), lexOrd, multiOrder ) 
 import Terms.Terms       ( Term(..), OrderedSig, FSym, occurs, root, subterms ) 
 import Data.List         ( elemIndex, any, all )
  
-lpo :: OrderedSig -> Term -> Term -> Order 
-lpo _ s (V x) | s == V x = E
-              | occurs x s = GR 
-              | otherwise = NGE 
-
-lpo _ (V _) (T _ _) = NGE 
-lpo sig s t = if any (\si -> lpo sig si t == GR || si == t) (subterms s) 
-              then GR 
-              else case rootComp of
-                  
-                  GR -> if all (\tj -> lpo sig s tj == GR) (subterms t)
-                        then GR else NGE   
-                  
-                  E -> if all (\tj -> lpo sig s tj == GR) (subterms t) 
-                       then lexOrd (lpo sig) (subterms s) (subterms t)
-                       else NGE
-
-                  NGE -> NGE 
-            where 
-                rootComp = sym sig (root s) (root t)
-
 rpo :: [FSym] -> (FSym -> (Term -> Term -> Order) -> [Term] -> [Term] -> Order) -> Term -> Term -> Order
 rpo _ _ s (V x) | s == V x = E 
                 | occurs x s = GR 
@@ -48,6 +28,12 @@ rpo sig stat s t = if any (\si -> rpo sig stat si t == GR || si == t) (subterms 
                        NGE -> NGE 
                 where 
                     rootComp = sym sig (root s) (root t)
+
+lpo :: OrderedSig -> Term -> Term -> Order 
+lpo sig = rpo sig (const lexOrd)
+
+mpo :: OrderedSig  -> Term -> Term -> Order 
+mpo sig = rpo sig (const multiOrder)
 
 sym :: OrderedSig -> FSym -> FSym -> Order 
 sym sig f g | f == g = E 
