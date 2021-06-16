@@ -14,6 +14,7 @@ rpo _ _ s (V x) | s == V x = E
                 | otherwise = NGE 
       
 rpo _ _ (V _) (T _ _) = NGE 
+
 rpo sig stat s t = if any (\si -> rpo sig stat si t == GR || si == t) (subterms s)
                    then GR 
                    else case rootComp of 

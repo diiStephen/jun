@@ -16,6 +16,10 @@ newtype TerminationTactic = Tactic { runTactic :: Term -> Term -> Bool }
 data RewriteRule          = Rule { lhs :: Term, rhs :: Term }
 newtype RewriteSystem     = Rules { rules :: [RewriteRule] }
 
+data TerminationError  
+    = Fail String 
+    | OtherError String 
+
 lpoTactic :: OrderedSig -> RewriteRule -> Bool 
 lpoTactic sig rule | lpo sig (lhs rule) (rhs rule) == GR = True
                    | otherwise = False
