@@ -4,7 +4,6 @@ module Termination.TerminationChecker (
     RewriteSystem,
     lpoTactic,
     mpoTactic,
-    tactics,
     checkTermination
 ) where 
 
@@ -25,8 +24,9 @@ mpoTactic :: OrderedSig -> RewriteRule -> Bool
 mpoTactic sig rule | mpo sig (lhs rule) (rhs rule) == GR = True 
                    | otherwise = False
 
-tactics :: OrderedSig -> RewriteRule -> Bool 
-tactics sig rule = lpoTactic sig rule || mpoTactic sig rule 
-
+-- R is terminating iff \exists > , a reduction order on T(\Sigma, V) such that \forall l -> r \in R . l > r. 
+-- For any (partial) order on \Sigma the induced lpo/mpo a simplification order, and therefore a reduction order. 
+-- Note: The SAME reduction order must work for all rules in R. You cannot use differnt orders for each rule. 
+-- This is due to the fact that termination is NOT a modular property of TRS's.  
 checkTermination :: OrderedSig -> RewriteSystem -> Bool 
-checkTermination sig rs = all (tactics sig) (rules rs)
+checkTermination sig rs = all (lpoTactic sig) (rules rs) || all (mpoTactic sig) (rules rs)
