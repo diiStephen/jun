@@ -13,9 +13,9 @@ import Orders.TermOrders      ( lpo, mpo )
 import Orders.PolyOrders      ( Order(..) )
 import Data.List              ( all, intercalate )
 import Control.Monad.Identity ( Identity (runIdentity) )
-import Control.Monad.Except   (ExceptT, throwError, MonadError (throwError), runExceptT)
-import Control.Monad.Reader   (ReaderT, runReaderT, ask, asks)
-import Control.Monad.Writer   (WriterT, runWriterT, tell)
+import Control.Monad.Except   ( ExceptT, throwError, MonadError (throwError), runExceptT )
+import Control.Monad.Reader   ( ReaderT, runReaderT, ask, asks )
+import Control.Monad.Writer   ( WriterT, runWriterT, tell )
 
 newtype TerminationTactic = Tactic { runTactic :: Term -> Term -> Bool }
 data RewriteRule          = Rule { lhs :: Term, rhs :: Term }
@@ -37,8 +37,6 @@ instance Show RewriteRule where
 
 instance Show RewriteSystem where 
     show rs = "{" ++ intercalate " , " (map show (rules rs)) ++ "}" 
-
-type TerminationResult = Either TerminationError
 
 lpoTactic :: RewriteRule -> TerminationEval Bool 
 lpoTactic rule = do 
