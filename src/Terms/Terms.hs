@@ -5,7 +5,9 @@ module Terms.Terms (
     Term (V, T),
     occurs,
     root,
-    subterms
+    subterms,
+    alphaConvert,
+    maxIndex
 ) where
 
 import Data.List ( intercalate )
@@ -32,3 +34,12 @@ root (T f ts) = f
 
 subterms :: Term -> [Term]
 subterms (T f ts) = ts 
+
+alphaConvert :: Int -> Term -> Term 
+alphaConvert n (V (c,i)) = V (c,i+n) 
+alphaConvert n (T f ts)  = T f (map (alphaConvert n) ts)
+
+maxIndex :: Term -> Int
+maxIndex (V (x,i)) = i 
+maxIndex (T _ ts)  = maxs (map maxIndex ts)
+    where maxs = foldr max 0
