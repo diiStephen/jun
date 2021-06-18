@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0b86afaa7a3da4665d96a9e8221847dacecf3b01d0053295954e211ae6fcbe73
+-- hash: 8e6e3f3f2a580570206a69a0675935cd86f1f8be66f9db0f2268f4b378833dbf
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -99,7 +99,7 @@ test-suite MonadicTermOrders-Tests
       Paths_term_rewriter
   hs-source-dirs:
       test
-  ghc-options: -main-is Orders.MonadicTermOrdersSpec
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Orders.MonadicTermOrdersSpec
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
@@ -121,7 +121,7 @@ test-suite PolyOrders-Tests
       Paths_term_rewriter
   hs-source-dirs:
       test
-  ghc-options: -main-is Orders.PolyOrdersSpec
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Orders.PolyOrdersSpec
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
@@ -187,7 +187,7 @@ test-suite TermOrders-Tests
       Paths_term_rewriter
   hs-source-dirs:
       test
-  ghc-options: -main-is Orders.TermOrdersSpec
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Orders.TermOrdersSpec
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
@@ -209,7 +209,7 @@ test-suite TerminationChecker-Tests
       Paths_term_rewriter
   hs-source-dirs:
       test
-  ghc-options: -main-is Termination.TerminationCheckerSpec
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Termination.TerminationCheckerSpec
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5

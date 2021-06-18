@@ -70,7 +70,7 @@ tests:
   PolyOrders-Tests:
     main:              Orders.PolyOrdersSpec
     source-dirs:       test 
-    gch-options:
+    ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
@@ -79,7 +79,7 @@ tests:
   TermOrders-Tests:
     main:              Orders.TermOrdersSpec
     source-dirs:       test 
-    gch-options:
+    ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
@@ -88,7 +88,7 @@ tests:
   MonadicTermOrders-Tests:
     main:              Orders.MonadicTermOrdersSpec
     source-dirs:       test 
-    gch-options:
+    ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
@@ -97,7 +97,7 @@ tests:
   TerminationChecker-Tests:
     main:              Termination.TerminationCheckerSpec
     source-dirs:       test 
-    gch-options:
+    ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
