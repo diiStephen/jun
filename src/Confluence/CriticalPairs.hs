@@ -1,0 +1,1 @@
+module Confluence.CriticalPairs () where

@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8e6e3f3f2a580570206a69a0675935cd86f1f8be66f9db0f2268f4b378833dbf
+-- hash: 4d604f1149f2e97a48ff24327daf3d081fad76b4160981fd11d4b13cc20d5063
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -27,6 +27,7 @@ source-repository head
 
 library
   exposed-modules:
+      Confluence.CriticalPairs
       Lib
       Orders.MonadicTermOrders
       Orders.PolyOrders
