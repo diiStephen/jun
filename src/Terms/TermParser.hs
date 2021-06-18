@@ -91,4 +91,5 @@ constSym sig = rootSym sig <*> pure []
 topLevel :: [Char] -> Parser Term 
 topLevel sig = choice [rootParser sig, constSym sig, var sig]
 
+getTerm :: [Char] -> String -> Term
 getTerm sig s = fst $ head $ parse (topLevel sig) s
