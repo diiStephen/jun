@@ -37,6 +37,8 @@ main = hspec $ do
         
         describe "when given a TRS with a commutativity axiom " $ do 
             it "should fail to determine it is terminating with mpo and lpo" $ do 
+
+                -- f(x,y) --> f(y,x)
                 let sig = ['f']
                 let l = getTerm sig "f(x,y)"
                 let r = getTerm sig "f(y,x)"
