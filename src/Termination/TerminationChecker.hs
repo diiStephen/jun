@@ -11,6 +11,7 @@ module Termination.TerminationChecker (
 ) where 
 
 import Terms.Terms            ( Term(..), OrderedSig )
+import TermRewriting.Rewrite  ( RewriteRule(..), RewriteSystem(..) )
 import Orders.TermOrders      ( lpo, mpo )
 import Orders.PolyOrders      ( Order(..) )
 import Data.List              ( all, intercalate )
@@ -21,8 +22,6 @@ import Control.Monad.Writer   ( WriterT, runWriterT, tell )
 import Control.Monad          (mplus)
 
 newtype TerminationTactic = Tactic { runTactic :: Term -> Term -> Bool }
-data RewriteRule          = Rule { lhs :: Term, rhs :: Term }
-newtype RewriteSystem     = Rules { rules :: [RewriteRule] }
 
 newtype TerminationError 
     = TFail String 

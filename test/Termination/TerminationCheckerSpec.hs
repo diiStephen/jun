@@ -3,9 +3,9 @@ module Termination.TerminationCheckerSpec where
 import Test.Hspec                     ( hspec, describe, it, shouldBe ) 
 import Test.QuickCheck                () 
 import Control.Exception              (evaluate)
-import Termination.TerminationChecker ( RewriteRule(..), RewriteSystem(..), evalTermination, 
-                                            checkLpoTermination, checkMpoTermination, TerminationError(..) ) 
+import Termination.TerminationChecker ( evalTermination, checkLpoTermination, checkMpoTermination, TerminationError(..) ) 
 import Terms.TermParser               ( getTerm )
+import TermRewriting.Rewrite          ( RewriteRule(..), RewriteSystem(..) )
 
 main :: IO ()
 main = hspec $ do 
