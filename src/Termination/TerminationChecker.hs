@@ -2,6 +2,7 @@ module Termination.TerminationChecker (
     TerminationTactic,
     RewriteRule   (Rule),
     RewriteSystem (Rules),
+    TerminationError (TFail),
     lpoTactic,
     mpoTactic,
     checkLpoTermination,
@@ -23,13 +24,15 @@ newtype TerminationTactic = Tactic { runTactic :: Term -> Term -> Bool }
 data RewriteRule          = Rule { lhs :: Term, rhs :: Term }
 newtype RewriteSystem     = Rules { rules :: [RewriteRule] }
 
-newtype TerminationError = TFail String 
+newtype TerminationError 
+    = TFail String 
+    deriving (Eq)
 
 type TerminationEval a = ReaderT OrderedSig (ExceptT TerminationError 
                                             (WriterT [String] Identity)) a
 
 instance Show TerminationError where 
-    show (TFail s) = "Could not prove termination for rule: " ++ s 
+    show (TFail s) = "Could not prove termination: " ++ s 
 
 instance Show RewriteRule where 
     show r = show (lhs r) ++ " --> " ++ show (rhs r)
