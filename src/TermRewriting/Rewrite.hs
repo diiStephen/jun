@@ -8,9 +8,16 @@ import Terms.Terms                ( Term(..) )
 import Unification.Unification    ( match' )
 import Substitution.Substitutions ( applyLifted )
 import Control.Applicative        ()
+import Data.List                  ( intercalate )
 
 data RewriteRule          = Rule { lhs :: Term, rhs :: Term }
 newtype RewriteSystem     = Rules { rules :: [RewriteRule] }
+
+instance Show RewriteRule where 
+    show r = show (lhs r) ++ " --> " ++ show (rhs r)
+
+instance Show RewriteSystem where 
+    show rs = "{" ++ intercalate " , " (map show (rules rs)) ++ "}" 
 
 {-Feels like this should be a 1 liner-}
 rewrite :: (Term, Term) -> Term -> Maybe Term

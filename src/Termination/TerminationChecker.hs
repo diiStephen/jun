@@ -1,7 +1,5 @@
 module Termination.TerminationChecker (
     TerminationTactic,
-    RewriteRule   (Rule),
-    RewriteSystem (Rules),
     TerminationError (TFail),
     lpoTactic,
     mpoTactic,
@@ -14,12 +12,11 @@ import Terms.Terms            ( Term(..), OrderedSig )
 import TermRewriting.Rewrite  ( RewriteRule(..), RewriteSystem(..) )
 import Orders.TermOrders      ( lpo, mpo )
 import Orders.PolyOrders      ( Order(..) )
-import Data.List              ( all, intercalate )
+import Data.List              ( all )
 import Control.Monad.Identity ( Identity (runIdentity) )
 import Control.Monad.Except   ( ExceptT, throwError, MonadError (throwError), runExceptT )
 import Control.Monad.Reader   ( ReaderT, runReaderT, ask, asks )
 import Control.Monad.Writer   ( WriterT, runWriterT, tell )
-import Control.Monad          (mplus)
 
 newtype TerminationTactic = Tactic { runTactic :: Term -> Term -> Bool }
 
@@ -32,12 +29,6 @@ type TerminationEval a = ReaderT OrderedSig (ExceptT TerminationError
 
 instance Show TerminationError where 
     show (TFail s) = "Could not prove termination: " ++ s 
-
-instance Show RewriteRule where 
-    show r = show (lhs r) ++ " --> " ++ show (rhs r)
-
-instance Show RewriteSystem where 
-    show rs = "{" ++ intercalate " , " (map show (rules rs)) ++ "}" 
 
 lpoTactic :: RewriteRule -> TerminationEval Bool 
 lpoTactic rule = do 
