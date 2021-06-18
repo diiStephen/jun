@@ -1,9 +1,16 @@
-module TermRewriting.Rewrite where 
+module TermRewriting.Rewrite (
+    RewriteRule (..),
+    RewriteSystem (..),
+    normalize
+) where 
 
-import Terms.Terms 
-import Unification.Unification 
-import Substitution.Substitutions
-import Control.Applicative
+import Terms.Terms                ( Term(..) ) 
+import Unification.Unification    ( match' )
+import Substitution.Substitutions ( applyLifted )
+import Control.Applicative        ()
+
+data RewriteRule          = Rule { lhs :: Term, rhs :: Term }
+newtype RewriteSystem     = Rules { rules :: [RewriteRule] }
 
 {-Feels like this should be a 1 liner-}
 rewrite :: (Term, Term) -> Term -> Maybe Term
@@ -34,7 +41,7 @@ rewriteAll (r:rs) s = case rewrite r s of
 {-Potentially non-terminating-} 
 normalize :: [(Term, Term)] -> Term -> Term 
 normalize _ (V x) = V x
-normalize trs (T f ts) = let u = (T f (map (normalize trs) ts)) in 
+normalize trs (T f ts) = let u = T f (map (normalize trs) ts) in 
                                case rewriteAll trs u of 
                                     Just s  -> normalize trs s 
                                     Nothing -> u
@@ -46,7 +53,7 @@ normalize2 trs = go
         go :: Term -> Term 
         go (V x) = V x 
         go (T f ts) = 
-            let u = (T f (map go ts)) in 
+            let u = T f (map go ts) in 
                 case rewriteAll trs u of 
                     Just s  -> go s 
                     Nothing -> u 

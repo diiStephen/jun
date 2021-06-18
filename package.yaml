@@ -23,6 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - hspec >= 2.7.8
 - QuickCheck >= 2.14.2
+- mtl >= 2.2.2 
 
 library:
   source-dirs: src
@@ -66,3 +67,39 @@ tests:
     - -with-rtsopts=-N
     dependencies: 
       - term-rewriter 
+  PolyOrders-Tests:
+    main:              Orders.PolyOrdersSpec
+    source-dirs:       test 
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+      - term-rewriter
+  TermOrders-Tests:
+    main:              Orders.TermOrdersSpec
+    source-dirs:       test 
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+      - term-rewriter
+  MonadicTermOrders-Tests:
+    main:              Orders.MonadicTermOrdersSpec
+    source-dirs:       test 
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+      - term-rewriter
+  TerminationChecker-Tests:
+    main:              Termination.TerminationCheckerSpec
+    source-dirs:       test 
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+      - term-rewriter

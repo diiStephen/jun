@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a877fd7f57fefe2f2d503f6c21b375fd9ff1844874179e00f9ef173c9a553fe0
+-- hash: 8e6e3f3f2a580570206a69a0675935cd86f1f8be66f9db0f2268f4b378833dbf
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -28,7 +28,11 @@ source-repository head
 library
   exposed-modules:
       Lib
+      Orders.MonadicTermOrders
+      Orders.PolyOrders
+      Orders.TermOrders
       Substitution.Substitutions
+      Termination.TerminationChecker
       TermRewriting.Rewrite
       Terms.TermParser
       Terms.Terms
@@ -42,6 +46,7 @@ library
       QuickCheck >=2.14.2
     , base >=4.7 && <5
     , hspec >=2.7.8
+    , mtl >=2.2.2
   default-language: Haskell2010
 
 executable term-rewriter-exe
@@ -55,6 +60,7 @@ executable term-rewriter-exe
       QuickCheck >=2.14.2
     , base >=4.7 && <5
     , hspec >=2.7.8
+    , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010
 
@@ -62,6 +68,10 @@ test-suite Basic-Unification-Tests
   type: exitcode-stdio-1.0
   main-is: Unification/UnificationSpec.hs
   other-modules:
+      Orders.MonadicTermOrdersSpec
+      Orders.PolyOrdersSpec
+      Orders.TermOrdersSpec
+      Termination.TerminationCheckerSpec
       TermRewriting.RewriteSpec
       Terms.TermParserSpec
       Paths_term_rewriter
@@ -72,6 +82,51 @@ test-suite Basic-Unification-Tests
       QuickCheck >=2.14.2
     , base >=4.7 && <5
     , hspec >=2.7.8
+    , mtl >=2.2.2
+    , term-rewriter
+  default-language: Haskell2010
+
+test-suite MonadicTermOrders-Tests
+  type: exitcode-stdio-1.0
+  main-is: Orders/MonadicTermOrdersSpec.hs
+  other-modules:
+      Orders.PolyOrdersSpec
+      Orders.TermOrdersSpec
+      Termination.TerminationCheckerSpec
+      TermRewriting.RewriteSpec
+      Terms.TermParserSpec
+      Unification.UnificationSpec
+      Paths_term_rewriter
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Orders.MonadicTermOrdersSpec
+  build-depends:
+      QuickCheck >=2.14.2
+    , base >=4.7 && <5
+    , hspec >=2.7.8
+    , mtl >=2.2.2
+    , term-rewriter
+  default-language: Haskell2010
+
+test-suite PolyOrders-Tests
+  type: exitcode-stdio-1.0
+  main-is: Orders/PolyOrdersSpec.hs
+  other-modules:
+      Orders.MonadicTermOrdersSpec
+      Orders.TermOrdersSpec
+      Termination.TerminationCheckerSpec
+      TermRewriting.RewriteSpec
+      Terms.TermParserSpec
+      Unification.UnificationSpec
+      Paths_term_rewriter
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Orders.PolyOrdersSpec
+  build-depends:
+      QuickCheck >=2.14.2
+    , base >=4.7 && <5
+    , hspec >=2.7.8
+    , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010
 
@@ -79,6 +134,10 @@ test-suite Rewrite-Tests
   type: exitcode-stdio-1.0
   main-is: TermRewriting/RewriteSpec.hs
   other-modules:
+      Orders.MonadicTermOrdersSpec
+      Orders.PolyOrdersSpec
+      Orders.TermOrdersSpec
+      Termination.TerminationCheckerSpec
       Terms.TermParserSpec
       Unification.UnificationSpec
       Paths_term_rewriter
@@ -89,6 +148,7 @@ test-suite Rewrite-Tests
       QuickCheck >=2.14.2
     , base >=4.7 && <5
     , hspec >=2.7.8
+    , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010
 
@@ -96,6 +156,10 @@ test-suite Term-Parser-Tests
   type: exitcode-stdio-1.0
   main-is: Terms/TermParserSpec.hs
   other-modules:
+      Orders.MonadicTermOrdersSpec
+      Orders.PolyOrdersSpec
+      Orders.TermOrdersSpec
+      Termination.TerminationCheckerSpec
       TermRewriting.RewriteSpec
       Unification.UnificationSpec
       Paths_term_rewriter
@@ -106,5 +170,50 @@ test-suite Term-Parser-Tests
       QuickCheck >=2.14.2
     , base >=4.7 && <5
     , hspec >=2.7.8
+    , mtl >=2.2.2
+    , term-rewriter
+  default-language: Haskell2010
+
+test-suite TermOrders-Tests
+  type: exitcode-stdio-1.0
+  main-is: Orders/TermOrdersSpec.hs
+  other-modules:
+      Orders.MonadicTermOrdersSpec
+      Orders.PolyOrdersSpec
+      Termination.TerminationCheckerSpec
+      TermRewriting.RewriteSpec
+      Terms.TermParserSpec
+      Unification.UnificationSpec
+      Paths_term_rewriter
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Orders.TermOrdersSpec
+  build-depends:
+      QuickCheck >=2.14.2
+    , base >=4.7 && <5
+    , hspec >=2.7.8
+    , mtl >=2.2.2
+    , term-rewriter
+  default-language: Haskell2010
+
+test-suite TerminationChecker-Tests
+  type: exitcode-stdio-1.0
+  main-is: Termination/TerminationCheckerSpec.hs
+  other-modules:
+      Orders.MonadicTermOrdersSpec
+      Orders.PolyOrdersSpec
+      Orders.TermOrdersSpec
+      TermRewriting.RewriteSpec
+      Terms.TermParserSpec
+      Unification.UnificationSpec
+      Paths_term_rewriter
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Termination.TerminationCheckerSpec
+  build-depends:
+      QuickCheck >=2.14.2
+    , base >=4.7 && <5
+    , hspec >=2.7.8
+    , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010

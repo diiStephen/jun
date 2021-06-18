@@ -1,30 +1,33 @@
-{-# LANGUAGE GADTs, StandaloneKindSignatures, DataKinds #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module Terms.Terms2 where 
 
-import Data.Kind
+import Data.List (any, intercalate)
 
-data Nat = Zero | S Nat  
+type FSym       = String 
+type OrderedSig = [FSym]
 
-type GFunSym :: Nat -> Type 
-data GFunSym n where 
-    GF :: String -> Nat -> GFunSym n
+data VName 
+    = VName {name :: String, index :: Int}
+    deriving (Eq)
 
-data FunSym     = F String Int deriving (Show)
-data VName      = Vn String Int
-data Term       = V VName | T FunSym [Term] 
-data Signature  = Sig [FunSym] deriving (Show)
-data Equation   = E Term Term 
-data Theory     = Th [Equation]
+data Term a 
+    = T { root :: FSym, subterms :: [Term a] }
+    | V a
+    deriving (Eq)
 
-newtype TermParser a = P (String -> [(a, String)])
+instance Show VName where 
+    show = name
 
-mkFunSyms :: [(String, Int)] -> [FunSym]
-mkFunSyms []         = []
-mkFunSyms ((f,a):fs) = (F f a) : (mkFunSyms fs)
+instance Show a => Show (Term a) where 
+    show (V x) = show x 
+    show t     = (root t) ++ "(" ++ (intercalate "," (map show (subterms t))) ++ ")" 
 
-sig :: [(String,Int)] -> Signature
-sig = Sig . mkFunSyms
+instance Functor Term where 
+    fmap :: (a -> b) -> Term a -> Term b 
+    fmap f (V x) = V $ f x
+    fmap f t     = T (root t) (fmap (fmap f) (subterms t))
 
-arity :: FunSym -> Int 
-arity (F _ a) = a 
+occurs :: Eq a => a -> Term a -> Bool 
+occurs x (V y) = x == y 
+occurs x t     = any (occurs x) (subterms t)
