@@ -7,10 +7,11 @@ module Terms.Terms (
     root,
     subterms,
     alphaConvert,
-    maxIndex
+    maxIndex,
+    pos
 ) where
 
-import Data.List ( intercalate )
+import Data.List ( intercalate, union )
 
 type FSym       = String 
 type OrderedSig = [FSym]
@@ -43,3 +44,10 @@ maxIndex :: Term -> Int
 maxIndex (V (x,i)) = i 
 maxIndex (T _ ts)  = maxs (map maxIndex ts)
     where maxs = foldr max 0
+
+pos :: Term -> [String]
+pos (V _)    = [""]
+pos (T f ts) = [""] `union` foldr union [] (zipWith go prefixes ts)
+    where 
+        prefixes = map show (take (length ts) [1..])
+        go s t = [s++x | x <- pos t]
