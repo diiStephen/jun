@@ -8,7 +8,9 @@ module Terms.Terms (
     subterms,
     alphaConvert,
     maxIndex,
-    pos
+    label,
+    pos,
+    fpos
 ) where
 
 import Data.List ( intercalate, union )
@@ -35,6 +37,7 @@ root (T f ts) = f
 
 subterms :: Term -> [Term]
 subterms (T f ts) = ts 
+subterms (V _)    = []
 
 alphaConvert :: Int -> Term -> Term 
 alphaConvert n (V (c,i)) = V (c,i+n) 
@@ -45,9 +48,21 @@ maxIndex (V (x,i)) = i
 maxIndex (T _ ts)  = maxs (map maxIndex ts)
     where maxs = foldr max 0
 
-pos :: Term -> [String]
-pos (V _)    = [""]
-pos (T f ts) = [""] `union` foldr union [] (zipWith go prefixes ts)
+label :: Term -> [(Term, [Char])]
+label t = [(t,"")] `union` foldr union [] (zipWith go prefixes ts)
     where 
+        ts       = subterms t
         prefixes = map show (take (length ts) [1..])
-        go s t = [s++x | x <- pos t]
+        go s t   = [(u,s++x) | (u,x) <- label t]
+
+pos :: Term -> [String]
+pos t = [""] `union` foldr union [] (zipWith go prefixes ts)
+    where 
+        ts       = subterms t
+        prefixes = map show (take (length ts) [1..])
+        go :: String -> Term -> [String]
+        go s t   = [s++x | x <- pos t]
+
+fpos :: Term -> [Term]
+fpos (V _)    = []
+fpos (T f ts) = (:) (T f ts) (ts >>= fpos)
