@@ -12,7 +12,8 @@ module Terms.Terms (
     pos,
     fpos,
     get,
-    set
+    set,
+    isNonVar
 ) where
 
 import Data.List ( intercalate, union )
@@ -78,3 +79,6 @@ set t s "" = s
 set t s (p:ps) = T (root t) (init (fst spl)++[set (last $ fst spl) s ps]++snd spl)
     where spl = splitAt (read [p]) (subterms t)
 
+isNonVar :: Term -> Bool
+isNonVar (V _) = False 
+isNonVar (T _ _) = True
