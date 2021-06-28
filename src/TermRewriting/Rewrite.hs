@@ -69,5 +69,6 @@ normalize2 trs = go
 mkDisjointVars :: RewriteRule -> RewriteRule -> RewriteRule
 mkDisjointVars rho tau = Rule variantLhs variantRhs
     where
-        variantLhs = alphaConvert (maxIndex (lhs tau)) (lhs rho)
-        variantRhs = alphaConvert (maxIndex (rhs tau)) (rhs rho)
+        variantLhs = alphaConvert offset (lhs rho)
+        variantRhs = alphaConvert offset (rhs rho)
+        offset = max (maxIndex (lhs tau)) (maxIndex (rhs tau)) + 1
