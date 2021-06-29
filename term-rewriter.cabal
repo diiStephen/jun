@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4d604f1149f2e97a48ff24327daf3d081fad76b4160981fd11d4b13cc20d5063
+-- hash: 9c42a7d4390274a51e02c849e683e1c6a6bd617c03c46bd32f01c269af03e356
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -69,6 +69,7 @@ test-suite Basic-Unification-Tests
   type: exitcode-stdio-1.0
   main-is: Unification/UnificationSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.MonadicTermOrdersSpec
       Orders.PolyOrdersSpec
       Orders.TermOrdersSpec
@@ -91,6 +92,7 @@ test-suite MonadicTermOrders-Tests
   type: exitcode-stdio-1.0
   main-is: Orders/MonadicTermOrdersSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.PolyOrdersSpec
       Orders.TermOrdersSpec
       Termination.TerminationCheckerSpec
@@ -113,6 +115,7 @@ test-suite PolyOrders-Tests
   type: exitcode-stdio-1.0
   main-is: Orders/PolyOrdersSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.MonadicTermOrdersSpec
       Orders.TermOrdersSpec
       Termination.TerminationCheckerSpec
@@ -135,6 +138,7 @@ test-suite Rewrite-Tests
   type: exitcode-stdio-1.0
   main-is: TermRewriting/RewriteSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.MonadicTermOrdersSpec
       Orders.PolyOrdersSpec
       Orders.TermOrdersSpec
@@ -157,6 +161,7 @@ test-suite Term-Parser-Tests
   type: exitcode-stdio-1.0
   main-is: Terms/TermParserSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.MonadicTermOrdersSpec
       Orders.PolyOrdersSpec
       Orders.TermOrdersSpec
@@ -179,6 +184,7 @@ test-suite TermOrders-Tests
   type: exitcode-stdio-1.0
   main-is: Orders/TermOrdersSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.MonadicTermOrdersSpec
       Orders.PolyOrdersSpec
       Termination.TerminationCheckerSpec
@@ -201,6 +207,7 @@ test-suite TerminationChecker-Tests
   type: exitcode-stdio-1.0
   main-is: Termination/TerminationCheckerSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.MonadicTermOrdersSpec
       Orders.PolyOrdersSpec
       Orders.TermOrdersSpec
