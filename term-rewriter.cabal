@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9c42a7d4390274a51e02c849e683e1c6a6bd617c03c46bd32f01c269af03e356
+-- hash: 00cc327dd1e487ebaf2897267ee39d64829ccefe673cf0e7661aa27e32863de1
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -80,6 +80,29 @@ test-suite Basic-Unification-Tests
   hs-source-dirs:
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Unification.UnificationSpec
+  build-depends:
+      QuickCheck >=2.14.2
+    , base >=4.7 && <5
+    , hspec >=2.7.8
+    , mtl >=2.2.2
+    , term-rewriter
+  default-language: Haskell2010
+
+test-suite CriticalPairs-Tests
+  type: exitcode-stdio-1.0
+  main-is: Confluence/CriticalPairsSpec.hs
+  other-modules:
+      Orders.MonadicTermOrdersSpec
+      Orders.PolyOrdersSpec
+      Orders.TermOrdersSpec
+      Termination.TerminationCheckerSpec
+      TermRewriting.RewriteSpec
+      Terms.TermParserSpec
+      Unification.UnificationSpec
+      Paths_term_rewriter
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Confluence.CriticalPairsSpec
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
