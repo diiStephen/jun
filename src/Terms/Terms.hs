@@ -29,7 +29,8 @@ data Term
 
 instance Show Term where 
     show (V x) = [fst x] 
-    show t     = root t ++ "(" ++ intercalate "," (map show (subterms t)) ++ ")" 
+    show t     = if null (subterms t) then root t
+                 else root t ++ "(" ++ intercalate "," (map show (subterms t)) ++ ")" 
 
 occurs :: VName -> Term -> Bool 
 occurs x (V y) = x == y
