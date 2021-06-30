@@ -5,8 +5,8 @@ import Test.QuickCheck                ()
 import Control.Exception              ( evaluate )
 import Terms.TermParser               ( getTerm )
 import Terms.Terms                    ( Term(..), alphaConvert, set )
-import Confluence.CriticalPairs       ( CriticalPair(..), criticalPair, criticalPairs )
-import TermRewriting.Rewrite          ( RewriteRule(..), mkDisjointVars )
+import Confluence.CriticalPairs       ( CriticalPair(..), criticalPair, criticalPairs, allCriticalPairs )
+import TermRewriting.Rewrite          ( RewriteRule(..), RewriteSystem(..), mkDisjointVars )
 
 main :: IO ()
 main = hspec $ do 
@@ -44,6 +44,22 @@ main = hspec $ do
                         [ Just CP{ left=alphaConvert 2 (term "f(x,f(y,1))"), right=alphaConvert 2 (term "f(x,y)") }
                         , Just CP{ left=set (alphaConvert 2 (term "f(x,f(1,z))")) (V ('x',1)) "1", right=set (alphaConvert 2 (term "f(x,z)")) (V ('x',1)) "1" } 
                         ]
-                        
+
                 let resultingCriticalPairs = criticalPairs rho1 rho2 
                 resultingCriticalPairs `shouldBe` expectedCriticalPairs
+    
+    describe "The allCriticalPairs function" $ do 
+        describe "when given the term-rewriting system representing groups axioms" $ do 
+            it "should produce the set of all critical pairs of the rewrite system" $ do 
+                let term = getTerm ['f', 'i', '1']
+                
+                let asoc = Rule { lhs = term "f(f(x,y),z)", rhs = term "f(x,f(y,z))"  }
+                let inv  = Rule { lhs = term "f(i(x),x)", rhs = term "1" }
+                let id   = Rule { lhs = term "f(1,x)", rhs = term "x" }
+
+                let group = Rules [asoc, inv, id]
+
+                let expectedCriticalPairs = []
+
+                let resultCriticalPairs = allCriticalPairs group 
+                resultCriticalPairs `shouldBe` expectedCriticalPairs 
