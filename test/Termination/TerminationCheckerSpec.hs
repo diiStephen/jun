@@ -48,5 +48,5 @@ main = hspec $ do
                 let result1 = fst $ evalTermination checkLpoTermination ["f"] trs 
                 let result2 = fst $ evalTermination checkMpoTermination ["f"] trs 
 
-                result1 `shouldBe` Left (TFail "Rule f(x,y) --> f(y,x) cannot be proved terminating with lpo")
-                result2 `shouldBe` Left (TFail "Rule f(x,y) --> f(y,x) cannot be proved terminating with mpo") 
+                result1 `shouldBe` Left (TFail "Rule f(x1,y1) --> f(y1,x1) cannot be proved terminating with lpo")
+                result2 `shouldBe` Left (TFail "Rule f(x1,y1) --> f(y1,x1) cannot be proved terminating with mpo") 

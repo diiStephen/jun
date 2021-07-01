@@ -7,6 +7,7 @@ import Terms.TermParser               ( getTerm )
 import Terms.Terms                    ( Term(..), alphaConvert, set )
 import Confluence.CriticalPairs       ( CriticalPair(..), criticalPair, criticalPairs, allCriticalPairs )
 import TermRewriting.Rewrite          ( RewriteRule(..), RewriteSystem(..), mkDisjointVars )
+import qualified Data.Set as Set      ( fromList )
 
 main :: IO ()
 main = hspec $ do 
@@ -41,8 +42,8 @@ main = hspec $ do
                 let rho2 = Rule{ lhs=term"f(x,1)", rhs=term "x" }
 
                 let expectedCriticalPairs = 
-                        [ Just CP{ left=alphaConvert 2 (term "f(x,f(y,1))"), right=alphaConvert 2 (term "f(x,y)") }
-                        , Just CP{ left=set (alphaConvert 2 (term "f(x,f(1,z))")) (V ('x',1)) "1", right=set (alphaConvert 2 (term "f(x,z)")) (V ('x',1)) "1" } 
+                        [ Just CP{ left = alphaConvert 2 (term "f(x,f(y,1))"), right = alphaConvert 2 (term "f(x,y)") }
+                        , Just CP{ left = set (alphaConvert 2 (term "f(x,f(1,z))")) (V ('x',1)) "1", right = set (alphaConvert 2 (term "f(x,z)")) (V ('x',1)) "1" } 
                         ]
 
                 let resultingCriticalPairs = criticalPairs rho1 rho2 
@@ -59,7 +60,14 @@ main = hspec $ do
 
                 let group = Rules [asoc, inv, id]
 
-                let expectedCriticalPairs = []
-
-                let resultCriticalPairs = allCriticalPairs group 
+                let expectedCriticalPairs = Set.fromList
+                     [ CP{ left = set (term "f(f(x,y),f(z,z))") (V ('z', 3)) "22", right = set (term "f(f(x,f(y,z)),z)") (V ('z',3)) "2" }
+                     , CP{ left = set (term "f(i(x), f(x,z))") (V ('z', 3)) "22", right = set (term "f(1,z)") (V ('z',3)) "2" }
+                     , CP{ left = set (term "f(1, f(x,z))") (V ('z',3)) "22", right = set (term "f(x,z)") (V ('z',3)) "2" }
+                     , CP{ left = term "f(x,f(y,z))", right = term "f(x,f(y,z))" }
+                     , CP{ left = term "1", right = term "1"}
+                     , CP{ left = term "x", right = term "x"}
+                     ]
+                
+                let resultCriticalPairs = Set.fromList (allCriticalPairs group) 
                 resultCriticalPairs `shouldBe` expectedCriticalPairs 

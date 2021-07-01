@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 00cc327dd1e487ebaf2897267ee39d64829ccefe673cf0e7661aa27e32863de1
+-- hash: 85316bce1f481baf87a44714f896154bf2bdf2ec3e1d28abd3ea87a96c986157
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -46,6 +46,7 @@ library
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
   default-language: Haskell2010
@@ -60,6 +61,7 @@ executable term-rewriter-exe
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -83,6 +85,7 @@ test-suite Basic-Unification-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -106,6 +109,7 @@ test-suite CriticalPairs-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -129,6 +133,7 @@ test-suite MonadicTermOrders-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -152,6 +157,7 @@ test-suite PolyOrders-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -175,6 +181,7 @@ test-suite Rewrite-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -198,6 +205,7 @@ test-suite Term-Parser-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -221,6 +229,7 @@ test-suite TermOrders-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -244,6 +253,7 @@ test-suite TerminationChecker-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter

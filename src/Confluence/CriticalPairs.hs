@@ -16,7 +16,7 @@ import Data.Maybe                 (isJust, fromJust)
 
 data CriticalPair 
     = CP { left :: Term, right :: Term }
-    deriving (Eq)
+    deriving (Eq, Ord)
 
 instance Show CriticalPair where 
     show (CP l r) = "〈 " ++ show l ++ " , " ++ show r ++ " 〉"

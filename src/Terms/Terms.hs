@@ -22,13 +22,16 @@ type FSym       = String
 type OrderedSig = [FSym]
 type VName = (Char, Int)
 
+-- NB: Term derives Ord, but this is NOT a meaningful term ordering. It is used 
+-- only for the purposes of containers like Sets, HashMap, etc which impose a 
+-- Ord typeclass constraint. 
 data Term 
     = V VName 
     | T String [Term] 
-    deriving (Eq)
+    deriving (Eq, Ord)
 
 instance Show Term where 
-    show (V x) = [fst x] 
+    show (V x) = fst x : show (snd x) 
     show t     = if null (subterms t) then root t
                  else root t ++ "(" ++ intercalate "," (map show (subterms t)) ++ ")" 
 
