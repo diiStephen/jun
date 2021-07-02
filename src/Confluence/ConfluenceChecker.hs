@@ -40,7 +40,7 @@ evalConfluence trs = runIdentity(runWriterT(runReaderT confluent trs))
 
 checkConfluence :: RewriteSystem -> IO ()
 checkConfluence trs = do
-    putStrLn ("Checking confluence of " ++ show trs)
+    putStrLn $ "Checking confluence of " ++ show trs
     let (result, log) = evalConfluence trs
-    putStrLn ("System is confluent: " ++ show result)
+    putStrLn $ "System is confluent: " ++ show result
     mapM_ putStrLn log
