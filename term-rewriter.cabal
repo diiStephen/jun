@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8e6e3f3f2a580570206a69a0675935cd86f1f8be66f9db0f2268f4b378833dbf
+-- hash: d10dfb2a0c39acbd88ceb794e5f2d2cc9d50f0861d025600775ab088ee575ccb
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -27,6 +27,8 @@ source-repository head
 
 library
   exposed-modules:
+      Confluence.ConfluenceChecker
+      Confluence.CriticalPairs
       Lib
       Orders.MonadicTermOrders
       Orders.PolyOrders
@@ -45,6 +47,7 @@ library
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
   default-language: Haskell2010
@@ -59,6 +62,7 @@ executable term-rewriter-exe
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -68,6 +72,7 @@ test-suite Basic-Unification-Tests
   type: exitcode-stdio-1.0
   main-is: Unification/UnificationSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.MonadicTermOrdersSpec
       Orders.PolyOrdersSpec
       Orders.TermOrdersSpec
@@ -81,6 +86,31 @@ test-suite Basic-Unification-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
+    , hspec >=2.7.8
+    , mtl >=2.2.2
+    , term-rewriter
+  default-language: Haskell2010
+
+test-suite CriticalPairs-Tests
+  type: exitcode-stdio-1.0
+  main-is: Confluence/CriticalPairsSpec.hs
+  other-modules:
+      Orders.MonadicTermOrdersSpec
+      Orders.PolyOrdersSpec
+      Orders.TermOrdersSpec
+      Termination.TerminationCheckerSpec
+      TermRewriting.RewriteSpec
+      Terms.TermParserSpec
+      Unification.UnificationSpec
+      Paths_term_rewriter
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Confluence.CriticalPairsSpec
+  build-depends:
+      QuickCheck >=2.14.2
+    , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -90,6 +120,7 @@ test-suite MonadicTermOrders-Tests
   type: exitcode-stdio-1.0
   main-is: Orders/MonadicTermOrdersSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.PolyOrdersSpec
       Orders.TermOrdersSpec
       Termination.TerminationCheckerSpec
@@ -103,6 +134,7 @@ test-suite MonadicTermOrders-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -112,6 +144,7 @@ test-suite PolyOrders-Tests
   type: exitcode-stdio-1.0
   main-is: Orders/PolyOrdersSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.MonadicTermOrdersSpec
       Orders.TermOrdersSpec
       Termination.TerminationCheckerSpec
@@ -125,6 +158,7 @@ test-suite PolyOrders-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -134,6 +168,7 @@ test-suite Rewrite-Tests
   type: exitcode-stdio-1.0
   main-is: TermRewriting/RewriteSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.MonadicTermOrdersSpec
       Orders.PolyOrdersSpec
       Orders.TermOrdersSpec
@@ -147,6 +182,7 @@ test-suite Rewrite-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -156,6 +192,7 @@ test-suite Term-Parser-Tests
   type: exitcode-stdio-1.0
   main-is: Terms/TermParserSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.MonadicTermOrdersSpec
       Orders.PolyOrdersSpec
       Orders.TermOrdersSpec
@@ -169,6 +206,7 @@ test-suite Term-Parser-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -178,6 +216,7 @@ test-suite TermOrders-Tests
   type: exitcode-stdio-1.0
   main-is: Orders/TermOrdersSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.MonadicTermOrdersSpec
       Orders.PolyOrdersSpec
       Termination.TerminationCheckerSpec
@@ -191,6 +230,7 @@ test-suite TermOrders-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter
@@ -200,6 +240,7 @@ test-suite TerminationChecker-Tests
   type: exitcode-stdio-1.0
   main-is: Termination/TerminationCheckerSpec.hs
   other-modules:
+      Confluence.CriticalPairsSpec
       Orders.MonadicTermOrdersSpec
       Orders.PolyOrdersSpec
       Orders.TermOrdersSpec
@@ -213,6 +254,7 @@ test-suite TerminationChecker-Tests
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
+    , containers
     , hspec >=2.7.8
     , mtl >=2.2.2
     , term-rewriter

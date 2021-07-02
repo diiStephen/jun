@@ -23,7 +23,8 @@ dependencies:
 - base >= 4.7 && < 5
 - hspec >= 2.7.8
 - QuickCheck >= 2.14.2
-- mtl >= 2.2.2 
+- mtl >= 2.2.2
+- containers
 
 library:
   source-dirs: src
@@ -96,6 +97,15 @@ tests:
       - term-rewriter
   TerminationChecker-Tests:
     main:              Termination.TerminationCheckerSpec
+    source-dirs:       test 
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+      - term-rewriter
+  CriticalPairs-Tests:
+    main:              Confluence.CriticalPairsSpec
     source-dirs:       test 
     ghc-options:
     - -threaded

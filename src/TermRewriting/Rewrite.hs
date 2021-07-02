@@ -1,10 +1,11 @@
 module TermRewriting.Rewrite (
     RewriteRule (..),
     RewriteSystem (..),
-    normalize
+    normalize,
+    mkDisjointVars
 ) where 
 
-import Terms.Terms                ( Term(..) ) 
+import Terms.Terms                ( Term(..), alphaConvert, maxIndex ) 
 import Unification.Unification    ( match' )
 import Substitution.Substitutions ( applyLifted )
 import Control.Applicative        ()
@@ -64,3 +65,10 @@ normalize2 trs = go
                 case rewriteAll trs u of 
                     Just s  -> go s 
                     Nothing -> u 
+
+mkDisjointVars :: RewriteRule -> RewriteRule -> RewriteRule
+mkDisjointVars rho tau = Rule variantLhs variantRhs
+    where
+        variantLhs = alphaConvert offset (lhs rho)
+        variantRhs = alphaConvert offset (rhs rho)
+        offset = max (maxIndex (lhs tau)) (maxIndex (rhs tau)) + 1
