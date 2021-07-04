@@ -23,8 +23,6 @@ instance Show CriticalPair where
 
 type CriticalPairs = [CriticalPair]
 
-type Eval a = StateT CriticalPairs Identity a
-
 --l1_p ?= l2 
 criticalPair :: RewriteRule -> RewriteRule -> String -> Maybe CriticalPair
 criticalPair r1 r2 p = case unify' (get (lhs r1) p) (lhs r2) of
