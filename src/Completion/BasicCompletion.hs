@@ -28,10 +28,11 @@ instance (Show a, Show b) => Show (Equation a b) where
 data CompletionEnvironment 
     = Env { 
         symbolOrdering :: OrderedSig, 
+        comperator :: TermOrder,
         criticalPairs :: [CriticalPair], 
         rewriteSystem :: RewriteSystem, 
         termEquations :: [Equation Term Term]
-    } deriving (Show)
+    }
 
 type TermOrder = Term -> Term -> Order
 
@@ -55,13 +56,13 @@ rightOrient (x :~: y) = Rule y x
 
 leftTerminatingOrient :: TermOrder -> Equation Term Term -> Maybe RewriteRule 
 leftTerminatingOrient comp (s :~: t) = case comp s t of 
-    GR -> return (leftOrient (s :~: t))
-    _ -> Nothing  
+    GR -> Just (leftOrient (s :~: t))
+    _  -> Nothing  
 
 rightTerminatingOrient :: TermOrder -> Equation Term Term -> Maybe RewriteRule
 rightTerminatingOrient comp (s :~: t) = case comp t s of 
-    GR -> return (rightOrient (s :~: t))
-    _ -> Nothing 
+    GR -> Just (rightOrient (s :~: t))
+    _  -> Nothing 
 
-orient ::  TermOrder -> Equation Term Term -> Maybe RewriteRule
+orient :: TermOrder -> Equation Term Term -> Maybe RewriteRule
 orient comp eq = leftTerminatingOrient comp eq <|> rightTerminatingOrient comp eq

@@ -8,7 +8,7 @@ module Substitution.Substitutions (
 import Terms.Terms
 
 type Subst = [(VName, Term)]
- 
+
 apply :: Subst -> VName -> Term 
 apply [] y = V y 
 apply ((x, t):ss) y = if x == y then t else apply ss y
