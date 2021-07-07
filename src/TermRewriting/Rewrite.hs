@@ -2,7 +2,8 @@ module TermRewriting.Rewrite (
     RewriteRule (..),
     RewriteSystem (..),
     normalize,
-    mkDisjointVars
+    mkDisjointVars,
+    basic
 ) where 
 
 import Terms.Terms                ( Term(..), alphaConvert, maxIndex ) 
@@ -72,3 +73,6 @@ mkDisjointVars rho tau = Rule variantLhs variantRhs
         variantLhs = alphaConvert offset (lhs rho)
         variantRhs = alphaConvert offset (rhs rho)
         offset = max (maxIndex (lhs tau)) (maxIndex (rhs tau)) + 1
+
+basic :: RewriteSystem -> [(Term,Term)]
+basic trs = map (\r -> (lhs r, rhs r)) (rules trs)
