@@ -1,3 +1,5 @@
+{-# LANGUAGE  FlexibleContexts #-}
+
 module Completion.MonadicBasicCompletion (
       completionPhaseOne
     , runBasicCompletion
@@ -8,7 +10,7 @@ import Confluence.CriticalPairs   ( CriticalPair(..), allCriticalPairs )
 import TermRewriting.Rewrite      ( RewriteSystem(..), RewriteRule(..) )
 import Equations.BasicEquation    ( Equation(..), eqFst, eqSnd )
 import Orders.PolyOrders          ( Order(..) )
-import Completion.BasicCompletion ( normalizeCriticalPair )
+import Completion.BasicCompletion ( normalizeCriticalPair, mkEquation )
 
 import Control.Monad.State    ( StateT (runStateT), gets, get, put, MonadState )
 import Control.Monad.Writer   ( WriterT, tell, runWriterT )
@@ -34,14 +36,18 @@ data CompletionFailure
 
 type CompletionEval a = ExceptT CompletionFailure (WriterT [String] (StateT CompletionEnvironment Identity)) a
 
-runBasicCompletion :: 
- TermOrder
- -> [Equation Term Term]
- -> (Either CompletionFailure RewriteSystem, [String])
-runBasicCompletion order eqs =  
-    let initialState = Env {comperator = order, criticalPairs=[], rewriteSystem=Rules [], termEquations=eqs} in
-        fst $ runIdentity (runStateT (runWriterT (runExceptT completionPhaseOne)) initialState)
+runBasicCompletion :: (Term -> Term -> Order) -> [Equation Term Term] -> IO RewriteSystem
+runBasicCompletion order eqs = do
+    let initialState = Env {comperator = order, criticalPairs=[], rewriteSystem=Rules [], termEquations=eqs} 
+    let result = runIdentity (runStateT (runWriterT (runExceptT completionPhaseOne)) initialState)
+    showTrace ((snd .fst) result)
+    case (fst . fst) result of
+        Right rs -> return rs
+        Left CFail -> return (Rules [])
  
+showTrace :: Foldable t => t String -> IO ()
+showTrace = mapM_ putStrLn 
+
 completionPhaseOne :: CompletionEval RewriteSystem
 completionPhaseOne = do
     reducOrder <- gets comperator
@@ -61,13 +67,31 @@ completionPhaseTwo :: CompletionEval RewriteSystem
 completionPhaseTwo = do
     currCriticalPairs <- gets (allCriticalPairs . rewriteSystem)
     oldRules <- gets rewriteSystem
-    if null currCriticalPairs 
-        then gets rewriteSystem
-        else do
-            throwError CFail
+    mapM_ joinCriticalPair currCriticalPairs
+    newRules <- gets rewriteSystem
+    if length (rules newRules) == length (rules oldRules) 
+        then 
+            return newRules
+        else completionPhaseTwo
 
-joinCriticalPair :: TermOrder -> RewriteSystem -> CriticalPair -> RewriteSystem
-joinCriticalPair order trs c = undefined
+joinCriticalPair ::CriticalPair -> CompletionEval ()
+joinCriticalPair c = do
+    trs <- gets rewriteSystem
+    order <- gets comperator
+    let normalizedC = normalizeCriticalPair trs c
+    if left normalizedC == right normalizedC 
+        then tell ["[Deleting joinable pair: " ++ show c] 
+        else 
+            do 
+                case orient order (mkEquation normalizedC) of
+                    Just rule -> do 
+                        tell ["[Adding new rule: " ++ show rule]
+                        env <- get
+                        put (setRules env (Rules $ rule:rules (rewriteSystem env) ))
+                    Nothing -> do 
+                        tell ["Could not orient pair: " ++ show c]
+                        throwError CFail
+
 
 setRules :: CompletionEnvironment -> RewriteSystem -> CompletionEnvironment
 setRules env rs = Env (comperator env) (criticalPairs env) rs (termEquations env)
