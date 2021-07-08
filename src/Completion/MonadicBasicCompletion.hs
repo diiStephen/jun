@@ -7,7 +7,7 @@ module Completion.MonadicBasicCompletion (
 
 import Terms.Terms                ( OrderedSig, Term(..) )
 import Confluence.CriticalPairs   ( CriticalPair(..), allCriticalPairs )
-import TermRewriting.Rewrite      ( RewriteSystem(..), RewriteRule(..) )
+import TermRewriting.Rewrite      ( RewriteSystem(..), RewriteRule(..), addRule )
 import Equations.BasicEquation    ( Equation(..), eqFst, eqSnd )
 import Orders.PolyOrders          ( Order(..) )
 import Completion.BasicCompletion ( normalizeCriticalPair, mkEquation )
@@ -80,18 +80,17 @@ joinCriticalPair c = do
     order <- gets comperator
     let normalizedC = normalizeCriticalPair trs c
     if left normalizedC == right normalizedC 
-        then tell ["[Deleting joinable pair: " ++ show c] 
+        then tell ["[Delete: " ++ show c ++ "]"] 
         else 
             do 
                 case orient order (mkEquation normalizedC) of
                     Just rule -> do 
-                        tell ["[Adding new rule: " ++ show rule]
+                        tell ["[Orient: " ++ show rule ++ "]"]
                         env <- get
-                        put (setRules env (Rules $ rule:rules (rewriteSystem env) ))
+                        put (setRules env (addRule (rewriteSystem env) rule ))
                     Nothing -> do 
-                        tell ["Could not orient pair: " ++ show c]
+                        tell ["Could not orient pair: " ++ show normalizedC]
                         throwError CFail
-
 
 setRules :: CompletionEnvironment -> RewriteSystem -> CompletionEnvironment
 setRules env rs = Env (comperator env) (criticalPairs env) rs (termEquations env)
