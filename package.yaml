@@ -86,8 +86,8 @@ tests:
     - -with-rtsopts=-N
     dependencies:
       - term-rewriter
-  MonadicTermOrders-Tests:
-    main:              Orders.MonadicTermOrdersSpec
+  MonadicRecursivePathOrders-Tests:
+    main:              Orders.MonadicRecursivePathOrdersSpec
     source-dirs:       test 
     ghc-options:
     - -threaded

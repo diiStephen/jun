@@ -1,4 +1,4 @@
-module Orders.MonadicTermOrders (
+module Orders.MonadicRecursivePathOrders (
     mLpo
 ) where 
 

@@ -1,13 +1,13 @@
-module Orders.MonadicTermOrdersSpec where 
+module Orders.MonadicRecursivePathOrdersSpec where 
 
-import Test.Hspec               ( hspec, describe, it, shouldBe ) 
-import Test.QuickCheck          () 
-import Control.Exception        ( evaluate )
-import Orders.PolyOrders        ( Order(GR, NGE) )
-import Orders.MonadicTermOrders ( mLpo )
-import Terms.TermParser         ( parse, topLevel )
-import Terms.Terms              ( Term ) 
-import Control.Monad.Reader     ( runReader )
+import Test.Hspec                        ( hspec, describe, it, shouldBe ) 
+import Test.QuickCheck                   () 
+import Control.Exception                 ( evaluate )
+import Orders.PolyOrders                 ( Order(GR, NGE) )
+import Orders.MonadicRecursivePathOrders ( mLpo )
+import Terms.TermParser                  ( parse, topLevel )
+import Terms.Terms                       ( Term ) 
+import Control.Monad.Reader              ( runReader )
 
 getTerm :: [Char] -> String -> Term 
 getTerm sig s = fst $ head $ parse (topLevel sig) s
