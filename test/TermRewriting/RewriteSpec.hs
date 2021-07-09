@@ -21,4 +21,4 @@ main = hspec $ do
                 let rhs = termGenerator sig "g(x,y)"
                 let trs = Rules [Rule lhs rhs]
                 let t   = termGenerator sig "f(f(a,b), f(a,b))"
-                (normalize trs t) `shouldBe` T "g" [T "g" [T "a" [], T "b" []], T "g" [T "a" [], T "b" []]]
+                normalize trs t `shouldBe` T "g" [T "g" [T "a" [], T "b" []], T "g" [T "a" [], T "b" []]]

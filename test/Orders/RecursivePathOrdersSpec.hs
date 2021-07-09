@@ -1,12 +1,12 @@
-module Orders.TermOrdersSpec where 
+module Orders.RecursivePathOrdersSpec where 
 
-import Test.Hspec        ( hspec, describe, it, shouldBe ) 
-import Test.QuickCheck   () 
-import Control.Exception (evaluate)
-import Orders.PolyOrders ( Order(GR, NGE) )
-import Orders.TermOrders ( lpo, mpo )
-import Terms.TermParser  ( parse, topLevel )
-import Terms.Terms       ( Term ) 
+import Test.Hspec                 ( hspec, describe, it, shouldBe ) 
+import Test.QuickCheck            () 
+import Control.Exception          (evaluate)
+import Orders.PolyOrders          ( Order(GR, NGE) )
+import Orders.RecursivePathOrders ( lpo, mpo )
+import Terms.TermParser           ( parse, topLevel )
+import Terms.Terms                ( Term ) 
 
 getTerm :: [Char] -> String -> Term 
 getTerm sig s = fst $ head $ parse (topLevel sig) s

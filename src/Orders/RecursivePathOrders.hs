@@ -1,4 +1,4 @@
-module Orders.TermOrders (
+module Orders.RecursivePathOrders (
     rpo,
     lpo, 
     mpo,    

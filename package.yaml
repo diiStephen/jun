@@ -77,8 +77,8 @@ tests:
     - -with-rtsopts=-N
     dependencies:
       - term-rewriter
-  TermOrders-Tests:
-    main:              Orders.TermOrdersSpec
+  RecursivePathOrders-Tests:
+    main:              Orders.RecursivePathOrdersSpec
     source-dirs:       test 
     ghc-options:
     - -threaded

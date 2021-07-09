@@ -12,7 +12,7 @@ import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), normaliz
 import Terms.Terms                ( OrderedSig, Term(..) )
 import Confluence.CriticalPairs   ( CriticalPair(..), allCriticalPairs, criticalPairs )
 import Orders.PolyOrders          ( Order(..) )
-import Orders.TermOrders          ( lpo, mpo )
+import Orders.RecursivePathOrders ( lpo, mpo )
 import Equations.BasicEquation    ( Equation(..) )
 import Completion.CompletionUtils ( TermOrder, orient, normalizeCriticalPair, mkEquation )
 
@@ -47,4 +47,3 @@ complete order eqs = do
 
 joinable :: CriticalPair -> Bool 
 joinable cp = left cp == right cp 
-
