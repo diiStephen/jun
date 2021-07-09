@@ -10,7 +10,7 @@ module Completion.BasicCompletion (
     normalizeCriticalPair
 ) where
 
-import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), normalize)
+import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), normalize )
 import Terms.Terms                ( OrderedSig, Term(..) )
 import Confluence.CriticalPairs   ( CriticalPair(..), allCriticalPairs, criticalPairs )
 import Orders.PolyOrders          ( Order(..) )
