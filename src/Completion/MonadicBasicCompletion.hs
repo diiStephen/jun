@@ -34,6 +34,7 @@ data CompletionFailure
     deriving (Show)
 
 type CompletionEval a = ExceptT CompletionFailure (WriterT [String] (StateT CompletionEnvironment Identity)) a
+
 type CompletionRun = ((Either CompletionFailure RewriteSystem, [String]), CompletionEnvironment)
 
 runBasicCompletion :: (Term -> Term -> Order) -> [Equation Term Term] -> IO RewriteSystem
