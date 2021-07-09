@@ -11,16 +11,14 @@ import TermRewriting.Rewrite      ( RewriteSystem(..), RewriteRule(..), addRule 
 import Equations.BasicEquation    ( Equation(..), eqFst, eqSnd )
 import Orders.PolyOrders          ( Order(..) )
 import Completion.BasicCompletion ( normalizeCriticalPair, mkEquation )
+import Completion.CompletionUtils (orient, TermOrder)
 
 import Control.Monad.State    ( StateT (runStateT), gets, get, put, MonadState )
 import Control.Monad.Writer   ( WriterT, tell, runWriterT )
 import Control.Monad.Except   ( ExceptT, runExceptT, MonadError (throwError) )
 import Control.Monad.Identity ( Identity, runIdentity )
 
-import Control.Applicative ( (<|>) )
-import Data.List           ( union )
-
-type TermOrder = Term -> Term -> Order
+import Data.List ( union )
 
 data CompletionEnvironment 
     = Env {  
@@ -70,8 +68,7 @@ completionPhaseTwo = do
     mapM_ joinCriticalPair currCriticalPairs
     newRules <- gets rewriteSystem
     if length (rules newRules) == length (rules oldRules) 
-        then 
-            return newRules
+        then return newRules
         else completionPhaseTwo
 
 joinCriticalPair ::CriticalPair -> CompletionEval ()
@@ -81,8 +78,7 @@ joinCriticalPair c = do
     let normalizedC = normalizeCriticalPair trs c
     if left normalizedC == right normalizedC 
         then tell ["[Delete: " ++ show c ++ "]"] 
-        else 
-            do 
+        else do 
                 case orient order (mkEquation normalizedC) of
                     Just rule -> do 
                         tell ["[Orient: " ++ show rule ++ "]"]
@@ -106,16 +102,3 @@ partitionOrientable ::
 partitionOrientable order eq (rules, failed) = case orient order eq of 
     Just rule -> (rule:rules, failed)
     Nothing -> (rules, eq:failed)
-
-orient :: TermOrder -> Equation Term Term -> Maybe RewriteRule 
-orient order eq = leftTerminatingOrient order eq <|> rightTerminatingOrient order eq
-
-leftTerminatingOrient :: TermOrder -> Equation Term Term -> Maybe RewriteRule 
-leftTerminatingOrient order (s :~: t) = case order s t of 
-    GR -> Just $ Rule s t 
-    _ -> Nothing
-
-rightTerminatingOrient :: TermOrder -> Equation Term Term -> Maybe RewriteRule
-rightTerminatingOrient order (s :~: t) = case order t s of 
-    GR -> Just $ Rule t s
-    _ -> Nothing
