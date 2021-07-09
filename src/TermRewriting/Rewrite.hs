@@ -13,6 +13,7 @@ import Unification.Unification    ( match' )
 import Substitution.Substitutions ( applyLifted )
 import Control.Applicative        ()
 import Data.List                  ( intercalate )
+import Data.Coerce                ( coerce )
 
 data RewriteRule      = Rule { lhs :: Term, rhs :: Term }
 newtype RewriteSystem = Rules { rules :: [RewriteRule] }
@@ -22,6 +23,12 @@ instance Show RewriteRule where
 
 instance Show RewriteSystem where 
     show rs = "{ " ++ intercalate " , " (map show (rules rs)) ++ " }" 
+
+mkRewriteSystem :: [RewriteRule] -> RewriteSystem
+mkRewriteSystem = coerce
+
+addRule :: RewriteSystem -> RewriteRule -> RewriteSystem 
+addRule trs r = Rules $ r:rules trs  
 
 rewrite :: RewriteRule -> Term -> Maybe Term 
 rewrite (Rule l r) s = (applyLifted <$> match' l s) <*> pure r
@@ -44,7 +51,4 @@ mkDisjointVars rho tau = Rule variantLhs variantRhs
     where
         variantLhs = alphaConvert offset (lhs rho)
         variantRhs = alphaConvert offset (rhs rho)
-        offset = max (maxIndex (lhs tau)) (maxIndex (rhs tau)) + 1
-
-addRule :: RewriteSystem -> RewriteRule -> RewriteSystem 
-addRule trs r = Rules $ r:rules trs   
+        offset = max (maxIndex (lhs tau)) (maxIndex (rhs tau)) + 1 
