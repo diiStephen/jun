@@ -1,14 +1,17 @@
 module Completion.CompletionUtils (
-      orient
+      TermOrder
+    , orient
     , leftTerminatingOrient
     , rightTerminatingOrient
-    , TermOrder
+    , normalizeCriticalPair
+    , mkEquation
 ) where
 
-import Terms.Terms             ( Term(..) )
-import Equations.BasicEquation ( Equation(..) )
-import TermRewriting.Rewrite   ( RewriteRule(..) )
-import Orders.PolyOrders       ( Order(..) )
+import Terms.Terms              ( Term(..) )
+import Equations.BasicEquation  ( Equation(..) )
+import TermRewriting.Rewrite    ( RewriteRule(..), RewriteSystem(..), normalize )
+import Orders.PolyOrders        ( Order(..) )
+import Confluence.CriticalPairs ( CriticalPair(..) )
 
 import Control.Applicative ( (<|>) )
 
@@ -26,3 +29,9 @@ rightTerminatingOrient :: TermOrder -> Equation Term Term -> Maybe RewriteRule
 rightTerminatingOrient order (s :~: t) = case order t s of 
     GR -> Just $ Rule t s
     _ -> Nothing
+
+normalizeCriticalPair :: RewriteSystem -> CriticalPair -> CriticalPair
+normalizeCriticalPair trs c = CP { left = normalize trs (left c), right = normalize trs (right c) }
+
+mkEquation :: CriticalPair -> Equation Term Term
+mkEquation c = left c :~: right c

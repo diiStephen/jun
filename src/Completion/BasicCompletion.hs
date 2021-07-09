@@ -5,9 +5,7 @@ module Completion.BasicCompletion (
     joinable,
     completionPhaseOne,
     completionPhaseTwo,
-    completeCriticalPairs,
-    mkEquation,
-    normalizeCriticalPair
+    completeCriticalPairs
 ) where
 
 import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), normalize )
@@ -16,7 +14,7 @@ import Confluence.CriticalPairs   ( CriticalPair(..), allCriticalPairs, critical
 import Orders.PolyOrders          ( Order(..) )
 import Orders.TermOrders          ( lpo, mpo )
 import Equations.BasicEquation    ( Equation(..) )
-import Completion.CompletionUtils ( orient, TermOrder )
+import Completion.CompletionUtils ( TermOrder, orient, normalizeCriticalPair, mkEquation )
 
 import Control.Applicative    ( (<|>) )
 
@@ -47,11 +45,6 @@ complete order eqs = do
     phaseOne <- completionPhaseOne order eqs (Rules [])
     completionPhaseTwo order phaseOne 
 
-mkEquation :: CriticalPair -> Equation Term Term
-mkEquation c = left c :~: right c
-
 joinable :: CriticalPair -> Bool 
 joinable cp = left cp == right cp 
 
-normalizeCriticalPair :: RewriteSystem -> CriticalPair -> CriticalPair
-normalizeCriticalPair trs c = CP { left = normalize trs (left c), right = normalize trs (right c) }
