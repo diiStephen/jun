@@ -11,7 +11,7 @@ import TermRewriting.Rewrite      ( RewriteSystem(..), RewriteRule(..), addRule 
 import Equations.BasicEquation    ( Equation(..), eqFst, eqSnd )
 import Orders.PolyOrders          ( Order(..) )
 import Completion.BasicCompletion ( normalizeCriticalPair, mkEquation )
-import Completion.CompletionUtils (orient, TermOrder)
+import Completion.CompletionUtils ( orient, TermOrder )
 
 import Control.Monad.State    ( StateT (runStateT), gets, get, put, MonadState )
 import Control.Monad.Writer   ( WriterT, tell, runWriterT )
