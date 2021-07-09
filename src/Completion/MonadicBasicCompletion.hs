@@ -2,6 +2,7 @@
 
 module Completion.MonadicBasicCompletion (
       completionPhaseOne
+    , completionPhaseTwo
     , runBasicCompletion
     , evalCompletion
     , getConvergentRewriteSystem
