@@ -3,6 +3,8 @@
 module Completion.MonadicBasicCompletion (
       completionPhaseOne
     , runBasicCompletion
+    , evalCompletion
+    , getConvergentRewriteSystem
 ) where
 
 import Terms.Terms                ( OrderedSig, Term(..) )
@@ -32,11 +34,11 @@ data CompletionFailure
     deriving (Show)
 
 type CompletionEval a = ExceptT CompletionFailure (WriterT [String] (StateT CompletionEnvironment Identity)) a
+type CompletionRun = ((Either CompletionFailure RewriteSystem, [String]), CompletionEnvironment)
 
 runBasicCompletion :: (Term -> Term -> Order) -> [Equation Term Term] -> IO RewriteSystem
 runBasicCompletion order eqs = do
-    let initialState = Env {comperator = order, criticalPairs=[], rewriteSystem=Rules [], termEquations=eqs} 
-    let result = runIdentity (runStateT (runWriterT (runExceptT completionPhaseOne)) initialState)
+    let result = evalCompletion order eqs
     showTrace ((snd .fst) result)
     case (fst . fst) result of
         Right rs -> return rs
@@ -44,6 +46,17 @@ runBasicCompletion order eqs = do
  
 showTrace :: Foldable t => t String -> IO ()
 showTrace = mapM_ putStrLn 
+
+evalCompletion :: (Term -> Term -> Order) -> [Equation Term Term] -> CompletionRun
+evalCompletion order eqs = 
+    let initialState = Env {comperator = order, criticalPairs=[], rewriteSystem=Rules [], termEquations=eqs} in
+        runIdentity (runStateT (runWriterT (runExceptT completionPhaseOne)) initialState)
+
+getConvergentRewriteSystem :: (Term -> Term -> Order) -> [Equation Term Term] -> Maybe RewriteSystem
+getConvergentRewriteSystem order eqs = 
+    case fst (fst (evalCompletion order eqs)) of
+        Right r -> Just r 
+        Left CFail -> Nothing
 
 completionPhaseOne :: CompletionEval RewriteSystem
 completionPhaseOne = do
