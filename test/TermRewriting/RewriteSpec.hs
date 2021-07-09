@@ -19,6 +19,6 @@ main = hspec $ do
                 let sig = ['f', 'g', 'a', 'b']
                 let lhs = termGenerator sig "f(x,y)"
                 let rhs = termGenerator sig "g(x,y)"
-                let trs = [(lhs, rhs)]
+                let trs = Rules [Rule lhs rhs]
                 let t   = termGenerator sig "f(f(a,b), f(a,b))"
                 (normalize trs t) `shouldBe` T "g" [T "g" [T "a" [], T "b" []], T "g" [T "a" [], T "b" []]]

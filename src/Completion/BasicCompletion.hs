@@ -10,7 +10,7 @@ module Completion.BasicCompletion (
     normalizeCriticalPair
 ) where
 
-import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), normalize, basic )
+import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), normalize)
 import Terms.Terms                ( OrderedSig, Term(..) )
 import Confluence.CriticalPairs   ( CriticalPair(..), allCriticalPairs, criticalPairs )
 import Orders.PolyOrders          ( Order(..) )
@@ -54,4 +54,4 @@ joinable :: CriticalPair -> Bool
 joinable cp = left cp == right cp 
 
 normalizeCriticalPair :: RewriteSystem -> CriticalPair -> CriticalPair
-normalizeCriticalPair trs c = CP { left = normalize (basic trs) (left c), right = normalize (basic trs) (right c) }
+normalizeCriticalPair trs c = CP { left = normalize trs (left c), right = normalize trs (right c) }
