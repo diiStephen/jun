@@ -1,6 +1,6 @@
-module Orders.PolyOrdersSpec where 
+module Orders.PolyOrdersSpec (spec) where 
 
-import Test.Hspec        ( hspec, describe, it, shouldBe ) 
+import Test.Hspec        ( hspec, describe, it, shouldBe, Spec ) 
 import Test.QuickCheck   () 
 import Control.Exception (evaluate)
 import Orders.PolyOrders ( lexOrd, multiOrder, Order(NGE, GR, E) )
@@ -10,8 +10,8 @@ order x y | x == y = E
           | x < y  = NGE 
           | x > y  = GR
 
-main :: IO ()
-main = hspec $ do 
+spec ::Spec
+spec = do 
     describe "The PolyOrders Module" $ do 
         describe "The lexOrder implementation" $ do 
             it "should return GR on [1,1,2] >_lex [1,1,1]" $ do

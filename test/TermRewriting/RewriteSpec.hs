@@ -1,18 +1,17 @@
-module TermRewriting.RewriteSpec where
+module TermRewriting.RewriteSpec (spec) where
 
-import Test.Hspec 
-import Test.QuickCheck 
-import Control.Exception (evaluate)
-
-import TermRewriting.Rewrite
-import Terms.Terms 
-import Terms.TermParser
+import Test.Hspec            ( describe, it, shouldBe, Spec ) 
+import Test.QuickCheck       () 
+import Control.Exception     (evaluate)
+import TermRewriting.Rewrite ( normalize, RewriteRule(Rule), RewriteSystem(Rules) )
+import Terms.Terms           ( Term(T) ) 
+import Terms.TermParser      ( parse, topLevel )
 
 termGenerator :: [Char] -> String -> Term 
 termGenerator sig s = fst $ head $ parse (topLevel sig) s
 
-main :: IO ()
-main = hspec $ do 
+spec :: Spec
+spec = do 
     describe "The TermRewriting module" $ do 
         describe "the normalize function given the TRS f(x,y) -> g(x,y)" $ do 
             it "should normalize the term f(f(a,b), f(a,b)) to g(g(a,b), g(a,b))" $ do

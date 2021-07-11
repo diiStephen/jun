@@ -1,6 +1,6 @@
- module Confluence.CriticalPairsSpec where 
+ module Confluence.CriticalPairsSpec (spec) where 
 
-import Test.Hspec                     ( hspec, describe, it, shouldBe ) 
+import Test.Hspec                     ( hspec, describe, it, shouldBe, Spec ) 
 import Test.QuickCheck                () 
 import Control.Exception              ( evaluate )
 import Terms.TermParser               ( getTerm )
@@ -9,8 +9,8 @@ import Confluence.CriticalPairs       ( CriticalPair(..), criticalPair, critical
 import TermRewriting.Rewrite          ( RewriteRule(..), RewriteSystem(..), mkDisjointVars )
 import qualified Data.Set as Set      ( fromList )
 
-main :: IO ()
-main = hspec $ do 
+spec :: Spec
+spec = do 
     describe "The criticalPair function" $ do 
         describe "when given the rule f(f(x)) --> g(x), a renamed variant, and the position 1" $ do 
             it "should produce the critical pair <g(f(x)), f(g(x))>" $ do

@@ -1,10 +1,10 @@
 name:                term-rewriter
 version:             0.1.0.0
-github:              "githubuser/term-rewriter"
+github:              "diiStephen/term-rewriter"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2021 Author name here"
+author:              "Daniel S. Hono II"
+maintainer:          ""
+copyright:           "2021 Daniel S. Hono II"
 
 extra-source-files:
 - README.md
@@ -25,6 +25,7 @@ dependencies:
 - QuickCheck >= 2.14.2
 - mtl >= 2.2.2
 - containers
+- hspec-discover
 
 library:
   source-dirs: src
@@ -41,75 +42,13 @@ executables:
     - term-rewriter
 
 tests:
-  Term-Parser-Tests:
-    main:                Terms.TermParserSpec
-    source-dirs:         test
+  unit-tests:
+    main: Spec.hs
+    source-dirs: test
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - term-rewriter
-  Basic-Unification-Tests:
-    main:               Unification.UnificationSpec
-    source-dirs:        test 
-    ghc-options: 
-    - -threaded
-    - -rtsopts 
-    - -with-rtsopts=-N
-    dependencies: 
-      - term-rewriter 
-  Rewrite-Tests:
-    main:               TermRewriting.RewriteSpec
-    source-dirs:        test 
-    ghc-options: 
-    - -threaded
-    - -rtsopts 
-    - -with-rtsopts=-N
-    dependencies: 
-      - term-rewriter 
-  PolyOrders-Tests:
-    main:              Orders.PolyOrdersSpec
-    source-dirs:       test 
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
       - term-rewriter
-  RecursivePathOrders-Tests:
-    main:              Orders.RecursivePathOrdersSpec
-    source-dirs:       test 
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-      - term-rewriter
-  MonadicRecursivePathOrders-Tests:
-    main:              Orders.MonadicRecursivePathOrdersSpec
-    source-dirs:       test 
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-      - term-rewriter
-  TerminationChecker-Tests:
-    main:              Termination.TerminationCheckerSpec
-    source-dirs:       test 
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-      - term-rewriter
-  CriticalPairs-Tests:
-    main:              Confluence.CriticalPairsSpec
-    source-dirs:       test 
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-      - term-rewriter
+      - hspec-discover

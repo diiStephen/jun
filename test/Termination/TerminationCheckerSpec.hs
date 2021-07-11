@@ -1,14 +1,14 @@
-module Termination.TerminationCheckerSpec where 
+module Termination.TerminationCheckerSpec (spec) where 
 
-import Test.Hspec                     ( hspec, describe, it, shouldBe ) 
+import Test.Hspec                     ( hspec, describe, it, shouldBe, Spec ) 
 import Test.QuickCheck                () 
 import Control.Exception              ( evaluate )
 import Termination.TerminationChecker ( evalTermination, checkLpoTermination, checkMpoTermination, TerminationError(..) ) 
 import Terms.TermParser               ( getTerm )
 import TermRewriting.Rewrite          ( RewriteRule(..), RewriteSystem(..) )
 
-main :: IO ()
-main = hspec $ do 
+spec :: Spec
+spec = do 
     describe "The TerminationChecker" $ do 
         describe "when given the R_ack TRS " $ do 
             it "should determine it is terminating with an lpo" $ do 

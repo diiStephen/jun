@@ -1,6 +1,6 @@
-module Orders.RecursivePathOrdersSpec where 
+module Orders.RecursivePathOrdersSpec (spec) where 
 
-import Test.Hspec                 ( hspec, describe, it, shouldBe ) 
+import Test.Hspec                 ( hspec, describe, it, shouldBe, Spec ) 
 import Test.QuickCheck            () 
 import Control.Exception          (evaluate)
 import Orders.PolyOrders          ( Order(GR, NGE) )
@@ -11,8 +11,8 @@ import Terms.Terms                ( Term )
 getTerm :: [Char] -> String -> Term 
 getTerm sig s = fst $ head $ parse (topLevel sig) s
 
-main :: IO () 
-main = hspec $ do 
+spec :: Spec 
+spec = do 
     describe "The TermOrders module " $ do 
         describe "The lpo function on the orderd signature e < f < i" $ do 
             it "should return GR for f(x,e) > x" $ do 
