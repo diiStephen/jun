@@ -8,11 +8,11 @@ module Confluence.CriticalPairs (
 import Terms.Terms                ( Term (..), alphaConvert, maxIndex, subterms, label, get, set, pos, label, isNonVar )
 import TermRewriting.Rewrite      ( RewriteSystem (..), RewriteRule (..), mkDisjointVars )
 import Unification.Unification    ( unify' )
-import Substitution.Substitutions (Subst, applyLifted)
+import Substitution.Substitutions ( Subst, applyLifted )
 import Control.Monad.Identity     ( Identity )
 import Control.Monad.State        ( StateT )
 import Data.List                  ( union )    
-import Data.Maybe                 (isJust, fromJust)               
+import Data.Maybe                 ( isJust, fromJust )                
 
 data CriticalPair 
     = CP { left :: Term, right :: Term }
