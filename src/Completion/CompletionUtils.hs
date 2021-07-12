@@ -1,5 +1,6 @@
 module Completion.CompletionUtils (
       TermOrder
+    , CompletionFailure(..)
     , orient
     , leftTerminatingOrient
     , rightTerminatingOrient
@@ -16,6 +17,10 @@ import Confluence.CriticalPairs ( CriticalPair(..) )
 import Control.Applicative ( (<|>) )
 
 type TermOrder = Term -> Term -> Order
+
+data CompletionFailure 
+    = CFail
+    deriving (Show)
 
 orient :: TermOrder -> Equation Term Term -> Maybe RewriteRule 
 orient order eq = leftTerminatingOrient order eq <|> rightTerminatingOrient order eq

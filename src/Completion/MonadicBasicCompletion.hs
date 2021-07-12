@@ -13,7 +13,7 @@ import Confluence.CriticalPairs   ( CriticalPair(..), allCriticalPairs )
 import TermRewriting.Rewrite      ( RewriteSystem(..), RewriteRule(..), addRule )
 import Equations.BasicEquation    ( Equation(..), eqFst, eqSnd )
 import Orders.PolyOrders          ( Order(..) )
-import Completion.CompletionUtils ( TermOrder, orient, normalizeCriticalPair, mkEquation )
+import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient, normalizeCriticalPair, mkEquation )
 
 import Control.Monad.State    ( StateT (runStateT), gets, get, put, MonadState )
 import Control.Monad.Writer   ( WriterT, tell, runWriterT )
@@ -29,10 +29,6 @@ data CompletionEnvironment
         rewriteSystem  :: RewriteSystem, 
         termEquations  :: [Equation Term Term]
     }
-
-data CompletionFailure 
-    = CFail
-    deriving (Show)
 
 type CompletionEval a = ExceptT CompletionFailure (WriterT [String] (StateT CompletionEnvironment Identity)) a
 
