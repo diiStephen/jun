@@ -2,7 +2,9 @@
 
 module Terms.Terms2 where 
 
+import Data.Kind ( Type )
 import Data.List (any, intercalate)
+import Data.Coerce (coerce)
 
 type FSym       = String 
 type OrderedSig = [FSym]
