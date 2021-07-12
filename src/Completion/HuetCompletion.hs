@@ -20,6 +20,7 @@ type MarkedRule = Mark RewriteRule
 data CompletionEnv = Env {
       eqs :: [Equation Term Term]
     , rules :: [(Int,MarkedRule)]
+    , timer :: Int 
 }
 
 type Log = [String] 
