@@ -1,10 +1,10 @@
 module Completion.HuetCompletion (
-
+    complete
 ) where 
 
 import Completion.CompletionUtils ( TermOrder, CompletionFailure(..) )
 import Terms.Terms                ( Term(..) )
-import TermRewriting.Rewrite      ( RewriteRule(..) )
+import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..) )
 import Equations.BasicEquation    ( Equation(..) )
 import Control.Monad.RWS          ( RWST )
 import Control.Monad.Except       ( ExceptT )
@@ -19,10 +19,18 @@ type MarkedRule = Mark RewriteRule
 
 data CompletionEnv = Env {
       eqs :: [Equation Term Term]
-    , rules :: [(Int,MarkedRule)]
-    , timer :: Int 
+    , rs :: [(Int,MarkedRule)] 
 }
 
 type Log = [String] 
 
-type CompletionEval a = ExceptT CompletionFailure (RWST TermOrder Log CompletionEnv Identity) a
+type CompletionM a = ExceptT CompletionFailure (RWST TermOrder Log CompletionEnv Identity) a
+
+complete :: [Equation Term Term] -> Maybe RewriteSystem 
+complete = undefined 
+
+eval :: [Equation Term Term] -> CompletionM RewriteSystem 
+eval = undefined 
+
+initCompletionEnv :: [Equation Term Term] -> CompletionEnv 
+initCompletionEnv eqs = Env eqs []

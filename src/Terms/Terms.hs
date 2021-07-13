@@ -13,7 +13,8 @@ module Terms.Terms (
     fpos,
     get,
     set,
-    isNonVar
+    isNonVar,
+    size 
 ) where
 
 import Data.List ( intercalate, union )
@@ -86,3 +87,7 @@ set t s (p:ps) = T (root t) (init (fst spl)++[set (last $ fst spl) s ps]++snd sp
 isNonVar :: Term -> Bool
 isNonVar (V _) = False 
 isNonVar (T _ _) = True
+
+size :: Term -> Int 
+size (V x) = 0 
+size (T f ts) = 1 + sum (map size ts)
