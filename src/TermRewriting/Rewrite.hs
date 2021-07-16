@@ -5,7 +5,8 @@ module TermRewriting.Rewrite (
     rewriteAll,
     normalize,
     mkDisjointVars,
-    addRule
+    addRule,
+    mkRewriteSystem
 ) where 
 
 import Terms.Terms                ( Term(..), alphaConvert, maxIndex ) 
