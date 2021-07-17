@@ -4,25 +4,29 @@ module Completion.HuetCompletion (
 
 import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient )
 import Terms.Terms                ( Term(..) )
-import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), mkRewriteSystem, normalize )
+import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), mkRewriteSystem, normalize, addRule )
 import Equations.BasicEquation    ( Equation(..), eqMap, eqFst, eqSnd )
 import Control.Monad              ( liftM )
 import Control.Monad.RWS          ( RWST, gets, get, put, ask, tell )
 import Control.Monad.Except       ( ExceptT, throwError )
 import Control.Monad.Identity     ( Identity )
 import Data.List                  ( union )
+import Data.Bifunctor             ( second )
 
 data Mark a 
     = Marked a 
     | Unmarked a
     deriving (Show, Eq)
 
-type MarkedRule = Mark RewriteRule -- May not be necessary to have a type for this. 
+instance Functor Mark where 
+    fmap f (Marked x)   = Marked $ f x 
+    fmap f (Unmarked x) = Unmarked $ f x
+
+type MarkedRule = Mark RewriteRule 
 
 data CompletionEnv = Env {
       eqs :: [Equation Term Term]
-    , markedRs :: [(Int, RewriteRule)]
-    , unMarkedRs :: [(Int, RewriteRule)] 
+    , rules :: [(Int, MarkedRule)]
     , index :: Int 
 }
 
@@ -36,18 +40,18 @@ complete = undefined
 eval :: CompletionM RewriteSystem 
 eval = undefined 
 
+-- Implements the inner loop of Huet's completion procedure. 
 infer:: CompletionM ()
 infer = do 
-    es <- gets eqs
-    mrs <- gets markedRs
-    urs <- gets unMarkedRs
-    let e = head es 
-    let rs = mkRewriteSystem (map snd mrs ++ map snd urs)
-    let enorm = eqMap (normalize rs) e 
+    (Env es rs i) <- get
+    let e = head es -- Get the first equation 
+    let rewriteSystem = mkRewriteSystem $ map (fromMarked . snd) rs
+    let enorm = eqMap (normalize rewriteSystem) e 
     if eqFst enorm == eqSnd enorm  
     then do
+        tell ["DELETE: " ++ show e]
         env <- get 
-        put $ Env (tail es) (markedRs env) (unMarkedRs env) (index env)
+        put $ Env (tail es) rs i
     else do 
         ord <- ask
         case orient ord enorm of
@@ -55,18 +59,44 @@ infer = do
                 tell ["FAIL: Could not orient equation" ++ show enorm]
                 throwError CFail
             Just r -> do
-                updateIndex
+                incIndex
                 updateRewriteSystem r
-                updateEquations
+                updateEquations r
 
 initCompletionEnv :: [Equation Term Term] -> CompletionEnv 
-initCompletionEnv eqs = Env eqs [] [] 0
+initCompletionEnv eqs = Env eqs [] 0
 
 updateRewriteSystem :: RewriteRule -> CompletionM () 
-updateRewriteSystem = undefined 
+updateRewriteSystem rule = do 
+    (Env eqs rs i) <- get
+    let rewriteSystem = mkRewriteSystem $ map (fromMarked . snd) rs 
+    let rsNew         = addRule rewriteSystem rule
+    let reducedSystem = (map . second . fmap) (rSimplifyRule rsNew rule) rs 
+    put $ Env eqs reducedSystem i
 
-updateEquations :: CompletionM () 
-updateEquations = undefined 
+rSimplifyRule :: RewriteSystem -> RewriteRule -> RewriteRule -> RewriteRule
+rSimplifyRule sys newRule oldRule | isIrreducible newRule (lhs oldRule) = Rule (lhs oldRule) (normalize sys (rhs oldRule))  
+                                  | otherwise                           = oldRule
 
-updateIndex :: CompletionM ()
-updateIndex = undefined
+updateEquations :: RewriteRule -> CompletionM () 
+updateEquations r = do
+    (Env eqs rs i) <- get 
+    let newEqs = (map . second . fmap) (lSimplifyRule r) rs
+    undefined
+
+lSimplifyRule :: RewriteRule -> RewriteRule -> Equation Term Term
+lSimplifyRule newRule (Rule l r) = lNorm :~: r
+    where lNorm = normalize (mkRewriteSystem [newRule]) l
+
+-- This should be a 1-liner 
+incIndex :: CompletionM ()
+incIndex = do
+    (Env eqs rs i) <- get
+    put $ Env eqs rs (i+1)
+
+fromMarked :: MarkedRule -> RewriteRule
+fromMarked (Marked r) = r 
+fromMarked (Unmarked r) = r 
+
+isIrreducible :: RewriteRule -> Term -> Bool 
+isIrreducible rule term = normalize (mkRewriteSystem [rule]) term == term
