@@ -12,6 +12,7 @@ import Control.Monad.Except       ( ExceptT, throwError )
 import Control.Monad.Identity     ( Identity )
 import Data.List                  ( union )
 import Data.Bifunctor             ( second )
+import Data.Maybe                 ( mapMaybe )
 
 data Mark a 
     = Marked a 
@@ -38,19 +39,25 @@ complete :: [Equation Term Term] -> Maybe RewriteSystem
 complete = undefined 
 
 eval :: CompletionM RewriteSystem 
-eval = undefined 
+eval = do 
+    (Env eqs rs i) <- get
+    if not (null eqs)
+    then infer 
+    else undefined 
+    undefined
 
 -- Implements the inner loop of Huet's completion procedure. 
-infer:: CompletionM ()
+-- Current implementation feels "too imperative" with abusing monads. 
+-- One iteration of the INNER while loop  
+infer :: CompletionM ()
 infer = do 
     (Env es rs i) <- get
-    let e = head es -- Get the first equation 
+    let e = head es -- Get the first equation. This is pretty dangerous.  
     let rewriteSystem = mkRewriteSystem $ map (fromMarked . snd) rs
     let enorm = eqMap (normalize rewriteSystem) e 
     if eqFst enorm == eqSnd enorm  
     then do
-        tell ["DELETE: " ++ show e]
-        env <- get 
+        tell ["[DELETE: " ++ show e ++ "]"]
         put $ Env (tail es) rs i
     else do 
         ord <- ask
@@ -59,15 +66,18 @@ infer = do
                 tell ["FAIL: Could not orient equation" ++ show enorm]
                 throwError CFail
             Just r -> do
-                incIndex
-                updateRewriteSystem r
-                updateEquations r
+                tell ["[ORIENT: " ++ show r ++ "]"]
+                put $ Env (tail es) rs i -- Remove the eq s = t that was just orientated 
+                incIndex                 -- Increment the global index. 
+                lSimplifyRewriteSystem r -- Update the equations first as new eqs are generated from R_{i} not R_{i+1}
+                rSimplifyRewriteSystem r -- Generate rhs simplified rules part of R_{i+1} from R_{i} and r
+                addNewRule r             -- Finally, add the new rule to the rewrite system to generate R_{i+1}
 
 initCompletionEnv :: [Equation Term Term] -> CompletionEnv 
 initCompletionEnv eqs = Env eqs [] 0
 
-updateRewriteSystem :: RewriteRule -> CompletionM () 
-updateRewriteSystem rule = do 
+rSimplifyRewriteSystem :: RewriteRule -> CompletionM () 
+rSimplifyRewriteSystem rule = do 
     (Env eqs rs i) <- get
     let rewriteSystem = mkRewriteSystem $ map (fromMarked . snd) rs 
     let rsNew         = addRule rewriteSystem rule
@@ -78,14 +88,15 @@ rSimplifyRule :: RewriteSystem -> RewriteRule -> RewriteRule -> RewriteRule
 rSimplifyRule sys newRule oldRule | isIrreducible newRule (lhs oldRule) = Rule (lhs oldRule) (normalize sys (rhs oldRule))  
                                   | otherwise                           = oldRule
 
-updateEquations :: RewriteRule -> CompletionM () 
-updateEquations r = do
+lSimplifyRewriteSystem :: RewriteRule -> CompletionM () 
+lSimplifyRewriteSystem r = do
     (Env eqs rs i) <- get 
-    let newEqs = (map . second . fmap) (lSimplifyRule r) rs
-    undefined
+    let newEqs =  mapMaybe (\(_,rule) -> lSimplifyRule r (fromMarked rule)) rs --Reduce the LHS of the rules in R_{i} to generate new equations. 
+    put $ Env (eqs ++ newEqs) rs i
 
-lSimplifyRule :: RewriteRule -> RewriteRule -> Equation Term Term
-lSimplifyRule newRule (Rule l r) = lNorm :~: r
+lSimplifyRule :: RewriteRule -> RewriteRule -> Maybe (Equation Term Term)
+lSimplifyRule newRule (Rule l r) | lNorm /= l = Just $ lNorm :~: r 
+                                 | otherwise = Nothing
     where lNorm = normalize (mkRewriteSystem [newRule]) l
 
 -- This should be a 1-liner 
@@ -94,9 +105,14 @@ incIndex = do
     (Env eqs rs i) <- get
     put $ Env eqs rs (i+1)
 
-fromMarked :: MarkedRule -> RewriteRule
+fromMarked :: Mark a -> a
 fromMarked (Marked r) = r 
 fromMarked (Unmarked r) = r 
 
 isIrreducible :: RewriteRule -> Term -> Bool 
 isIrreducible rule term = normalize (mkRewriteSystem [rule]) term == term
+
+addNewRule :: RewriteRule -> CompletionM ()
+addNewRule r = do 
+    (Env eqs rs i) <- get 
+    put $ Env eqs ((i, Unmarked r):rs) i
