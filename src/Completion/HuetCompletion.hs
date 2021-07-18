@@ -49,12 +49,13 @@ eval = do
 -- Implements the inner loop of Huet's completion procedure. 
 -- Current implementation feels "too imperative" with abusing monads. 
 -- One iteration of the INNER while loop  
+-- May be able to use the monad state modify function which will accept a function s -> s
 infer :: CompletionM ()
 infer = do 
     (Env es rs i) <- get
-    let e = head es -- Get the first equation. This is pretty dangerous.  
-    let rewriteSystem = mkRewriteSystem $ map (fromMarked . snd) rs
-    let enorm = eqMap (normalize rewriteSystem) e 
+    let e             = head es -- Get the first equation. This is pretty dangerous.  
+        rewriteSystem = mkRewriteSystem $ map (fromMarked . snd) rs
+        enorm         = eqMap (normalize rewriteSystem) e 
     if eqFst enorm == eqSnd enorm  
     then do
         tell ["[DELETE: " ++ show e ++ "]"]
@@ -80,8 +81,8 @@ rSimplifyRewriteSystem :: RewriteRule -> CompletionM ()
 rSimplifyRewriteSystem rule = do 
     (Env eqs rs i) <- get
     let rewriteSystem = mkRewriteSystem $ map (fromMarked . snd) rs 
-    let rsNew         = addRule rewriteSystem rule
-    let reducedSystem = (map . second . fmap) (rSimplifyRule rsNew rule) rs 
+        rsNew         = addRule rewriteSystem rule
+        reducedSystem = (map . second . fmap) (rSimplifyRule rsNew rule) rs 
     put $ Env eqs reducedSystem i
 
 rSimplifyRule :: RewriteSystem -> RewriteRule -> RewriteRule -> RewriteRule
