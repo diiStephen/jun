@@ -32,9 +32,9 @@ type CompletionM = ExceptT CompletionFailure (RWS TermOrder Log CompletionEnv)
 initCompletionEnv :: [Equation Term Term] -> CompletionEnv 
 initCompletionEnv eqs = Env eqs [] [] 0
 
---complete :: [Equation Term Term] -> TermOrder -> (CompletionEnv, Log)
 complete :: [Equation Term Term]
- -> TermOrder -> (Either CompletionFailure (), CompletionEnv, Log)
+ -> TermOrder 
+ -> (Either CompletionFailure (), CompletionEnv, Log)
 complete eqs order = runRWS (runExceptT eval) order (initCompletionEnv eqs)  
 
 -- Implements the outer loop of Huet's procedure. 
@@ -120,7 +120,11 @@ addNewRule r = do
     put $ Env eqs markedRs ((i, r):unmarkedRs) i
 
 --Currently need to split the rules so that the first test is not in the list of other rules. 
-choose :: [RewriteRule] -> RewriteRule -> [RewriteRule] -> Int -> (RewriteRule, [RewriteRule])
+choose :: [RewriteRule] 
+ -> RewriteRule 
+ -> [RewriteRule] 
+ -> Int 
+ -> (RewriteRule, [RewriteRule])
 choose [] currMinRule otherRules _ = (currMinRule, otherRules)
 choose (r:rs) currMinRule otherRules currMinSize = if currSize < currMinSize 
     then choose rs r (currMinRule:otherRules) currSize  
