@@ -9,14 +9,14 @@ import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient, mk
 import Terms.Terms                ( Term(..), size )
 import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), mkRewriteSystem, normalize, addRule )
 import Equations.BasicEquation    ( Equation(..), eqMap, eqFst, eqSnd )
-import Confluence.CriticalPairs   ( allCriticalPairs )
+import Confluence.CriticalPairs   ( allCriticalPairs, criticalPairs )
 import Control.Monad              ( liftM )
 import Control.Monad.RWS          ( RWS, gets, get, put, ask, tell, execRWS, runRWS )
 import Control.Monad.Except       ( ExceptT, throwError, runExceptT, runExcept )
 import Control.Monad.Identity     ( Identity )
 import Data.List                  ( union )
 import Data.Bifunctor             ( second )
-import Data.Maybe                 ( mapMaybe )
+import Data.Maybe                 ( mapMaybe, catMaybes )
 
 data CompletionEnv = Env {
       eqs :: [Equation Term Term]
@@ -45,9 +45,13 @@ eval = do
         (e:es) -> infer >> eval 
         []     -> case unmarkedRs of 
                        ((i,r):rs) -> do 
-                           let (minUnmarkedRule, otherUnmarkedRules) = choose (map snd rs) r [] (size (lhs r) + size (rhs r))
-                               newEqns = map mkEquation $ allCriticalPairs (mkRewriteSystem $ minUnmarkedRule:map snd markedRs)
+                           let (minUnmarkedRule, otherUnmarkedRules) = choose (map snd rs) r [] (size (lhs r) + size (rhs r)) 
+                               newEqns = map mkEquation (catMaybes 
+                                (concatMap (criticalPairs r . snd) markedRs
+                                ++ concatMap (flip criticalPairs r . snd) markedRs
+                                ++ criticalPairs r r))
                                indexOtherRules = map (i,) otherUnmarkedRules
+                           tell ["New equations from critical pairs: " ++ show newEqns]
                            put $ Env newEqns ((i,minUnmarkedRule):markedRs) indexOtherRules (i+1) --Indexing is wrong. 
                            eval
                        []    -> return ()
