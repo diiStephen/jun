@@ -25,6 +25,9 @@ type Log = [String]
 
 type CompletionM a = ExceptT CompletionFailure (RWST TermOrder Log CompletionEnv Identity) a
 
+initCompletionEnv :: [Equation Term Term] -> CompletionEnv 
+initCompletionEnv eqs = Env eqs [] [] 0
+
 complete :: [Equation Term Term] -> Maybe RewriteSystem 
 complete = undefined 
 
@@ -61,9 +64,6 @@ infer = do
                             rSimplifyRewriteSystem r           -- Generate rhs simplified rules part of R_{i+1} from R_{i} and r
                             addNewRule r                       -- Finally, add the new rule to the rewrite system to generate R_{i+1}
 
-initCompletionEnv :: [Equation Term Term] -> CompletionEnv 
-initCompletionEnv eqs = Env eqs [] [] 0
-
 rSimplifyRewriteSystem :: RewriteRule -> CompletionM () 
 rSimplifyRewriteSystem rule = do 
     (Env eqs markedRs unmarkedRs i) <- get
@@ -76,6 +76,9 @@ rSimplifyRewriteSystem rule = do
 rSimplifyRule :: RewriteSystem -> RewriteRule -> RewriteRule -> RewriteRule
 rSimplifyRule sys newRule oldRule | isIrreducible newRule (lhs oldRule) = Rule (lhs oldRule) (normalize sys (rhs oldRule))  
                                   | otherwise                           = oldRule
+
+isIrreducible :: RewriteRule -> Term -> Bool 
+isIrreducible rule term = normalize (mkRewriteSystem [rule]) term == term
 
 lSimplifyRewriteSystem :: RewriteRule -> CompletionM () 
 lSimplifyRewriteSystem r = do
@@ -93,8 +96,6 @@ incIndex = do
     (Env eqs markedRs unmarkedRs i) <- get
     put $ Env eqs markedRs unmarkedRs (i+1)
 
-isIrreducible :: RewriteRule -> Term -> Bool 
-isIrreducible rule term = normalize (mkRewriteSystem [rule]) term == term
 
 addNewRule :: RewriteRule -> CompletionM ()
 addNewRule r = do 
