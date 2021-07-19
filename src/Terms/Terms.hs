@@ -89,5 +89,5 @@ isNonVar (V _) = False
 isNonVar (T _ _) = True
 
 size :: Term -> Int 
-size (V x) = 0 
+size (V x) = 1 
 size (T f ts) = 1 + sum (map size ts)

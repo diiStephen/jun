@@ -3,7 +3,7 @@ module Completion.HuetCompletion (
 ) where 
 
 import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient )
-import Terms.Terms                ( Term(..) )
+import Terms.Terms                ( Term(..), size )
 import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), mkRewriteSystem, normalize, addRule )
 import Equations.BasicEquation    ( Equation(..), eqMap, eqFst, eqSnd )
 import Control.Monad              ( liftM )
@@ -14,6 +14,8 @@ import Data.List                  ( union )
 import Data.Bifunctor             ( second )
 import Data.Maybe                 ( mapMaybe )
 
+-- Seems like this type is just getting in the way rather than making things easier. 
+-- It will be more efficient/readable to use two lists for marked/unmarked rules. 
 data Mark a 
     = Marked a 
     | Unmarked a
@@ -38,13 +40,20 @@ type CompletionM a = ExceptT CompletionFailure (RWST TermOrder Log CompletionEnv
 complete :: [Equation Term Term] -> Maybe RewriteSystem 
 complete = undefined 
 
-eval :: CompletionM RewriteSystem 
+eval :: CompletionM () 
 eval = do 
     (Env eqs rs i) <- get
     if not (null eqs)
-    then infer 
-    else undefined 
-    undefined
+    then do
+        infer
+        eval
+    else do
+        case filter (isMarked . snd) rs of 
+            [] -> return () --We're done. The system is in the environment.  
+            (mr:mrs) -> do 
+                let firstRule = (fromMarked . snd) mr
+                    minMarkedRule = choose (map (fromMarked . snd) (mr:mrs)) firstRule (size (lhs firstRule) + size (rhs firstRule))
+                undefined
 
 -- Implements the inner loop of Huet's completion procedure. 
 -- Current implementation feels "too imperative" with abusing monads. 
@@ -53,26 +62,28 @@ eval = do
 infer :: CompletionM ()
 infer = do 
     (Env es rs i) <- get
-    let e             = head es -- Get the first equation. This is pretty dangerous.  
+    let e             = head es -- TODO Change this to case analysis for [] and e:es 
         rewriteSystem = mkRewriteSystem $ map (fromMarked . snd) rs
         enorm         = eqMap (normalize rewriteSystem) e 
     if eqFst enorm == eqSnd enorm  
-    then do
-        tell ["[DELETE: " ++ show e ++ "]"]
-        put $ Env (tail es) rs i
-    else do 
-        ord <- ask
-        case orient ord enorm of
-            Nothing -> do
-                tell ["FAIL: Could not orient equation" ++ show enorm]
-                throwError CFail
-            Just r -> do
-                tell ["[ORIENT: " ++ show r ++ "]"]
-                put $ Env (tail es) rs i -- Remove the eq s = t that was just orientated 
-                incIndex                 -- Increment the global index. 
-                lSimplifyRewriteSystem r -- Update the equations first as new eqs are generated from R_{i} not R_{i+1}
-                rSimplifyRewriteSystem r -- Generate rhs simplified rules part of R_{i+1} from R_{i} and r
-                addNewRule r             -- Finally, add the new rule to the rewrite system to generate R_{i+1}
+    then 
+        do
+            tell ["[DELETE: " ++ show e ++ "]"]
+            put $ Env (tail es) rs i
+    else 
+        do 
+            ord <- ask
+            case orient ord enorm of
+                Nothing -> do
+                    tell ["FAIL: Could not orient equation" ++ show enorm]
+                    throwError CFail
+                Just r -> do
+                    tell ["[ORIENT: " ++ show r ++ "]"]
+                    put $ Env (tail es) rs i -- Remove the eq s = t that was just orientated 
+                    incIndex                 -- Increment the global index. 
+                    lSimplifyRewriteSystem r -- Update the equations first as new eqs are generated from R_{i} not R_{i+1}
+                    rSimplifyRewriteSystem r -- Generate rhs simplified rules part of R_{i+1} from R_{i} and r
+                    addNewRule r             -- Finally, add the new rule to the rewrite system to generate R_{i+1}
 
 initCompletionEnv :: [Equation Term Term] -> CompletionEnv 
 initCompletionEnv eqs = Env eqs [] 0
@@ -100,7 +111,6 @@ lSimplifyRule newRule (Rule l r) | lNorm /= l = Just $ lNorm :~: r
                                  | otherwise = Nothing
     where lNorm = normalize (mkRewriteSystem [newRule]) l
 
--- This should be a 1-liner 
 incIndex :: CompletionM ()
 incIndex = do
     (Env eqs rs i) <- get
@@ -117,3 +127,15 @@ addNewRule :: RewriteRule -> CompletionM ()
 addNewRule r = do 
     (Env eqs rs i) <- get 
     put $ Env eqs ((i, Unmarked r):rs) i
+
+choose :: [RewriteRule] -> RewriteRule -> Int -> RewriteRule
+choose [] currMin _ = currMin 
+choose (r:rs) currMin s = if rSize < s 
+    then choose rs r rSize
+    else choose rs currMin s 
+    where rSize = size (lhs r) + size (rhs r)
+
+isMarked :: MarkedRule -> Bool 
+isMarked r = case r of 
+    Marked _ -> True 
+    Unmarked _ -> False
