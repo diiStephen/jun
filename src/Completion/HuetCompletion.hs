@@ -1,14 +1,18 @@
+{-# LANGUAGE TupleSections #-}
+
 module Completion.HuetCompletion (
-    complete
+      complete
+    , choose
 ) where 
 
-import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient )
+import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient, mkEquation )
 import Terms.Terms                ( Term(..), size )
 import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), mkRewriteSystem, normalize, addRule )
 import Equations.BasicEquation    ( Equation(..), eqMap, eqFst, eqSnd )
+import Confluence.CriticalPairs   ( allCriticalPairs )
 import Control.Monad              ( liftM )
-import Control.Monad.RWS          ( RWST, gets, get, put, ask, tell )
-import Control.Monad.Except       ( ExceptT, throwError )
+import Control.Monad.RWS          ( RWS, gets, get, put, ask, tell, execRWS, runRWS )
+import Control.Monad.Except       ( ExceptT, throwError, runExceptT, runExcept )
 import Control.Monad.Identity     ( Identity )
 import Data.List                  ( union )
 import Data.Bifunctor             ( second )
@@ -19,20 +23,34 @@ data CompletionEnv = Env {
     , markedRules :: [(Int, RewriteRule)]
     , unmarkedRules :: [(Int, RewriteRule)]
     , index :: Int 
-}
+} deriving (Show)
 
 type Log = [String] 
 
-type CompletionM a = ExceptT CompletionFailure (RWST TermOrder Log CompletionEnv Identity) a
+type CompletionM = ExceptT CompletionFailure (RWS TermOrder Log CompletionEnv) 
 
 initCompletionEnv :: [Equation Term Term] -> CompletionEnv 
 initCompletionEnv eqs = Env eqs [] [] 0
 
-complete :: [Equation Term Term] -> Maybe RewriteSystem 
-complete = undefined 
+--complete :: [Equation Term Term] -> TermOrder -> (CompletionEnv, Log)
+complete :: [Equation Term Term]
+ -> TermOrder -> (Either CompletionFailure (), CompletionEnv, Log)
+complete eqs order = runRWS (runExceptT eval) order (initCompletionEnv eqs)  
 
+-- Implements the outer loop of Huet's procedure. 
 eval :: CompletionM () 
-eval = undefined
+eval = do
+    (Env eqns markedRs unmarkedRs i) <- get
+    case eqns of  
+        (e:es) -> infer >> eval 
+        []     -> case unmarkedRs of 
+                       ((i,r):rs) -> do 
+                           let (minUnmarkedRule, otherUnmarkedRules) = choose (map snd rs) r [] (size (lhs r) + size (rhs r))
+                               newEqns = map mkEquation $ allCriticalPairs (mkRewriteSystem $ minUnmarkedRule:map snd markedRs)
+                               indexOtherRules = map (i,) otherUnmarkedRules
+                           put $ Env newEqns ((i,minUnmarkedRule):markedRs) indexOtherRules (i+1) --Indexing is wrong. 
+                           eval
+                       []    -> return ()
 
 -- Implements the inner loop of Huet's completion procedure. 
 -- Current implementation feels "too imperative" with abusing monads. 
@@ -54,7 +72,7 @@ infer = do
                     ord <- ask
                     case orient ord enorm of
                         Nothing -> do
-                            tell ["FAIL: Could not orient equation" ++ show enorm]
+                            tell ["FAIL: Could not orient equation " ++ show enorm]
                             throwError CFail
                         Just r -> do
                             tell ["[ORIENT: " ++ show r ++ "]"]
@@ -96,15 +114,16 @@ incIndex = do
     (Env eqs markedRs unmarkedRs i) <- get
     put $ Env eqs markedRs unmarkedRs (i+1)
 
-
 addNewRule :: RewriteRule -> CompletionM ()
 addNewRule r = do 
     (Env eqs markedRs unmarkedRs i) <- get 
     put $ Env eqs markedRs ((i, r):unmarkedRs) i
 
-choose :: [RewriteRule] -> RewriteRule -> Int -> RewriteRule
-choose [] currMin _ = currMin 
-choose (r:rs) currMin s = if rSize < s 
-    then choose rs r rSize
-    else choose rs currMin s 
-    where rSize = size (lhs r) + size (rhs r)
+--Currently need to split the rules so that the first test is not in the list of other rules. 
+choose :: [RewriteRule] -> RewriteRule -> [RewriteRule] -> Int -> (RewriteRule, [RewriteRule])
+choose [] currMinRule otherRules _ = (currMinRule, otherRules)
+choose (r:rs) currMinRule otherRules currMinSize = if currSize < currMinSize 
+    then choose rs r (currMinRule:otherRules) currSize  
+    else choose rs currMinRule (r:otherRules) currMinSize  
+    where 
+        currSize = size (lhs r) + size (rhs r)
