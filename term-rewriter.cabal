@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1bcc8dc30b792504129b595a7cc56e18a33084b3bf2d98a461270a447525e803
+-- hash: 55e88c446397a9743614131a79e44e5b4f5fc9533969c13495cb03126b8831ff
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -37,6 +37,7 @@ library
       Examples.Example77
       Examples.Groups
       Lib
+      Orders.KnuthBendixOrder
       Orders.MonadicRecursivePathOrders
       Orders.PolyOrders
       Orders.RecursivePathOrders

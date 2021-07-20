@@ -14,6 +14,7 @@ module Terms.Terms (
     get,
     set,
     isNonVar,
+    isVar,
     size,
     collectVars,
     collectAndCountVars
@@ -90,6 +91,9 @@ set t s (p:ps) = T (root t) (init (fst spl)++[set (last $ fst spl) s ps]++snd sp
 isNonVar :: Term -> Bool
 isNonVar (V _) = False 
 isNonVar (T _ _) = True
+
+isVar :: Term -> Bool
+isVar  = not . isNonVar 
 
 size :: Term -> Int 
 size (V x) = 1 

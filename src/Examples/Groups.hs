@@ -2,16 +2,27 @@ module Examples.Groups (
     runGroupExample
 ) where 
 
-import Terms.Terms                ( Term(..), OrderedSig )
+import Terms.Terms                ( Term(..), OrderedSig, FSym )
 import Terms.TermParser           ( getTerm )
 import Equations.BasicEquation    ( Equation(..) )
 import Completion.HuetCompletion  ( complete )
 import Orders.RecursivePathOrders ( rpo, lpo, mpo )
+import Orders.KnuthBendixOrder    ( kbo )
 import Orders.PolyOrders          (lexOrd, multiOrder)
 import Completion.CompletionUtils ( TermOrder )
 
 groupSig :: OrderedSig
-groupSig = ["1", "i", "f"]
+groupSig = ["f", "1", "i"]
+
+weight :: Term -> Int
+weight (V x) = 1 
+weight (T f ts) = symWeight f + sum (map weight ts)
+
+symWeight :: FSym -> Int
+symWeight f | f == "1" = 1
+            | f == "i" = 0 
+            | f == "f" = 0
+            | otherwise = 0
 
 groupTermParser :: String -> Term
 groupTermParser = getTerm ['1', 'i', 'f']
@@ -29,7 +40,10 @@ getGroupOrder = rpo groupSig groupStat
         groupStat sym | sym == "f" = lexOrd
                       | otherwise = multiOrder
 
+groupKBOrder :: TermOrder 
+groupKBOrder = kbo groupSig weight
+
 runGroupExample :: IO ()
 runGroupExample = do 
-    let (result, env, trace) = complete getGroupAxioms getGroupOrder
+    let (result, env, trace) = complete getGroupAxioms groupKBOrder
     mapM_ putStrLn trace
