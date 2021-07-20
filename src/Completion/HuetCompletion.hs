@@ -1,7 +1,8 @@
 {-# LANGUAGE TupleSections #-}
 
 module Completion.HuetCompletion (
-      complete
+      CompletionEnv (..)
+    , complete
     , choose
 ) where 
 
@@ -51,10 +52,11 @@ eval = do
                                 ++ concatMap (flip criticalPairs r . snd) markedRs
                                 ++ criticalPairs r r))
                                indexOtherRules = map (i,) otherUnmarkedRules
-                           tell ["New equations from critical pairs: " ++ show newEqns]
                            put $ Env newEqns ((i,minUnmarkedRule):markedRs) indexOtherRules (i+1) --Indexing is wrong. 
                            eval
-                       []    -> return ()
+                       [] -> do 
+                           tell ["Success!"]
+                           return ()
 
 -- Implements the inner loop of Huet's completion procedure. 
 -- Current implementation feels "too imperative" with abusing monads. 
