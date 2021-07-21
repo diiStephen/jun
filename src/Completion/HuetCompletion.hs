@@ -4,7 +4,7 @@ module Completion.HuetCompletion (
       CompletionEnv (..)
     , complete
     , choose
-    , completeAndExtract
+    , extract
 ) where 
 
 import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient, mkEquation )
@@ -41,10 +41,10 @@ complete :: [Equation Term Term]
  -> (Either CompletionFailure (), CompletionEnv, Log)
 complete eqs order = runRWS (runExceptT eval) order (initCompletionEnv eqs)  
 
-completeAndExtract :: [Equation Term Term] 
+extract :: [Equation Term Term] 
  -> TermOrder 
  -> Maybe RewriteSystem 
-completeAndExtract eqs order = case result of 
+extract eqs order = case result of 
     Left CFail -> Nothing 
     Right _ -> Just $ mkRewriteSystem $ map snd (markedRules env)
     where (result, env, trace) = complete eqs order
