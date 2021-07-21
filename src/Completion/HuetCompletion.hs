@@ -3,7 +3,6 @@
 module Completion.HuetCompletion (
       CompletionEnv (..)
     , complete
-    , choose
     , extract
 ) where 
 
