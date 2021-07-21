@@ -6,7 +6,7 @@ module Examples.Groups (
 
 import Terms.Terms                ( Term(..), OrderedSig, FSym )
 import Terms.TermParser           ( getTerm )
-import Equations.BasicEquation    ( Equation(..) )
+import Equations.BasicEquation    ( Equation(..), eqMap )
 import Completion.HuetCompletion  ( CompletionEnv(..), complete )
 import Orders.RecursivePathOrders ( rpo, lpo, mpo )
 import Orders.KnuthBendixOrder    ( kbo )
@@ -30,17 +30,11 @@ groupTermParser :: String -> Term
 groupTermParser = getTerm ['1', 'i', 'f']
 
 getGroupAxioms :: [Equation Term Term]
-getGroupAxioms = [assoc, inv, id]
+getGroupAxioms = map (eqMap groupTermParser) [assoc, inv, id]
     where 
-        assoc = groupTermParser "f(f(x,y),z)" :~: groupTermParser "f(x,f(y,z))"
-        inv   = groupTermParser "f(i(x),x)" :~: groupTermParser "1"
-        id    = groupTermParser "f(1,x)" :~: groupTermParser "x"
-
-getGroupOrder :: TermOrder
-getGroupOrder = rpo groupSig groupStat 
-    where 
-        groupStat sym | sym == "f" = lexOrd
-                      | otherwise = multiOrder
+        assoc = "f(f(x,y),z)" :~: "f(x,f(y,z))"
+        inv   = "f(i(x),x)" :~: "1"
+        id    = "f(1,x)" :~: "x"
 
 groupKBOrder :: TermOrder 
 groupKBOrder = kbo groupSig weight

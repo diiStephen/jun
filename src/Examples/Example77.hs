@@ -7,7 +7,7 @@ import Terms.TermParser           ( getTerm )
 import Equations.BasicEquation    ( Equation(..) )
 import Completion.CompletionUtils ( TermOrder )
 import Orders.RecursivePathOrders ( lpo )
-import Completion.HuetCompletion  ( complete )
+import Completion.HuetCompletion  ( complete, CompletionEnv (markedRules) )
 
 example77Sig :: OrderedSig 
 example77Sig = ["f"]
@@ -29,3 +29,4 @@ runExample77 :: IO ()
 runExample77 = do 
     let (result, finalEnv, trace) = complete example77Axioms example77Order
     mapM_ putStrLn trace
+    mapM_ print (markedRules finalEnv)

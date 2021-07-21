@@ -27,4 +27,4 @@ runCentralGroupoidExample :: IO ()
 runCentralGroupoidExample = do 
     let (r, e, l) = complete getCGAxioms getCGOrder
     mapM_ putStrLn l
-    print (markedRules e)
+    mapM_ print (markedRules e)

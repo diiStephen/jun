@@ -4,6 +4,7 @@ module Completion.HuetCompletion (
       CompletionEnv (..)
     , complete
     , choose
+    , completeAndExtract
 ) where 
 
 import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient, mkEquation )
@@ -40,6 +41,14 @@ complete :: [Equation Term Term]
  -> (Either CompletionFailure (), CompletionEnv, Log)
 complete eqs order = runRWS (runExceptT eval) order (initCompletionEnv eqs)  
 
+completeAndExtract :: [Equation Term Term] 
+ -> TermOrder 
+ -> Maybe RewriteSystem 
+completeAndExtract eqs order = case result of 
+    Left CFail -> Nothing 
+    Right _ -> Just $ mkRewriteSystem $ map snd (markedRules env)
+    where (result, env, trace) = complete eqs order
+
 -- Implements the outer loop of Huet's procedure. 
 eval :: CompletionM () 
 eval = do
@@ -60,9 +69,7 @@ eval = do
                            tell ["Success!"]
                            return ()
 
--- Implements the inner loop of Huet's completion procedure. 
--- Current implementation feels "too imperative" with abusing monads. 
--- One iteration of the INNER while loop  
+-- Implements one iteration of the inner loop of Huet's completion procedure. 
 -- May be able to use the monad state modify function which will accept a function s -> s
 infer :: CompletionM ()
 infer = do 
@@ -95,7 +102,7 @@ rSimplifyRewriteSystem rule = do
     (Env eqs markedRs unmarkedRs i) <- get
     let rewriteSystem     = mkRewriteSystem $ map snd (markedRs ++ unmarkedRs) 
         rsNew             = addRule rewriteSystem rule
-        reducedMarkedRs = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) markedRs
+        reducedMarkedRs   = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) markedRs
         reducedUnmarkedRs = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) unmarkedRs
     put $ Env eqs reducedMarkedRs reducedUnmarkedRs i
 
