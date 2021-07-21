@@ -31,8 +31,13 @@ mkRewriteSystem = coerce
 addRule :: RewriteSystem -> RewriteRule -> RewriteSystem 
 addRule trs r = Rules $ r:rules trs  
 
-rewrite :: RewriteRule -> Term -> Maybe Term 
-rewrite (Rule l r) s = (applyLifted <$> match' l s) <*> pure r
+--rewrite :: RewriteRule -> Term -> Maybe Term 
+--rewrite (Rule l r) s = (applyLifted <$> match' l s) <*> pure r
+
+rewrite :: RewriteRule -> Term -> Maybe Term
+rewrite (Rule l r) s = case match' l s of 
+    Just sigma -> Just $ applyLifted sigma r
+    Nothing -> Nothing
 
 rewriteAll :: [RewriteRule] -> Term -> Maybe Term 
 rewriteAll [] _ = Nothing

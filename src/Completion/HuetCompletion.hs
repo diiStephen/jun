@@ -7,17 +7,19 @@ module Completion.HuetCompletion (
 ) where 
 
 import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient, mkEquation )
-import Terms.Terms                ( Term(..), size )
+import Terms.Terms                ( Term(..), size, collectVars )
 import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), mkRewriteSystem, normalize, addRule )
 import Equations.BasicEquation    ( Equation(..), eqMap, eqFst, eqSnd )
 import Confluence.CriticalPairs   ( allCriticalPairs, criticalPairs )
-import Control.Monad              ( liftM )
+import Control.Monad              ( liftM, when )
 import Control.Monad.RWS          ( RWS, gets, get, put, ask, tell, execRWS, runRWS )
 import Control.Monad.Except       ( ExceptT, throwError, runExceptT, runExcept )
 import Control.Monad.Identity     ( Identity )
 import Data.List                  ( union )
 import Data.Bifunctor             ( second )
 import Data.Maybe                 ( mapMaybe, catMaybes )
+
+import qualified Data.Set as Set 
 
 data CompletionEnv = Env {
       eqs :: [Equation Term Term]
@@ -48,9 +50,9 @@ eval = do
                        ((i,r):rs) -> do 
                            let (minUnmarkedRule, otherUnmarkedRules) = choose (map snd rs) r [] (size (lhs r) + size (rhs r)) 
                                newEqns = map mkEquation (catMaybes 
-                                (concatMap (criticalPairs r . snd) markedRs
-                                ++ concatMap (flip criticalPairs r . snd) markedRs
-                                ++ criticalPairs r r))
+                                (concatMap (criticalPairs minUnmarkedRule . snd ) markedRs
+                                ++ concatMap (flip criticalPairs minUnmarkedRule . snd) markedRs
+                                ++ criticalPairs minUnmarkedRule minUnmarkedRule))
                                indexOtherRules = map (i,) otherUnmarkedRules
                            put $ Env newEqns ((i,minUnmarkedRule):markedRs) indexOtherRules (i+1) --Indexing is wrong. 
                            eval
@@ -93,13 +95,18 @@ rSimplifyRewriteSystem rule = do
     (Env eqs markedRs unmarkedRs i) <- get
     let rewriteSystem     = mkRewriteSystem $ map snd (markedRs ++ unmarkedRs) 
         rsNew             = addRule rewriteSystem rule
-        reducedMarkedRs   = (map . second) (rSimplifyRule rsNew rule) markedRs
-        reducedUnmarkedRs = (map . second) (rSimplifyRule rsNew rule) unmarkedRs
+        reducedMarkedRs = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) markedRs
+        reducedUnmarkedRs = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) unmarkedRs
     put $ Env eqs reducedMarkedRs reducedUnmarkedRs i
 
-rSimplifyRule :: RewriteSystem -> RewriteRule -> RewriteRule -> RewriteRule
-rSimplifyRule sys newRule oldRule | isIrreducible newRule (lhs oldRule) = Rule (lhs oldRule) (normalize sys (rhs oldRule))  
-                                  | otherwise                           = oldRule
+commute :: (a, Maybe b) -> Maybe (a, b)
+commute (i, r) = case r of 
+    Just rule -> Just (i, rule) 
+    Nothing -> Nothing
+
+rSimplifyRule :: RewriteSystem -> RewriteRule -> RewriteRule -> Maybe RewriteRule
+rSimplifyRule sys newRule oldRule | isIrreducible newRule (lhs oldRule) = Just $ Rule (lhs oldRule) (normalize sys (rhs oldRule))  
+                                  | otherwise                           = Nothing
 
 isIrreducible :: RewriteRule -> Term -> Bool 
 isIrreducible rule term = normalize (mkRewriteSystem [rule]) term == term
@@ -137,3 +144,17 @@ choose (r:rs) currMinRule otherRules currMinSize = if currSize < currMinSize
     else choose rs currMinRule (r:otherRules) currMinSize  
     where 
         currSize = size (lhs r) + size (rhs r)
+
+--DEBUG 
+isWeirdEq :: Equation Term Term-> Bool
+isWeirdEq (s :~: t) = not (sVarSet `Set.isSubsetOf` tVarSet) && not (tVarSet `Set.isSubsetOf` sVarSet)
+    where 
+        sVarSet = Set.fromList (collectVars s)
+        tVarSet = Set.fromList (collectVars t)
+
+
+
+
+---Usefule to remember---
+--reducedMarkedRs   = (map . second) (rSimplifyRule rsNew rule) markedRs
+--reducedUnmarkedRs = (map . second) (rSimplifyRule rsNew rule) unmarkedRs

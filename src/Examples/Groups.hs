@@ -1,18 +1,20 @@
 module Examples.Groups (
-    runGroupExample
+      runGroupExample
+    , getGroupAxioms
+    , groupKBOrder
 ) where 
 
 import Terms.Terms                ( Term(..), OrderedSig, FSym )
 import Terms.TermParser           ( getTerm )
 import Equations.BasicEquation    ( Equation(..) )
-import Completion.HuetCompletion  ( complete )
+import Completion.HuetCompletion  ( CompletionEnv(..), complete )
 import Orders.RecursivePathOrders ( rpo, lpo, mpo )
 import Orders.KnuthBendixOrder    ( kbo )
 import Orders.PolyOrders          (lexOrd, multiOrder)
 import Completion.CompletionUtils ( TermOrder )
 
 groupSig :: OrderedSig
-groupSig = ["f", "1", "i"]
+groupSig = ["1", "f", "i"]
 
 weight :: Term -> Int
 weight (V x) = 1 
@@ -47,3 +49,4 @@ runGroupExample :: IO ()
 runGroupExample = do 
     let (result, env, trace) = complete getGroupAxioms groupKBOrder
     mapM_ putStrLn trace
+    mapM_ (print . snd) (markedRules env)
