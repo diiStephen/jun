@@ -11,7 +11,7 @@ import Terms.Terms                ( Term(..), size, collectVars )
 import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), mkRewriteSystem, normalize, addRule )
 import Equations.BasicEquation    ( Equation(..), eqMap, eqFst, eqSnd )
 import Confluence.CriticalPairs   ( allCriticalPairs, criticalPairs )
-import Control.Monad              ( liftM, when )
+import Control.Monad              ( liftM, when, zipWithM )
 import Control.Monad.RWS          ( RWS, gets, get, put, ask, tell, execRWS, runRWS )
 import Control.Monad.Except       ( ExceptT, throwError, runExceptT, runExcept )
 import Control.Monad.Identity     ( Identity )
@@ -22,7 +22,7 @@ import Data.Maybe                 ( mapMaybe, catMaybes )
 import qualified Data.Set as Set 
 
 data CompletionEnv = Env {
-      eqs :: [Equation Term Term]
+      eqs :: [Equation Term Term] --Equations should be indexed also. 
     , markedRules :: [(Int, RewriteRule)]
     , unmarkedRules :: [(Int, RewriteRule)]
     , index :: Int 
@@ -61,8 +61,10 @@ eval = do
                                 (concatMap (criticalPairs minUnmarkedRule . snd ) markedRs
                                 ++ concatMap (flip criticalPairs minUnmarkedRule . snd) markedRs
                                 ++ criticalPairs minUnmarkedRule minUnmarkedRule))
-                               indexOtherRules = map (i,) otherUnmarkedRules
-                           put $ Env newEqns ((i,minUnmarkedRule):markedRs) indexOtherRules (i+1) --Indexing is wrong. 
+                               --indexOtherRules = map (i,) otherUnmarkedRules 
+                           indexOtherRules <- zipWithM (\j r -> incIndex >> return (j,r)) [i..i+length otherUnmarkedRules] otherUnmarkedRules
+                           newIndex <- gets index
+                           put $ Env newEqns ((newIndex,minUnmarkedRule):markedRs) indexOtherRules (newIndex+1)
                            eval
                        [] -> do 
                            tell ["Success!"]
@@ -102,7 +104,8 @@ rSimplifyRewriteSystem rule = do
     let rewriteSystem     = mkRewriteSystem $ map snd (markedRs ++ unmarkedRs) 
         rsNew             = addRule rewriteSystem rule
         reducedMarkedRs   = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) markedRs
-        reducedUnmarkedRs = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) unmarkedRs
+        reducedUnmarkedRs = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) unmarkedRs 
+    mapM_ (\(j,r) -> incIndex >> logRewrite i j r) (markedRs ++ unmarkedRs) -- Not sure if I want to keep this. 
     put $ Env eqs reducedMarkedRs reducedUnmarkedRs i
 
 commute :: (a, Maybe b) -> Maybe (a, b)
@@ -121,7 +124,7 @@ lSimplifyRewriteSystem :: RewriteRule -> CompletionM ()
 lSimplifyRewriteSystem r = do
     (Env eqs markedRs unmarkedRs i) <- get 
     let newEqs =  mapMaybe (\(_,rule) -> lSimplifyRule r rule) (markedRs ++ unmarkedRs) --Reduce the LHS of the rules in R_{i} to generate new equations. 
-    put $ Env (eqs ++ newEqs) markedRs unmarkedRs i
+    put $ Env (eqs ++ newEqs) markedRs unmarkedRs i -- Add trace here after adding new equations. 
 
 lSimplifyRule :: RewriteRule -> RewriteRule -> Maybe (Equation Term Term)
 lSimplifyRule newRule (Rule l r) | lNorm /= l = Just $ lNorm :~: r 
@@ -158,9 +161,10 @@ isWeirdEq (s :~: t) = not (sVarSet `Set.isSubsetOf` tVarSet) && not (tVarSet `Se
         sVarSet = Set.fromList (collectVars s)
         tVarSet = Set.fromList (collectVars t)
 
-
-
+logRewrite :: Int -> Int -> RewriteRule -> CompletionM ()
+logRewrite i j r =  tell ["[REWRITE(" ++ show i ++ "," ++  show j ++ "): " ++ show r ++ "]"]
 
 ---Usefule to remember---
 --reducedMarkedRs   = (map . second) (rSimplifyRule rsNew rule) markedRs
 --reducedUnmarkedRs = (map . second) (rSimplifyRule rsNew rule) unmarkedRs
+-- (zip (take (length eqs) [1..]) eqs)
