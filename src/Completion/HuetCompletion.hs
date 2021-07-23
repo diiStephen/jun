@@ -1,4 +1,4 @@
-{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TupleSections, FlexibleContexts #-}
 
 module Completion.HuetCompletion (
       CompletionEnv (..)
@@ -30,7 +30,7 @@ data CompletionEnv = Env {
 
 type Log = [String] 
 
-type CompletionM = ExceptT CompletionFailure (RWS TermOrder Log CompletionEnv) 
+type CompletionM = ExceptT CompletionFailure (RWS TermOrder Log CompletionEnv)
 
 initCompletionEnv :: [Equation Term Term] -> CompletionEnv 
 initCompletionEnv eqs = Env eqs [] [] 0
@@ -61,13 +61,12 @@ eval = do
                                 (concatMap (criticalPairs minUnmarkedRule . snd ) markedRs
                                 ++ concatMap (flip criticalPairs minUnmarkedRule . snd) markedRs
                                 ++ criticalPairs minUnmarkedRule minUnmarkedRule))
-                               --indexOtherRules = map (i,) otherUnmarkedRules 
                            indexOtherRules <- zipWithM (\j r -> incIndex >> return (j,r)) [i..i+length otherUnmarkedRules] otherUnmarkedRules
                            newIndex <- gets index
                            put $ Env newEqns ((newIndex,minUnmarkedRule):markedRs) indexOtherRules (newIndex+1)
                            eval
                        [] -> do 
-                           tell ["Success!"]
+                           tell ["Your system is convergent."]
                            return ()
 
 -- Implements one iteration of the inner loop of Huet's completion procedure. 
@@ -101,17 +100,24 @@ infer = do
 rSimplifyRewriteSystem :: RewriteRule -> CompletionM () 
 rSimplifyRewriteSystem rule = do 
     (Env eqs markedRs unmarkedRs i) <- get
-    let rewriteSystem     = mkRewriteSystem $ map snd (markedRs ++ unmarkedRs) 
-        rsNew             = addRule rewriteSystem rule
-        reducedMarkedRs   = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) markedRs
-        reducedUnmarkedRs = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) unmarkedRs 
-    mapM_ (\(j,r) -> incIndex >> logRewrite i j r) (markedRs ++ unmarkedRs) -- Not sure if I want to keep this. 
-    put $ Env eqs reducedMarkedRs reducedUnmarkedRs i
+    let rsNew = addRule (mkRewriteSystem $ map snd (markedRs ++ unmarkedRs)) rule 
+    reducedMarkedRs <- mapMaybeM (uncurry (rSimplifyRuleM rsNew i rule)) markedRs
+    reducedUnmarkedRs <-  mapMaybeM (uncurry (rSimplifyRuleM rsNew i rule)) unmarkedRs
+    updatedIndex <- gets index
+    put $ Env eqs reducedMarkedRs reducedUnmarkedRs updatedIndex
 
-commute :: (a, Maybe b) -> Maybe (a, b)
-commute (i, r) = case r of 
-    Just rule -> Just (i, rule) 
-    Nothing -> Nothing
+rSimplifyRuleM :: RewriteSystem
+ -> Int
+ -> RewriteRule
+ -> Int
+ -> RewriteRule
+ -> CompletionM (Maybe (Int, RewriteRule))
+rSimplifyRuleM augRS reducerIndex reducerRule targetIndex targetRule = incIndex >>
+    case result of 
+        Just targetReduced -> logRewrite reducerIndex targetIndex targetReduced >> pure (Just (targetIndex, targetReduced))
+        Nothing -> pure Nothing
+    where result = rSimplifyRule augRS reducerRule targetRule
+
 
 rSimplifyRule :: RewriteSystem -> RewriteRule -> RewriteRule -> Maybe RewriteRule
 rSimplifyRule sys newRule oldRule | isIrreducible newRule (lhs oldRule) = Just $ Rule (lhs oldRule) (normalize sys (rhs oldRule))  
@@ -164,7 +170,25 @@ isWeirdEq (s :~: t) = not (sVarSet `Set.isSubsetOf` tVarSet) && not (tVarSet `Se
 logRewrite :: Int -> Int -> RewriteRule -> CompletionM ()
 logRewrite i j r =  tell ["[REWRITE(" ++ show i ++ "," ++  show j ++ "): " ++ show r ++ "]"]
 
+mapMaybeM :: (Monad m) => (a -> m (Maybe b)) -> [a] -> m [b]
+mapMaybeM f as = mapMaybeM' f as [] 
+    where 
+        mapMaybeM' _ [] acc = return acc 
+        mapMaybeM' f (a:as) acc = do 
+            fa <- f a 
+            case fa of 
+                Nothing -> mapMaybeM' f as acc 
+                Just x -> mapMaybeM' f as (x:acc) 
+
+commute :: (a, Maybe b) -> Maybe (a, b)
+commute (i, r) = case r of 
+    Just rule -> Just (i, rule) 
+    Nothing -> Nothing
+
 ---Usefule to remember---
 --reducedMarkedRs   = (map . second) (rSimplifyRule rsNew rule) markedRs
 --reducedUnmarkedRs = (map . second) (rSimplifyRule rsNew rule) unmarkedRs
 -- (zip (take (length eqs) [1..]) eqs)
+--reducedMarkedRs   = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) markedRs
+--reducedUnmarkedRs = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) unmarkedRs
+ --reducedMarkedRs <- mapMaybeM (\(i,r) -> incIndex >> logRewrite j i r >> return (commute (i,rSimplifyRule rsNew rule r))) markedRs
