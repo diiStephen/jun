@@ -21,7 +21,7 @@ import Data.Maybe                 ( mapMaybe, catMaybes )
 import qualified Data.Set as Set 
 
 data CompletionEnv = Env {
-      eqs :: [(Int,Equation Term Term)]
+      eqs :: [(Int,Equation Term Term)] 
     , markedRules :: [(Int, RewriteRule)]
     , unmarkedRules :: [(Int, RewriteRule)]
     , index :: Int 
@@ -32,7 +32,10 @@ type Log = [String]
 type CompletionM = ExceptT CompletionFailure (RWS TermOrder Log CompletionEnv)
 
 initCompletionEnv :: [Equation Term Term] -> CompletionEnv 
-initCompletionEnv eqs = Env eqs [] [] 0
+initCompletionEnv eqs = Env (indexInitEqs eqs) [] [] (length eqs)
+
+indexInitEqs :: [Equation Term Term] -> [(Int, Equation Term Term)]
+indexInitEqs es = zip [1..(length es)] es
 
 complete :: [Equation Term Term]
  -> TermOrder 
