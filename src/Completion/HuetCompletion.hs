@@ -10,19 +10,18 @@ import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient, mk
 import Terms.Terms                ( Term(..), size, collectVars )
 import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), mkRewriteSystem, normalize, addRule )
 import Equations.BasicEquation    ( Equation(..), eqMap, eqFst, eqSnd )
-import Confluence.CriticalPairs   ( allCriticalPairs, criticalPairs )
-import Control.Monad              ( liftM, when, zipWithM )
+import Confluence.CriticalPairs   ( criticalPairs )
+import Control.Monad              ( zipWithM )
 import Control.Monad.RWS          ( RWS, gets, get, put, ask, tell, execRWS, runRWS )
-import Control.Monad.Except       ( ExceptT, throwError, runExceptT, runExcept )
+import Control.Monad.Except       ( ExceptT, throwError, runExceptT )
 import Control.Monad.Identity     ( Identity )
-import Data.List                  ( union )
 import Data.Bifunctor             ( second )
 import Data.Maybe                 ( mapMaybe, catMaybes )
 
 import qualified Data.Set as Set 
 
 data CompletionEnv = Env {
-      eqs :: [Equation Term Term] --Equations should be indexed also. 
+      eqs :: [Equation Term Term]
     , markedRules :: [(Int, RewriteRule)]
     , unmarkedRules :: [(Int, RewriteRule)]
     , index :: Int 
@@ -117,7 +116,6 @@ rSimplifyRuleM augRS reducerIndex reducerRule targetIndex targetRule = incIndex 
         Just targetReduced -> logRewrite reducerIndex targetIndex targetReduced >> pure (Just (targetIndex, targetReduced))
         Nothing -> pure Nothing
     where result = rSimplifyRule augRS reducerRule targetRule
-
 
 rSimplifyRule :: RewriteSystem -> RewriteRule -> RewriteRule -> Maybe RewriteRule
 rSimplifyRule sys newRule oldRule | isIrreducible newRule (lhs oldRule) = Just $ Rule (lhs oldRule) (normalize sys (rhs oldRule))  
