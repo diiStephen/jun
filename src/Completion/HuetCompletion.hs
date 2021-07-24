@@ -58,17 +58,16 @@ eval = do
     case eqns of  
         (e:es) -> infer >> eval 
         []     -> case unmarkedRs of 
-                       ((_,r):rs) -> do 
-                           let (minUnmarkedRule, otherUnmarkedRules) = choose (map snd rs) r [] (size (lhs r) + size (rhs r)) 
+                       ((j,r):rs) -> do 
+                           let ((k,minUnmarkedRule), otherUnmarkedRules) = choose rs (j,r) [] (size (lhs r) + size (rhs r)) 
                                newEqns = map mkEquation (catMaybes 
                                 (concatMap (criticalPairs minUnmarkedRule . snd) markedRs
                                 ++ concatMap (flip criticalPairs minUnmarkedRule . snd) markedRs
                                 ++ criticalPairs minUnmarkedRule minUnmarkedRule))
-                           indexOtherRules <- zipWithM (\j r -> incIndex >> return (j,r)) [i..i+length otherUnmarkedRules] otherUnmarkedRules --These should have an index aready
                            newIndex <- gets index
                            indexNewEqs <- zipWithM (\j eq -> incIndex >> return (j,eq)) [newIndex..newIndex+length newEqns] newEqns 
                            newIndex <- gets index
-                           put $ Env indexNewEqs ((newIndex,minUnmarkedRule):markedRs) indexOtherRules (newIndex+1)
+                           put $ Env indexNewEqs ((k,minUnmarkedRule):markedRs) otherUnmarkedRules (newIndex+1)
                            eval
                        [] -> do 
                            tell ["Your system is convergent."]
@@ -153,7 +152,6 @@ lSimplifyRuleM reducerIndex reducerRule targetIndex targetRule = do
         Just eq -> logRewriteM reducerIndex targetIndex eq >> pure (Just (currIndex, eq))
         Nothing -> pure Nothing
 
-
 lSimplifyRule :: RewriteRule -> RewriteRule -> Maybe (Equation Term Term)
 lSimplifyRule newRule (Rule l r) | lNorm /= l = Just $ lNorm :~: r 
                                  | otherwise = Nothing
@@ -170,15 +168,15 @@ addNewRule r k = do
     put $ Env eqs markedRs ((k, r):unmarkedRs) i
 
 --Currently need to split the rules so that the first test is not in the list of other rules. 
-choose :: [RewriteRule] 
- -> RewriteRule 
- -> [RewriteRule] 
+choose :: [(Int,RewriteRule)] 
+ -> (Int,RewriteRule) 
+ -> [(Int, RewriteRule)] 
  -> Int 
- -> (RewriteRule, [RewriteRule])
+ -> ((Int,RewriteRule), [(Int,RewriteRule)])
 choose [] currMinRule otherRules _ = (currMinRule, otherRules)
-choose (r:rs) currMinRule otherRules currMinSize = if currSize < currMinSize 
-    then choose rs r (currMinRule:otherRules) currSize  
-    else choose rs currMinRule (r:otherRules) currMinSize  
+choose ((i,r):rs) currMinRule otherRules currMinSize = if currSize < currMinSize 
+    then choose rs (i,r) (currMinRule:otherRules) currSize  
+    else choose rs currMinRule ((i,r):otherRules) currMinSize  
     where 
         currSize = size (lhs r) + size (rhs r)
 
