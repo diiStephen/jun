@@ -21,7 +21,7 @@ import Data.Maybe                 ( mapMaybe, catMaybes )
 import qualified Data.Set as Set 
 
 data CompletionEnv = Env {
-      eqs :: [Equation Term Term]
+      eqs :: [(Int,Equation Term Term)]
     , markedRules :: [(Int, RewriteRule)]
     , unmarkedRules :: [(Int, RewriteRule)]
     , index :: Int 
