@@ -4,6 +4,7 @@ module Completion.HuetCompletion (
       CompletionEnv (..)
     , complete
     , extract
+    , choose
 ) where 
 
 import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient, mkEquation )
@@ -57,13 +58,13 @@ eval = do
     case eqns of  
         (e:es) -> infer >> eval 
         []     -> case unmarkedRs of 
-                       ((i,r):rs) -> do 
+                       ((_,r):rs) -> do 
                            let (minUnmarkedRule, otherUnmarkedRules) = choose (map snd rs) r [] (size (lhs r) + size (rhs r)) 
                                newEqns = map mkEquation (catMaybes 
-                                (concatMap (criticalPairs minUnmarkedRule . snd ) markedRs
+                                (concatMap (criticalPairs minUnmarkedRule . snd) markedRs
                                 ++ concatMap (flip criticalPairs minUnmarkedRule . snd) markedRs
                                 ++ criticalPairs minUnmarkedRule minUnmarkedRule))
-                           indexOtherRules <- zipWithM (\j r -> incIndex >> return (j,r)) [i..i+length otherUnmarkedRules] otherUnmarkedRules
+                           indexOtherRules <- zipWithM (\j r -> incIndex >> return (j,r)) [i..i+length otherUnmarkedRules] otherUnmarkedRules --These should have an index aready
                            newIndex <- gets index
                            indexNewEqs <- zipWithM (\j eq -> incIndex >> return (j,eq)) [newIndex..newIndex+length newEqns] newEqns 
                            newIndex <- gets index
