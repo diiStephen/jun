@@ -65,7 +65,9 @@ eval = do
                                 ++ criticalPairs minUnmarkedRule minUnmarkedRule))
                            indexOtherRules <- zipWithM (\j r -> incIndex >> return (j,r)) [i..i+length otherUnmarkedRules] otherUnmarkedRules
                            newIndex <- gets index
-                           put $ Env newEqns ((newIndex,minUnmarkedRule):markedRs) indexOtherRules (newIndex+1)
+                           indexNewEqs <- zipWithM (\j eq -> incIndex >> return (j,eq)) [newIndex..newIndex+length newEqns] newEqns 
+                           newIndex <- gets index
+                           put $ Env indexNewEqs ((newIndex,minUnmarkedRule):markedRs) indexOtherRules (newIndex+1)
                            eval
                        [] -> do 
                            tell ["Your system is convergent."]
@@ -78,12 +80,12 @@ infer = do
     (Env eqns markedRs unmarkedRs i) <- get
     case eqns of 
         [] -> throwError CFail 
-        (e:es) -> do
+        ((k,e):es) -> do
             let rewriteSystem = mkRewriteSystem $ map snd (markedRs ++ unmarkedRs)
                 enorm         = eqMap (normalize rewriteSystem) e 
             if eqFst enorm == eqSnd enorm  
                 then do
-                    tell ["[DELETE: " ++ show e ++ "]"]
+                    tell ["[DELETE(" ++ show k ++ "): " ++ show e ++ "]"]
                     put $ Env es markedRs unmarkedRs i
                 else do 
                     ord <- ask
@@ -92,19 +94,20 @@ infer = do
                             tell ["FAIL: Could not orient: " ++ show enorm]
                             throwError CFail
                         Just r -> do
-                            tell ["[ORIENT: " ++ show r ++ "]"]
+                            tell ["[ORIENT(" ++ show k ++ "): " ++ show r ++ "]"]
                             put $ Env es markedRs unmarkedRs i -- Remove the eq s = t that was just orientated 
                             incIndex                           -- Increment the global index. 
-                            lSimplifyRewriteSystem r           -- Update the equations first as new eqs are generated from R_{i} not R_{i+1}
-                            rSimplifyRewriteSystem r           -- Generate rhs simplified rules part of R_{i+1} from R_{i} and r
-                            addNewRule r                       -- Finally, add the new rule to the rewrite system to generate R_{i+1}
+                            newRuleIndex <- gets index
+                            lSimplifyRewriteSystem r newRuleIndex -- Update the equations first as new eqs are generated from R_{i} not R_{i+1}
+                            rSimplifyRewriteSystem r newRuleIndex -- Generate rhs simplified rules part of R_{i+1} from R_{i} and r
+                            addNewRule r newRuleIndex             -- Finally, add the new rule to the rewrite system to generate R_{i+1}
 
-rSimplifyRewriteSystem :: RewriteRule -> CompletionM () 
-rSimplifyRewriteSystem rule = do 
+rSimplifyRewriteSystem :: RewriteRule -> Int -> CompletionM () 
+rSimplifyRewriteSystem rule k = do 
     (Env eqs markedRs unmarkedRs i) <- get
     let rsNew = addRule (mkRewriteSystem $ map snd (markedRs ++ unmarkedRs)) rule 
-    reducedMarkedRs <- mapMaybeM (uncurry (rSimplifyRuleM rsNew i rule)) markedRs
-    reducedUnmarkedRs <- mapMaybeM (uncurry (rSimplifyRuleM rsNew i rule)) unmarkedRs
+    reducedMarkedRs <- mapMaybeM (uncurry (rSimplifyRuleM rsNew k rule)) markedRs
+    reducedUnmarkedRs <- mapMaybeM (uncurry (rSimplifyRuleM rsNew k rule)) unmarkedRs
     updatedIndex <- gets index
     put $ Env eqs reducedMarkedRs reducedUnmarkedRs updatedIndex
 
@@ -130,11 +133,25 @@ rSimplifyRule sys newRule oldRule | isIrreducible newRule (lhs oldRule) = Just $
 isIrreducible :: RewriteRule -> Term -> Bool 
 isIrreducible rule term = normalize (mkRewriteSystem [rule]) term == term
 
-lSimplifyRewriteSystem :: RewriteRule -> CompletionM () 
-lSimplifyRewriteSystem r = do
+lSimplifyRewriteSystem :: RewriteRule -> Int -> CompletionM () 
+lSimplifyRewriteSystem r k = do
     (Env eqs markedRs unmarkedRs i) <- get 
-    let newEqs =  mapMaybe (\(_,rule) -> lSimplifyRule r rule) (markedRs ++ unmarkedRs) --Reduce the LHS of the rules in R_{i} to generate new equations. 
-    put $ Env (eqs ++ newEqs) markedRs unmarkedRs i -- Add trace here after adding new equations. 
+    newEqs <- mapMaybeM (uncurry (lSimplifyRuleM k r)) (markedRs ++ unmarkedRs) --Reduce the LHS of the rules in R_{i} to generate new equations. 
+    updatedIndex <- gets index
+    put $ Env (eqs ++ newEqs) markedRs unmarkedRs updatedIndex -- Add trace here after adding new equations. 
+
+lSimplifyRuleM :: Int
+ -> RewriteRule
+ -> Int
+ -> RewriteRule
+ -> CompletionM (Maybe (Int, Equation Term Term))
+lSimplifyRuleM reducerIndex reducerRule targetIndex targetRule = do 
+    incIndex 
+    currIndex <- gets index 
+    case lSimplifyRule reducerRule targetRule of 
+        Just eq -> logRewriteM reducerIndex targetIndex eq >> pure (Just (currIndex, eq))
+        Nothing -> pure Nothing
+
 
 lSimplifyRule :: RewriteRule -> RewriteRule -> Maybe (Equation Term Term)
 lSimplifyRule newRule (Rule l r) | lNorm /= l = Just $ lNorm :~: r 
@@ -146,10 +163,10 @@ incIndex = do
     (Env eqs markedRs unmarkedRs i) <- get
     put $ Env eqs markedRs unmarkedRs (i+1)
 
-addNewRule :: RewriteRule -> CompletionM ()
-addNewRule r = do 
+addNewRule :: RewriteRule -> Int -> CompletionM ()
+addNewRule r k = do 
     (Env eqs markedRs unmarkedRs i) <- get 
-    put $ Env eqs markedRs ((i, r):unmarkedRs) i
+    put $ Env eqs markedRs ((k, r):unmarkedRs) i
 
 --Currently need to split the rules so that the first test is not in the list of other rules. 
 choose :: [RewriteRule] 
@@ -164,7 +181,7 @@ choose (r:rs) currMinRule otherRules currMinSize = if currSize < currMinSize
     where 
         currSize = size (lhs r) + size (rhs r)
 
-logRewriteM :: Int -> Int -> RewriteRule -> CompletionM ()
+logRewriteM :: (Show a) => Int -> Int -> a -> CompletionM ()
 logRewriteM i j r =  tell ["[REWRITE(" ++ show i ++ "," ++  show j ++ "): " ++ show r ++ "]"]
 
 mapMaybeM :: (Monad m) => (a -> m (Maybe b)) -> [a] -> m [b]
