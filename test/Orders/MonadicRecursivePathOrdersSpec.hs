@@ -1,19 +1,19 @@
-module Orders.MonadicTermOrdersSpec where 
+module Orders.MonadicRecursivePathOrdersSpec (spec) where 
 
-import Test.Hspec               ( hspec, describe, it, shouldBe ) 
-import Test.QuickCheck          () 
-import Control.Exception        ( evaluate )
-import Orders.PolyOrders        ( Order(GR, NGE) )
-import Orders.MonadicTermOrders ( mLpo )
-import Terms.TermParser         ( parse, topLevel )
-import Terms.Terms              ( Term ) 
-import Control.Monad.Reader     ( runReader )
+import Test.Hspec                        ( hspec, describe, it, shouldBe, Spec ) 
+import Test.QuickCheck                   () 
+import Control.Exception                 ( evaluate )
+import Orders.PolyOrders                 ( Order(GR, NGE) )
+import Orders.MonadicRecursivePathOrders ( mLpo )
+import Terms.TermParser                  ( parse, topLevel )
+import Terms.Terms                       ( Term ) 
+import Control.Monad.Reader              ( runReader )
 
 getTerm :: [Char] -> String -> Term 
 getTerm sig s = fst $ head $ parse (topLevel sig) s
 
-main :: IO () 
-main = hspec $ do 
+spec :: Spec
+spec = do 
     describe "The MonadicTermOrders module " $ do
         describe "The mLpo function with ordered signature 0 < s < f" $ do 
             it "should return GR for f(0,x) > s(x) " $ do 

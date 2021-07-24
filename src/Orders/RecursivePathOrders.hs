@@ -1,7 +1,8 @@
-module Orders.TermOrders (
+module Orders.RecursivePathOrders (
     rpo,
     lpo, 
-    mpo,    
+    mpo,
+    sym    
 ) where 
 
 import Orders.PolyOrders ( Order(..), lexOrd, multiOrder ) 

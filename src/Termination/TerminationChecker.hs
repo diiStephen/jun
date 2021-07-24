@@ -8,15 +8,15 @@ module Termination.TerminationChecker (
     evalTermination
 ) where 
 
-import Terms.Terms            ( Term(..), OrderedSig )
-import TermRewriting.Rewrite  ( RewriteRule(..), RewriteSystem(..) )
-import Orders.TermOrders      ( lpo, mpo )
-import Orders.PolyOrders      ( Order(..) )
-import Data.List              ( all )
-import Control.Monad.Identity ( Identity (runIdentity) )
-import Control.Monad.Except   ( ExceptT, throwError, MonadError (throwError), runExceptT )
-import Control.Monad.Reader   ( ReaderT, runReaderT, ask, asks )
-import Control.Monad.Writer   ( WriterT, runWriterT, tell )
+import Terms.Terms                ( Term(..), OrderedSig )
+import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..) )
+import Orders.RecursivePathOrders ( lpo, mpo )
+import Orders.PolyOrders          ( Order(..) )
+import Data.List                  ( all )
+import Control.Monad.Identity     ( Identity (runIdentity) )
+import Control.Monad.Except       ( ExceptT, throwError, MonadError (throwError), runExceptT )
+import Control.Monad.Reader       ( ReaderT, runReaderT, ask, asks )
+import Control.Monad.Writer       ( WriterT, runWriterT, tell )
 
 newtype TerminationTactic = Tactic { runTactic :: Term -> Term -> Bool }
 

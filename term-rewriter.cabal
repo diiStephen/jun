@@ -4,16 +4,15 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d10dfb2a0c39acbd88ceb794e5f2d2cc9d50f0861d025600775ab088ee575ccb
+-- hash: 55e88c446397a9743614131a79e44e5b4f5fc9533969c13495cb03126b8831ff
 
 name:           term-rewriter
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/term-rewriter#readme>
-homepage:       https://github.com/githubuser/term-rewriter#readme
-bug-reports:    https://github.com/githubuser/term-rewriter/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2021 Author name here
+homepage:       https://github.com/diiStephen/term-rewriter#readme
+bug-reports:    https://github.com/diiStephen/term-rewriter/issues
+author:         Daniel S. Hono II
+copyright:      2021 Daniel S. Hono II
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -23,22 +22,32 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/term-rewriter
+  location: https://github.com/diiStephen/term-rewriter
 
 library
   exposed-modules:
+      Completion.BasicCompletion
+      Completion.CompletionUtils
+      Completion.HuetCompletion
+      Completion.MonadicBasicCompletion
       Confluence.ConfluenceChecker
       Confluence.CriticalPairs
+      Equations.BasicEquation
+      Examples.CentralGroupoids
+      Examples.Example77
+      Examples.Groups
       Lib
-      Orders.MonadicTermOrders
+      Orders.KnuthBendixOrder
+      Orders.MonadicRecursivePathOrders
       Orders.PolyOrders
-      Orders.TermOrders
+      Orders.RecursivePathOrders
       Substitution.Substitutions
       Termination.TerminationChecker
       TermRewriting.Rewrite
       Terms.TermParser
       Terms.Terms
       Terms.Terms2
+      Terms.TermsGADT
       Unification.Unification
   other-modules:
       Paths_term_rewriter
@@ -49,6 +58,7 @@ library
     , base >=4.7 && <5
     , containers
     , hspec >=2.7.8
+    , hspec-discover
     , mtl >=2.2.2
   default-language: Haskell2010
 
@@ -64,41 +74,19 @@ executable term-rewriter-exe
     , base >=4.7 && <5
     , containers
     , hspec >=2.7.8
+    , hspec-discover
     , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010
 
-test-suite Basic-Unification-Tests
+test-suite unit-tests
   type: exitcode-stdio-1.0
-  main-is: Unification/UnificationSpec.hs
+  main-is: Spec.hs
   other-modules:
       Confluence.CriticalPairsSpec
-      Orders.MonadicTermOrdersSpec
+      Orders.MonadicRecursivePathOrdersSpec
       Orders.PolyOrdersSpec
-      Orders.TermOrdersSpec
-      Termination.TerminationCheckerSpec
-      TermRewriting.RewriteSpec
-      Terms.TermParserSpec
-      Paths_term_rewriter
-  hs-source-dirs:
-      test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Unification.UnificationSpec
-  build-depends:
-      QuickCheck >=2.14.2
-    , base >=4.7 && <5
-    , containers
-    , hspec >=2.7.8
-    , mtl >=2.2.2
-    , term-rewriter
-  default-language: Haskell2010
-
-test-suite CriticalPairs-Tests
-  type: exitcode-stdio-1.0
-  main-is: Confluence/CriticalPairsSpec.hs
-  other-modules:
-      Orders.MonadicTermOrdersSpec
-      Orders.PolyOrdersSpec
-      Orders.TermOrdersSpec
+      Orders.RecursivePathOrdersSpec
       Termination.TerminationCheckerSpec
       TermRewriting.RewriteSpec
       Terms.TermParserSpec
@@ -106,156 +94,13 @@ test-suite CriticalPairs-Tests
       Paths_term_rewriter
   hs-source-dirs:
       test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Confluence.CriticalPairsSpec
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck >=2.14.2
     , base >=4.7 && <5
     , containers
     , hspec >=2.7.8
-    , mtl >=2.2.2
-    , term-rewriter
-  default-language: Haskell2010
-
-test-suite MonadicTermOrders-Tests
-  type: exitcode-stdio-1.0
-  main-is: Orders/MonadicTermOrdersSpec.hs
-  other-modules:
-      Confluence.CriticalPairsSpec
-      Orders.PolyOrdersSpec
-      Orders.TermOrdersSpec
-      Termination.TerminationCheckerSpec
-      TermRewriting.RewriteSpec
-      Terms.TermParserSpec
-      Unification.UnificationSpec
-      Paths_term_rewriter
-  hs-source-dirs:
-      test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Orders.MonadicTermOrdersSpec
-  build-depends:
-      QuickCheck >=2.14.2
-    , base >=4.7 && <5
-    , containers
-    , hspec >=2.7.8
-    , mtl >=2.2.2
-    , term-rewriter
-  default-language: Haskell2010
-
-test-suite PolyOrders-Tests
-  type: exitcode-stdio-1.0
-  main-is: Orders/PolyOrdersSpec.hs
-  other-modules:
-      Confluence.CriticalPairsSpec
-      Orders.MonadicTermOrdersSpec
-      Orders.TermOrdersSpec
-      Termination.TerminationCheckerSpec
-      TermRewriting.RewriteSpec
-      Terms.TermParserSpec
-      Unification.UnificationSpec
-      Paths_term_rewriter
-  hs-source-dirs:
-      test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Orders.PolyOrdersSpec
-  build-depends:
-      QuickCheck >=2.14.2
-    , base >=4.7 && <5
-    , containers
-    , hspec >=2.7.8
-    , mtl >=2.2.2
-    , term-rewriter
-  default-language: Haskell2010
-
-test-suite Rewrite-Tests
-  type: exitcode-stdio-1.0
-  main-is: TermRewriting/RewriteSpec.hs
-  other-modules:
-      Confluence.CriticalPairsSpec
-      Orders.MonadicTermOrdersSpec
-      Orders.PolyOrdersSpec
-      Orders.TermOrdersSpec
-      Termination.TerminationCheckerSpec
-      Terms.TermParserSpec
-      Unification.UnificationSpec
-      Paths_term_rewriter
-  hs-source-dirs:
-      test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is TermRewriting.RewriteSpec
-  build-depends:
-      QuickCheck >=2.14.2
-    , base >=4.7 && <5
-    , containers
-    , hspec >=2.7.8
-    , mtl >=2.2.2
-    , term-rewriter
-  default-language: Haskell2010
-
-test-suite Term-Parser-Tests
-  type: exitcode-stdio-1.0
-  main-is: Terms/TermParserSpec.hs
-  other-modules:
-      Confluence.CriticalPairsSpec
-      Orders.MonadicTermOrdersSpec
-      Orders.PolyOrdersSpec
-      Orders.TermOrdersSpec
-      Termination.TerminationCheckerSpec
-      TermRewriting.RewriteSpec
-      Unification.UnificationSpec
-      Paths_term_rewriter
-  hs-source-dirs:
-      test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Terms.TermParserSpec
-  build-depends:
-      QuickCheck >=2.14.2
-    , base >=4.7 && <5
-    , containers
-    , hspec >=2.7.8
-    , mtl >=2.2.2
-    , term-rewriter
-  default-language: Haskell2010
-
-test-suite TermOrders-Tests
-  type: exitcode-stdio-1.0
-  main-is: Orders/TermOrdersSpec.hs
-  other-modules:
-      Confluence.CriticalPairsSpec
-      Orders.MonadicTermOrdersSpec
-      Orders.PolyOrdersSpec
-      Termination.TerminationCheckerSpec
-      TermRewriting.RewriteSpec
-      Terms.TermParserSpec
-      Unification.UnificationSpec
-      Paths_term_rewriter
-  hs-source-dirs:
-      test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Orders.TermOrdersSpec
-  build-depends:
-      QuickCheck >=2.14.2
-    , base >=4.7 && <5
-    , containers
-    , hspec >=2.7.8
-    , mtl >=2.2.2
-    , term-rewriter
-  default-language: Haskell2010
-
-test-suite TerminationChecker-Tests
-  type: exitcode-stdio-1.0
-  main-is: Termination/TerminationCheckerSpec.hs
-  other-modules:
-      Confluence.CriticalPairsSpec
-      Orders.MonadicTermOrdersSpec
-      Orders.PolyOrdersSpec
-      Orders.TermOrdersSpec
-      TermRewriting.RewriteSpec
-      Terms.TermParserSpec
-      Unification.UnificationSpec
-      Paths_term_rewriter
-  hs-source-dirs:
-      test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -main-is Termination.TerminationCheckerSpec
-  build-depends:
-      QuickCheck >=2.14.2
-    , base >=4.7 && <5
-    , containers
-    , hspec >=2.7.8
+    , hspec-discover
     , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010

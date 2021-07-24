@@ -22,10 +22,9 @@ confluent = do
 joinable :: CriticalPair -> ConfluenceEval Bool 
 joinable c = do 
     tell ["Checking for joinability of critical pair " ++ show c]
-    trs <- ask
-    let basic = map (\r -> (lhs r, rhs r)) (rules trs) --Refactor rewriting module! 
-    let uNormalForm = normalize basic (left c)
-    let vNormalForm = normalize basic (right c)
+    trs <- ask 
+    let uNormalForm = normalize trs (left c)
+    let vNormalForm = normalize trs (right c)
     if uNormalForm == vNormalForm 
     then do
         tell ["Critical pair " ++ show c ++ " is joinable with normal form: " ++ show uNormalForm]

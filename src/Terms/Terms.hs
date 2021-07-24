@@ -13,10 +13,15 @@ module Terms.Terms (
     fpos,
     get,
     set,
-    isNonVar
+    isNonVar,
+    isVar,
+    size,
+    collectVars,
+    collectAndCountVars
 ) where
 
 import Data.List ( intercalate, union )
+import qualified Data.Map as Map
 
 type FSym       = String 
 type OrderedSig = [FSym]
@@ -86,3 +91,24 @@ set t s (p:ps) = T (root t) (init (fst spl)++[set (last $ fst spl) s ps]++snd sp
 isNonVar :: Term -> Bool
 isNonVar (V _) = False 
 isNonVar (T _ _) = True
+
+isVar :: Term -> Bool
+isVar  = not . isNonVar 
+
+size :: Term -> Int 
+size (V x) = 1 
+size (T f ts) = 1 + sum (map size ts)
+
+collectVars :: Term -> [VName]
+collectVars = collectVars' []
+    where
+        collectVars' :: [VName] -> Term -> [VName]
+        collectVars' vs (V x) = x:vs
+        collectVars' vs (T f ts) = concatMap (collectVars' vs) ts
+
+collectAndCountVars :: Term -> [(VName, Int)]
+collectAndCountVars t = Map.toAscList (collectAndCountVars' Map.empty t)
+    where
+        collectAndCountVars' :: Map.Map VName Int -> Term -> Map.Map VName Int 
+        collectAndCountVars' m (V x) = Map.insertWith (+) x 1 m
+        collectAndCountVars' m (T f ts) = foldl collectAndCountVars' m ts

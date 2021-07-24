@@ -5,8 +5,9 @@ module Unification.Unification (
     match'  
 ) where 
 
-import Terms.Terms
-import Substitution.Substitutions
+import Terms.Terms                ( Term(..), VName, occurs )
+import Substitution.Substitutions ( Subst, apply, applyLifted, indom )
+import Data.Bifunctor             (bimap, second)
 
 match' :: Term -> Term -> Maybe Subst 
 match' s t = match [(s,t)] [] 
@@ -53,4 +54,4 @@ elim x t eq subst =
     if occurs x t then Nothing 
     else 
         let xt = applyLifted [(x,t)] 
-        in unify (map (\(t1,t2) -> (xt t1, xt t2)) eq)  ((x,t) : subst)
+        in unify (map (bimap xt xt) eq)  ((x,t) : map (second xt) subst)

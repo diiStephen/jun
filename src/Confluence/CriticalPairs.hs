@@ -8,11 +8,11 @@ module Confluence.CriticalPairs (
 import Terms.Terms                ( Term (..), alphaConvert, maxIndex, subterms, label, get, set, pos, label, isNonVar )
 import TermRewriting.Rewrite      ( RewriteSystem (..), RewriteRule (..), mkDisjointVars )
 import Unification.Unification    ( unify' )
-import Substitution.Substitutions (Subst, applyLifted)
+import Substitution.Substitutions ( Subst, applyLifted )
 import Control.Monad.Identity     ( Identity )
 import Control.Monad.State        ( StateT )
 import Data.List                  ( union )    
-import Data.Maybe                 (isJust, fromJust)               
+import Data.Maybe                 ( isJust, fromJust, catMaybes )                
 
 data CriticalPair 
     = CP { left :: Term, right :: Term }
@@ -34,4 +34,4 @@ criticalPairs rho tau = criticalPair (mkDisjointVars rho tau) tau <$> nonVarPos
     where nonVarPos = snd <$> filter (isNonVar . fst) (label (lhs rho))
 
 allCriticalPairs :: RewriteSystem -> [CriticalPair]
-allCriticalPairs trs = fromJust <$> filter isJust (foldr union [] [criticalPairs rho tau | rho <- rules trs, tau <- rules trs])
+allCriticalPairs trs = catMaybes (foldr union [] [criticalPairs rho tau | rho <- rules trs, tau <- rules trs])
