@@ -1,4 +1,4 @@
-{-# LANGUAGE TupleSections, FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Completion.HuetCompletion (
       CompletionEnv (..)
@@ -86,7 +86,7 @@ infer = do
                     ord <- ask
                     case orient ord enorm of
                         Nothing -> do
-                            tell ["FAIL: Could not orient equation " ++ show enorm]
+                            tell ["FAIL: Could not orient: " ++ show enorm]
                             throwError CFail
                         Just r -> do
                             tell ["[ORIENT: " ++ show r ++ "]"]
@@ -101,7 +101,7 @@ rSimplifyRewriteSystem rule = do
     (Env eqs markedRs unmarkedRs i) <- get
     let rsNew = addRule (mkRewriteSystem $ map snd (markedRs ++ unmarkedRs)) rule 
     reducedMarkedRs <- mapMaybeM (uncurry (rSimplifyRuleM rsNew i rule)) markedRs
-    reducedUnmarkedRs <-  mapMaybeM (uncurry (rSimplifyRuleM rsNew i rule)) unmarkedRs
+    reducedUnmarkedRs <- mapMaybeM (uncurry (rSimplifyRuleM rsNew i rule)) unmarkedRs
     updatedIndex <- gets index
     put $ Env eqs reducedMarkedRs reducedUnmarkedRs updatedIndex
 
@@ -113,11 +113,14 @@ rSimplifyRuleM :: RewriteSystem
  -> CompletionM (Maybe (Int, RewriteRule))
 rSimplifyRuleM augRS reducerIndex reducerRule targetIndex targetRule = incIndex >>
     case result of 
-        Just targetReduced -> logRewrite reducerIndex targetIndex targetReduced >> pure (Just (targetIndex, targetReduced))
+        Just targetReduced -> logRewriteM reducerIndex targetIndex targetReduced >> pure (Just (targetIndex, targetReduced))
         Nothing -> pure Nothing
     where result = rSimplifyRule augRS reducerRule targetRule
 
-rSimplifyRule :: RewriteSystem -> RewriteRule -> RewriteRule -> Maybe RewriteRule
+rSimplifyRule :: RewriteSystem 
+ -> RewriteRule 
+ -> RewriteRule 
+ -> Maybe RewriteRule
 rSimplifyRule sys newRule oldRule | isIrreducible newRule (lhs oldRule) = Just $ Rule (lhs oldRule) (normalize sys (rhs oldRule))  
                                   | otherwise                           = Nothing
 
@@ -158,15 +161,8 @@ choose (r:rs) currMinRule otherRules currMinSize = if currSize < currMinSize
     where 
         currSize = size (lhs r) + size (rhs r)
 
---DEBUG 
-isWeirdEq :: Equation Term Term-> Bool
-isWeirdEq (s :~: t) = not (sVarSet `Set.isSubsetOf` tVarSet) && not (tVarSet `Set.isSubsetOf` sVarSet)
-    where 
-        sVarSet = Set.fromList (collectVars s)
-        tVarSet = Set.fromList (collectVars t)
-
-logRewrite :: Int -> Int -> RewriteRule -> CompletionM ()
-logRewrite i j r =  tell ["[REWRITE(" ++ show i ++ "," ++  show j ++ "): " ++ show r ++ "]"]
+logRewriteM :: Int -> Int -> RewriteRule -> CompletionM ()
+logRewriteM i j r =  tell ["[REWRITE(" ++ show i ++ "," ++  show j ++ "): " ++ show r ++ "]"]
 
 mapMaybeM :: (Monad m) => (a -> m (Maybe b)) -> [a] -> m [b]
 mapMaybeM f as = mapMaybeM' f as [] 
@@ -183,6 +179,13 @@ commute (i, r) = case r of
     Just rule -> Just (i, rule) 
     Nothing -> Nothing
 
+ --DEBUG 
+isWeirdEq :: Equation Term Term-> Bool
+isWeirdEq (s :~: t) = not (sVarSet `Set.isSubsetOf` tVarSet) && not (tVarSet `Set.isSubsetOf` sVarSet)
+    where 
+        sVarSet = Set.fromList (collectVars s)
+        tVarSet = Set.fromList (collectVars t)
+
 ---Usefule to remember---
 --reducedMarkedRs   = (map . second) (rSimplifyRule rsNew rule) markedRs
 --reducedUnmarkedRs = (map . second) (rSimplifyRule rsNew rule) unmarkedRs
@@ -190,3 +193,4 @@ commute (i, r) = case r of
 --reducedMarkedRs   = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) markedRs
 --reducedUnmarkedRs = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) unmarkedRs
  --reducedMarkedRs <- mapMaybeM (\(i,r) -> incIndex >> logRewrite j i r >> return (commute (i,rSimplifyRule rsNew rule r))) markedRs
+
