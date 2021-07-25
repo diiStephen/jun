@@ -12,8 +12,8 @@ import Terms.Terms                ( Term(..), size, collectVars )
 import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), mkRewriteSystem, normalize, addRule )
 import Equations.BasicEquation    ( Equation(..), eqMap, eqFst, eqSnd )
 import Confluence.CriticalPairs   ( criticalPairs )
-import Control.Monad              ( zipWithM )
-import Control.Monad.RWS          ( RWS, gets, get, put, ask, tell, execRWS, runRWS )
+import Control.Monad              ( zipWithM, liftM )
+import Control.Monad.RWS          ( RWS, gets, get, put, ask, tell, execRWS, runRWS, modify )
 import Control.Monad.Except       ( ExceptT, throwError, runExceptT )
 import Control.Monad.Identity     ( Identity )
 import Data.Bifunctor             ( second )
@@ -60,18 +60,35 @@ eval = do
         []     -> case unmarkedRs of 
                        ((j,r):rs) -> do 
                            let ((k,minUnmarkedRule), otherUnmarkedRules) = choose rs (j,r) [] (size (lhs r) + size (rhs r)) 
-                               newEqns = map mkEquation (catMaybes 
-                                (concatMap (criticalPairs minUnmarkedRule . snd) markedRs
-                                ++ concatMap (flip criticalPairs minUnmarkedRule . snd) markedRs
-                                ++ criticalPairs minUnmarkedRule minUnmarkedRule))
-                           newIndex <- gets index
-                           indexNewEqs <- zipWithM (\j eq -> incIndex >> return (j,eq)) [newIndex..newIndex+length newEqns] newEqns 
+                           indexNewEqs <- overlapM k minUnmarkedRule markedRs
                            newIndex <- gets index
                            put $ Env indexNewEqs ((k,minUnmarkedRule):markedRs) otherUnmarkedRules (newIndex+1)
                            eval
                        [] -> do 
                            tell ["Your system is convergent."]
                            return ()
+
+overlapM :: Int -> RewriteRule -> [(Int, RewriteRule)] -> CompletionM [(Int, Equation Term Term)]
+overlapM unmarkedRuleIndex selectedUnmarkedRule markedRules = do 
+    newEqsOne <- mapM (uncurry (criticalPairsM unmarkedRuleIndex selectedUnmarkedRule)) markedRules
+    newEqsTwo <- mapM (\(markedIndex,markedRule) -> criticalPairsM markedIndex markedRule unmarkedRuleIndex selectedUnmarkedRule) markedRules
+    newEqsThree <- criticalPairsM unmarkedRuleIndex selectedUnmarkedRule unmarkedRuleIndex selectedUnmarkedRule
+    return $ concat (newEqsOne ++ newEqsTwo ++ [newEqsThree])
+
+
+criticalPairsM :: Int
+ -> RewriteRule
+ -> Int
+ -> RewriteRule
+ -> CompletionM [(Int, Equation Term Term)]
+criticalPairsM sourceIndex source targetIndex target = do
+    let newEqs = map mkEquation $ catMaybes (criticalPairs source target)
+    mapM_ (\e -> tell ["[OVERLAP(" ++ show sourceIndex ++ "," ++ show targetIndex ++ "): " ++ show e ++ "]"]) newEqs
+    startIndex <- gets index 
+    finalIndex <- gets ((+) (length newEqs) . index)
+    modify $ \env -> env { index = finalIndex }
+    return $ zip [startIndex..finalIndex] newEqs
+    
 
 -- Implements one iteration of the inner loop of Huet's completion procedure. 
 -- May be able to use the monad state modify function which will accept a function s -> s
@@ -163,10 +180,8 @@ incIndex = do
     put $ Env eqs markedRs unmarkedRs (i+1)
 
 addNewRule :: RewriteRule -> Int -> CompletionM ()
-addNewRule r k = do 
-    (Env eqs markedRs unmarkedRs i) <- get 
-    put $ Env eqs markedRs ((k, r):unmarkedRs) i
-
+addNewRule r k = modify $ \env -> env { unmarkedRules = (k,r):unmarkedRules env }
+    
 --Currently need to split the rules so that the first test is not in the list of other rules. 
 choose :: [(Int,RewriteRule)] 
  -> (Int,RewriteRule) 
