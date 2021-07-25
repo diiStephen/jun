@@ -109,7 +109,7 @@ infer = do
                             tell ["FAIL: Could not orient: " ++ show enorm]
                             throwError CFail
                         Just r -> do
-                            tell ["[ORIENT(" ++ show k ++ "): " ++ show r ++ "]"]
+                            logOrientM k r
                             put $ Env es markedRs unmarkedRs i -- Remove the eq s = t that was just orientated 
                             incIndex                           -- Increment the global index. 
                             newRuleIndex <- gets index
@@ -199,3 +199,6 @@ logOverlapM sourceIndex targetIndex e = tell ["[OVERLAP(" ++ show sourceIndex ++
 
 logDeleteM :: (Show a) => Int -> a -> CompletionM ()
 logDeleteM indexDeleted deleted = tell ["[DELETE(" ++ show indexDeleted ++ "): " ++ show deleted ++ "]"]
+
+logOrientM :: (Show a) => Int -> a -> CompletionM ()
+logOrientM index rule = tell ["[ORIENT(" ++ show index ++ "): " ++ show rule ++ "]"]
