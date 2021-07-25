@@ -74,7 +74,6 @@ overlapM unmarkedRuleIndex selectedUnmarkedRule markedRules = do
     newEqsThree <- criticalPairsM unmarkedRuleIndex selectedUnmarkedRule unmarkedRuleIndex selectedUnmarkedRule
     return $ concat (newEqsOne ++ newEqsTwo ++ [newEqsThree])
 
-
 criticalPairsM :: Int
  -> RewriteRule
  -> Int
