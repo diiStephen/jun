@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# OPTIONS_GHC -Wall #-}
+{-# OPTIONS_GHC -Wall -Wno-name-shadowing #-}
 
 module Completion.HuetCompletion (
       CompletionEnv (..)
@@ -46,14 +46,14 @@ extract :: [Equation Term Term]
 extract eqs order = case result of 
     Left CFail -> Nothing 
     Right _ -> Just $ mkRewriteSystem $ map snd (markedRules env)
-    where (result, env, trace) = complete eqs order
+    where (result, env, _) = complete eqs order
 
 -- Implements the outer loop of Huet's procedure. 
 eval :: CompletionM () 
 eval = do
-    (Env eqns markedRs unmarkedRs i) <- get
+    (Env eqns markedRs unmarkedRs _) <- get
     case eqns of  
-        (e:es) -> infer >> eval 
+        (_:_) -> infer >> eval 
         []     -> case unmarkedRs of 
                        ((j,r):rs) -> do 
                            let ((k,minUnmarkedRule), otherUnmarkedRules) = choose rs (j,r) [] (size (lhs r) + size (rhs r)) 
@@ -115,7 +115,7 @@ infer = do
 
 rSimplifyRewriteSystem :: RewriteRule -> Int -> CompletionM () 
 rSimplifyRewriteSystem rule k = do 
-    (Env eqs markedRs unmarkedRs i) <- get
+    (Env eqs markedRs unmarkedRs _) <- get
     let rsNew = addRule (mkRewriteSystem $ map snd (markedRs ++ unmarkedRs)) rule 
     reducedMarkedRs <- mapMaybeM (uncurry (rSimplifyRuleM rsNew k rule)) markedRs
     reducedUnmarkedRs <- mapMaybeM (uncurry (rSimplifyRuleM rsNew k rule)) unmarkedRs
@@ -146,7 +146,7 @@ isIrreducible rule term = normalize (mkRewriteSystem [rule]) term == term
 
 lSimplifyRewriteSystem :: RewriteRule -> Int -> CompletionM () 
 lSimplifyRewriteSystem r k = do
-    (Env eqs markedRs unmarkedRs i) <- get 
+    (Env eqs markedRs unmarkedRs _) <- get 
     newEqs <- mapMaybeM (uncurry (lSimplifyRuleM k r)) (markedRs ++ unmarkedRs) --Reduce the LHS of the rules in R_{i} to generate new equations. 
     updatedIndex <- gets index
     put $ Env (eqs ++ newEqs) markedRs unmarkedRs updatedIndex
