@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# OPTIONS_GHC -Wall #-}
 
 module Completion.HuetCompletion (
       CompletionEnv (..)
@@ -8,17 +9,14 @@ module Completion.HuetCompletion (
 ) where 
 
 import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient, mkEquation )
-import Terms.Terms                ( Term(..), size, collectVars )
+import Terms.Terms                ( Term(..), size )
 import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), mkRewriteSystem, normalize, addRule )
 import Equations.BasicEquation    ( Equation(..), eqMap, eqFst, eqSnd )
 import Confluence.CriticalPairs   ( criticalPairs )
 import Utils.MonadUtils           ( mapMaybeM )
-import Control.Monad              ( zipWithM, liftM )
-import Control.Monad.RWS          ( RWS, gets, get, put, ask, tell, execRWS, runRWS, modify )
+import Control.Monad.RWS          ( RWS, gets, get, put, ask, tell, runRWS, modify )
 import Control.Monad.Except       ( ExceptT, throwError, runExceptT )
-import Control.Monad.Identity     ( Identity )
-import Data.Bifunctor             ( second )
-import Data.Maybe                 ( mapMaybe, catMaybes )
+import Data.Maybe                 ( catMaybes )
 
 data CompletionEnv = Env {
       eqs :: [(Int,Equation Term Term)] 
