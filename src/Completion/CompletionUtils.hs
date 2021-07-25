@@ -8,13 +8,15 @@ module Completion.CompletionUtils (
     , mkEquation
 ) where
 
-import Terms.Terms              ( Term(..) )
+import Terms.Terms              ( Term(..), collectVars )
 import Equations.BasicEquation  ( Equation(..) )
 import TermRewriting.Rewrite    ( RewriteRule(..), RewriteSystem(..), normalize )
 import Orders.PolyOrders        ( Order(..) )
 import Confluence.CriticalPairs ( CriticalPair(..) )
 
 import Control.Applicative ( (<|>) )
+
+import qualified Data.Set as Set 
 
 type TermOrder = Term -> Term -> Order
 
@@ -40,3 +42,9 @@ normalizeCriticalPair trs c = CP { left = normalize trs (left c), right = normal
 
 mkEquation :: CriticalPair -> Equation Term Term
 mkEquation c = left c :~: right c
+
+isWeirdEq :: Equation Term Term-> Bool
+isWeirdEq (s :~: t) = not (sVarSet `Set.isSubsetOf` tVarSet) && not (tVarSet `Set.isSubsetOf` sVarSet)
+    where 
+        sVarSet = Set.fromList (collectVars s)
+        tVarSet = Set.fromList (collectVars t)
