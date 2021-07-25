@@ -5,7 +5,6 @@ module Completion.HuetCompletion (
       CompletionEnv (..)
     , complete
     , extract
-    , choose
 ) where 
 
 import Completion.CompletionUtils ( TermOrder, CompletionFailure(..), orient, mkEquation )
