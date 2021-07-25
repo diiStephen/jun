@@ -83,7 +83,7 @@ criticalPairsM :: Int
  -> CompletionM [(Int, Equation Term Term)]
 criticalPairsM sourceIndex source targetIndex target = do
     let newEqs = map mkEquation $ catMaybes (criticalPairs source target)
-    mapM_ (\e -> tell ["[OVERLAP(" ++ show sourceIndex ++ "," ++ show targetIndex ++ "): " ++ show e ++ "]"]) newEqs
+    mapM_ (logOverlapM sourceIndex targetIndex) newEqs
     startIndex <- gets index 
     finalIndex <- gets ((+) (length newEqs) . index)
     modify $ \env -> env { index = finalIndex }
@@ -102,7 +102,7 @@ infer = do
                 enorm         = eqMap (normalize rewriteSystem) e 
             if eqFst enorm == eqSnd enorm  
                 then do
-                    tell ["[DELETE(" ++ show k ++ "): " ++ show e ++ "]"]
+                    logDeleteM k e
                     put $ Env es markedRs unmarkedRs i
                 else do 
                     ord <- ask
@@ -155,7 +155,7 @@ lSimplifyRewriteSystem r k = do
     (Env eqs markedRs unmarkedRs i) <- get 
     newEqs <- mapMaybeM (uncurry (lSimplifyRuleM k r)) (markedRs ++ unmarkedRs) --Reduce the LHS of the rules in R_{i} to generate new equations. 
     updatedIndex <- gets index
-    put $ Env (eqs ++ newEqs) markedRs unmarkedRs updatedIndex -- Add trace here after adding new equations. 
+    put $ Env (eqs ++ newEqs) markedRs unmarkedRs updatedIndex
 
 lSimplifyRuleM :: Int
  -> RewriteRule
@@ -196,7 +196,13 @@ choose ((i,r):rs) currMinRule otherRules currMinSize = if currSize < currMinSize
         currSize = size (lhs r) + size (rhs r)
 
 logRewriteM :: (Show a) => Int -> Int -> a -> CompletionM ()
-logRewriteM i j r =  tell ["[REWRITE(" ++ show i ++ "," ++  show j ++ "): " ++ show r ++ "]"]
+logRewriteM i j r = tell ["[REWRITE(" ++ show i ++ "," ++  show j ++ "): " ++ show r ++ "]"]
+
+logOverlapM :: (Show a) => Int -> Int -> a -> CompletionM ()
+logOverlapM sourceIndex targetIndex e = tell ["[OVERLAP(" ++ show sourceIndex ++ "," ++ show targetIndex ++ "): " ++ show e ++ "]"]
+
+logDeleteM :: (Show a) => Int -> a -> CompletionM ()
+logDeleteM indexDeleted deleted = tell ["[DELETE(" ++ show indexDeleted ++ "): " ++ show deleted ++ "]"]
 
 mapMaybeM :: (Monad m) => (a -> m (Maybe b)) -> [a] -> m [b]
 mapMaybeM f as = mapMaybeM' f as [] 
