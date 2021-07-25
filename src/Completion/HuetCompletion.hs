@@ -175,9 +175,7 @@ lSimplifyRule newRule (Rule l r) | lNorm /= l = Just $ lNorm :~: r
     where lNorm = normalize (mkRewriteSystem [newRule]) l
 
 incIndex :: CompletionM ()
-incIndex = do
-    (Env eqs markedRs unmarkedRs i) <- get
-    put $ Env eqs markedRs unmarkedRs (i+1)
+incIndex = modify $ \env -> env {index = index env + 1}
 
 addNewRule :: RewriteRule -> Int -> CompletionM ()
 addNewRule r k = modify $ \env -> env { unmarkedRules = (k,r):unmarkedRules env }
