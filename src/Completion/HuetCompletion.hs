@@ -12,14 +12,13 @@ import Terms.Terms                ( Term(..), size, collectVars )
 import TermRewriting.Rewrite      ( RewriteRule(..), RewriteSystem(..), mkRewriteSystem, normalize, addRule )
 import Equations.BasicEquation    ( Equation(..), eqMap, eqFst, eqSnd )
 import Confluence.CriticalPairs   ( criticalPairs )
+import Utils.MonadUtils           ( mapMaybeM )
 import Control.Monad              ( zipWithM, liftM )
 import Control.Monad.RWS          ( RWS, gets, get, put, ask, tell, execRWS, runRWS, modify )
 import Control.Monad.Except       ( ExceptT, throwError, runExceptT )
 import Control.Monad.Identity     ( Identity )
 import Data.Bifunctor             ( second )
 import Data.Maybe                 ( mapMaybe, catMaybes )
-
-import qualified Data.Set as Set 
 
 data CompletionEnv = Env {
       eqs :: [(Int,Equation Term Term)] 
@@ -91,7 +90,6 @@ criticalPairsM sourceIndex source targetIndex target = do
     
 
 -- Implements one iteration of the inner loop of Huet's completion procedure. 
--- May be able to use the monad state modify function which will accept a function s -> s
 infer :: CompletionM ()
 infer = do 
     (Env eqns markedRs unmarkedRs i) <- get
@@ -201,34 +199,3 @@ logOverlapM sourceIndex targetIndex e = tell ["[OVERLAP(" ++ show sourceIndex ++
 
 logDeleteM :: (Show a) => Int -> a -> CompletionM ()
 logDeleteM indexDeleted deleted = tell ["[DELETE(" ++ show indexDeleted ++ "): " ++ show deleted ++ "]"]
-
-mapMaybeM :: (Monad m) => (a -> m (Maybe b)) -> [a] -> m [b]
-mapMaybeM f as = mapMaybeM' f as [] 
-    where 
-        mapMaybeM' _ [] acc = return acc 
-        mapMaybeM' f (a:as) acc = do 
-            fa <- f a 
-            case fa of 
-                Nothing -> mapMaybeM' f as acc 
-                Just x -> mapMaybeM' f as (x:acc) 
-
-commute :: (a, Maybe b) -> Maybe (a, b)
-commute (i, r) = case r of 
-    Just rule -> Just (i, rule) 
-    Nothing -> Nothing
-
- --DEBUG 
-isWeirdEq :: Equation Term Term-> Bool
-isWeirdEq (s :~: t) = not (sVarSet `Set.isSubsetOf` tVarSet) && not (tVarSet `Set.isSubsetOf` sVarSet)
-    where 
-        sVarSet = Set.fromList (collectVars s)
-        tVarSet = Set.fromList (collectVars t)
-
----Usefule to remember---
---reducedMarkedRs   = (map . second) (rSimplifyRule rsNew rule) markedRs
---reducedUnmarkedRs = (map . second) (rSimplifyRule rsNew rule) unmarkedRs
--- (zip (take (length eqs) [1..]) eqs)
---reducedMarkedRs   = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) markedRs
---reducedUnmarkedRs = mapMaybe (\(i,r) -> commute (i,rSimplifyRule rsNew rule r)) unmarkedRs
- --reducedMarkedRs <- mapMaybeM (\(i,r) -> incIndex >> logRewrite j i r >> return (commute (i,rSimplifyRule rsNew rule r))) markedRs
-
