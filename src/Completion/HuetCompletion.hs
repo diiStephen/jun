@@ -87,7 +87,6 @@ criticalPairsM sourceIndex source targetIndex target = do
     modify $ \env -> env { index = finalIndex }
     return $ zip [startIndex..finalIndex] newEqs
     
-
 -- Implements one iteration of the inner loop of Huet's completion procedure. 
 infer :: CompletionM ()
 infer = do 
