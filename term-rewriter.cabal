@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e0f168e5c1b0845e246a04d45a5795efc3b3e29df391327c70c5ce43e65cb27f
+-- hash: ce3aea8f5477923b776c4de2e8c1db11acdacb47f6b4b3c584820a517519624b
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -61,6 +61,7 @@ library
     , containers
     , hspec >=2.7.8
     , hspec-discover
+    , monad-loops
     , mtl >=2.2.2
   default-language: Haskell2010
 
@@ -77,6 +78,7 @@ executable term-rewriter-exe
     , containers
     , hspec >=2.7.8
     , hspec-discover
+    , monad-loops
     , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010
@@ -103,6 +105,7 @@ test-suite unit-tests
     , containers
     , hspec >=2.7.8
     , hspec-discover
+    , monad-loops
     , mtl >=2.2.2
     , term-rewriter
   default-language: Haskell2010
