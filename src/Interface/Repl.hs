@@ -74,7 +74,7 @@ processCommand command args = do
         "sys"        -> gets curRewriteSystem >>= (liftIO . putStrLn . showTRS)
         _ -> liftIO $ putStrLn "Command not found."  
 
-setSig :: [String] -> ReplM() 
+setSig :: [String] -> ReplM () 
 setSig symbols = do 
     modify $ \env -> env {signature = symbols}
 
@@ -139,4 +139,4 @@ weight _ (V _) = 1
 weight w (T f ts) = w f + sum (map (weight w) ts)
 
 showTRS :: RewriteSystem -> String 
-showTRS r = "\nRULES( \n" ++ concatMap (\s -> "\t" ++ show s ++ "\n") (rules r) ++ ")\n"  
+showTRS r = "\nRULES( \n" ++ concatMap (\s -> "\t" ++ show s ++ "\n") (rules r) ++ ")\n"
