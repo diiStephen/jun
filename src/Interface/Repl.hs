@@ -4,12 +4,14 @@ module Interface.Repl (
     repl
 ) where
 
-import Terms.Terms                ( Term(..), OrderedSig )
+import Terms.Terms                ( Term(..), OrderedSig, FSym )
 import Terms.TermParser           ( getTerm )
 import TermRewriting.Rewrite      ( RewriteSystem(..), RewriteRule(..), mkRewriteSystem )
 import Equations.BasicEquation    ( Equation(..), eqMap )
-import Completion.HuetCompletion  (CompletionEnv(..), complete)
-import Orders.RecursivePathOrders ( lpo )
+import Completion.HuetCompletion  ( CompletionEnv(..), complete)
+import Completion.CompletionUtils ( TermOrder )
+import Orders.RecursivePathOrders ( lpo, mpo )
+import Orders.KnuthBendixOrder    ( kbo )
 import Control.Monad              ( void )
 import Control.Monad.RWS          ( RWST, liftIO, gets, runRWST, modify, get )
 import System.IO                  ( hFlush, stdout ) 
@@ -25,11 +27,14 @@ data ReplEnv = REnv {
     , curEquations :: [Equation Term Term] 
 } deriving (Show)
 
-defaultPrompt :: String
-defaultPrompt = ":> "
+defaultPrompt :: ReplEnv -> String
+defaultPrompt env = show (signature env) 
+    ++ "[E " ++ show (length $ curEquations env) ++ "]" 
+    ++ "[R " ++ show (length $ rules $ curRewriteSystem env) ++ "]" 
+    ++ ":> "
 
 commands :: [String]
-commands = ["exit", "add", "signature", "env", "precedence", "kb"]
+commands = ["[exit]", "[add]", "[signature]", "[env]", "[precedence]", "[kb lpo|mpo|kbo]", "[sys]"]
 
 repl :: IO ()
 repl = do
@@ -43,7 +48,8 @@ initReplEnv = REnv {signature=[], curRewriteSystem = Rules [], currRules = [], c
 
 runRepl :: ReplM ()
 runRepl = do
-    c <- liftIO $ prompt defaultPrompt
+    cEnv <- get
+    c <- liftIO $ prompt (defaultPrompt cEnv)
     let (com:args) = words c
     liftIO $ putStrLn $ "Command: " ++ com ++ " Args: " ++ show args
     case com of --Very basic for now. 
@@ -65,6 +71,7 @@ processCommand command args = do
         "env"        -> showEnv
         "precedence" -> setSig args
         "kb"         -> runKb args
+        "sys"        -> gets curRewriteSystem >>= (liftIO . putStrLn . showTRS)
         _ -> liftIO $ putStrLn "Command not found."  
 
 setSig :: [String] -> ReplM() 
@@ -91,9 +98,45 @@ showEnv = do
 runKb :: [String] -> ReplM ()
 runKb args = do
     eqsToComplete <- gets curEquations
-    sig <- gets signature 
-    let (result, complEnv, trace) = complete eqsToComplete (lpo sig)
+    ord <- getOrdFromInput (head args) -- TODO: Head is an unsafe function, fix this.  
+    let (result, complEnv, trace) = complete eqsToComplete ord
     liftIO $ mapM_ putStrLn trace
     case result of 
         Left _ -> return ()
         Right () -> modify $ \env -> env { curRewriteSystem = mkRewriteSystem $ map snd (markedRules complEnv) }
+
+getOrdFromInput :: String -> ReplM TermOrder
+getOrdFromInput arg = do 
+    sig <- gets signature
+    case arg of 
+        "lpo" -> return $ lpo sig
+        "mpo" -> return $ mpo sig
+        "kbo" -> getKbOrder
+        _ -> return $ lpo sig
+
+getKbOrder :: ReplM TermOrder
+getKbOrder = do 
+    sig <- gets signature
+    symWeights <- getSymWeights sig
+    return $ kbo sig (weight (weightFromTuples symWeights))
+
+getSymWeights :: OrderedSig -> ReplM [(FSym, Int)]
+getSymWeights = mapM readSymWeight 
+
+readSymWeight :: FSym -> ReplM (FSym, Int)
+readSymWeight f = do 
+    i <- liftIO $ prompt ("w(" ++ f ++ "): ")
+    return (f, read i)
+
+weightFromTuples :: [(FSym, Int)] -> FSym -> Int 
+weightFromTuples symbolWeights f = case lookup f symbolWeights of
+    Just i -> i 
+    Nothing -> -1
+
+-- This should be refactored utility for KB orders. 
+weight :: (FSym -> Int) -> Term -> Int
+weight _ (V _) = 1 
+weight w (T f ts) = w f + sum (map (weight w) ts)
+
+showTRS :: RewriteSystem -> String 
+showTRS r = "\nRULES( \n" ++ concatMap (\s -> "\t" ++ show s ++ "\n") (rules r) ++ ")\n"  
