@@ -23,7 +23,7 @@ type ReplM a = (RWST String Log ReplEnv) IO a
 data ReplEnv = REnv {
       signature :: OrderedSig
     , curRewriteSystem :: RewriteSystem
-    , currRules :: [RewriteRule] 
+    , curRules :: [RewriteRule] 
     , curEquations :: [Equation Term Term] 
 } deriving (Show)
 
@@ -34,7 +34,7 @@ defaultPrompt env = show (signature env)
     ++ ":> "
 
 commands :: [String]
-commands = ["[exit]", "[add]", "[signature]", "[env]", "[precedence]", "[kb lpo|mpo|kbo]", "[sys]"]
+commands = ["[exit]", "[add]", "[signature]", "[env]", "[precedence]", "[kb lpo|mpo|kbo]", "[sys]", "[eqs]"]
 
 repl :: IO ()
 repl = do
@@ -44,7 +44,7 @@ repl = do
     return ()
 
 initReplEnv :: ReplEnv
-initReplEnv = REnv {signature=[], curRewriteSystem = Rules [], currRules = [], curEquations = []}
+initReplEnv = REnv {signature=[], curRewriteSystem = Rules [], curRules = [], curEquations = []}
 
 runRepl :: ReplM ()
 runRepl = do
@@ -71,7 +71,8 @@ processCommand command args = do
         "env"        -> showEnv
         "precedence" -> setSig args
         "kb"         -> runKb args
-        "sys"        -> gets curRewriteSystem >>= (liftIO . putStrLn . showTRS)
+        "sys"        -> gets curRewriteSystem >>= (liftIO . putStrLn . showSet "RULES" . rules)
+        "eqs"        -> gets curEquations >>= (liftIO. putStrLn . showSet "EQUATIONS")
         _ -> liftIO $ putStrLn "Command not found."  
 
 setSig :: [String] -> ReplM () 
@@ -138,5 +139,5 @@ weight :: (FSym -> Int) -> Term -> Int
 weight _ (V _) = 1 
 weight w (T f ts) = w f + sum (map (weight w) ts)
 
-showTRS :: RewriteSystem -> String 
-showTRS r = "\nRULES( \n" ++ concatMap (\s -> "\t" ++ show s ++ "\n") (rules r) ++ ")\n"
+showSet :: (Foldable t, Show a) => String -> t a -> [Char]
+showSet name es = "\n" ++ name ++ "(\n" ++ concatMap (\s -> "\t" ++ show s ++ "\n") es ++ ")\n" 
