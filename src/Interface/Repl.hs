@@ -103,7 +103,7 @@ runKb args = do
     liftIO $ mapM_ putStrLn trace
     case result of 
         Left _ -> return ()
-        Right () -> modify $ \env -> env { curRewriteSystem = mkRewriteSystem $ map snd (markedRules complEnv) }
+        Right () -> modify $ \env -> env { curRewriteSystem = mkRewriteSystem $ map snd (markedRules complEnv), curEquations = [] }
 
 getOrdFromInput :: String -> ReplM TermOrder
 getOrdFromInput arg = do 
