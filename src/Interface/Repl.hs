@@ -15,6 +15,7 @@ import Orders.KnuthBendixOrder    ( kbo )
 import Control.Monad              ( void )
 import Control.Monad.RWS          ( RWST, liftIO, gets, runRWST, modify, get )
 import System.IO                  ( hFlush, stdout ) 
+import Data.List                  ( intercalate )
 
 type Log = [String]
 
@@ -28,7 +29,7 @@ data ReplEnv = REnv {
 } deriving (Show)
 
 defaultPrompt :: ReplEnv -> String
-defaultPrompt env = show (signature env) 
+defaultPrompt env = "{" ++ intercalate "," (signature env) ++ "}"
     ++ "[E " ++ show (length $ curEquations env) ++ "]" 
     ++ "[R " ++ show (length $ rules $ curRewriteSystem env) ++ "]" 
     ++ ":> "
@@ -51,7 +52,6 @@ runRepl = do
     cEnv <- get
     c <- liftIO $ prompt (defaultPrompt cEnv)
     let (com:args) = words c
-    liftIO $ putStrLn $ "Command: " ++ com ++ " Args: " ++ show args
     case com of --Very basic for now. 
         "exit" -> liftIO $ void $ putStrLn "Shutting down!"
         _ -> processCommand com args >> runRepl
@@ -86,8 +86,7 @@ addEqn e = do
     if null sig 
     then liftIO $ putStrLn "Error: Signature is empty."
     else do
-        let (eqLHS, eqRHS) = (e !! 0, e !! 2)
-        liftIO $ putStrLn $ "LHS: " ++ eqLHS ++ " RHS: " ++ eqRHS  
+        let (eqLHS, eqRHS) = (e !! 0, e !! 2)  
         let newEq = eqMap (getTerm (map head sig)) (eqLHS :~: eqRHS)
         modify $ \env -> env { curEquations = newEq:curEquations env }
 
