@@ -61,11 +61,10 @@ runRepl = do
     cEnv <- get
     c <- liftIO $ prompt (defaultPrompt cEnv)
     let (com:args) = words c
-    case com of --Very basic for now. 
+    case com of
         "exit" -> liftIO $ void $ putStrLn "Shutting down!"
         _ -> processCommand com args >> runRepl
-
--- I don't really like this. 
+ 
 prompt :: String -> IO String
 prompt p = do 
     putStr p 
@@ -90,7 +89,6 @@ setSig :: [String] -> ReplM ()
 setSig symbols = do 
     modify $ \env -> env {signature = symbols}
 
--- Currently very fragile. Terms cannot have spaces in them. 
 addEqn :: [String] -> ReplM () 
 addEqn e = do
     sig <- gets signature
