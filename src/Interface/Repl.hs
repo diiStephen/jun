@@ -6,7 +6,7 @@ module Interface.Repl (
 
 import Terms.Terms                ( Term(..), OrderedSig, FSym )
 import Terms.TermParser           ( getTerm )
-import TermRewriting.Rewrite      ( RewriteSystem(..), RewriteRule(..), mkRewriteSystem )
+import TermRewriting.Rewrite      ( RewriteSystem(..), RewriteRule(..), mkRewriteSystem, normalize )
 import Equations.BasicEquation    ( Equation(..), eqMap )
 import Completion.HuetCompletion  ( CompletionEnv(..), complete)
 import Completion.CompletionUtils ( TermOrder )
@@ -35,7 +35,15 @@ defaultPrompt env = "{" ++ intercalate "," (signature env) ++ "}"
     ++ ":> "
 
 commands :: [String]
-commands = ["[exit]", "[add]", "[signature]", "[env]", "[precedence]", "[kb lpo|mpo|kbo]", "[sys]", "[eqs]"]
+commands = ["[exit]"
+    , "[add]"
+    , "[signature]"
+    , "[env]"
+    , "[precedence]"
+    , "[kb lpo|mpo|kbo]"
+    , "[sys]"
+    , "[eqs]"
+    , "[norm]"]
 
 repl :: IO ()
 repl = do
@@ -73,6 +81,7 @@ processCommand command args = do
         "kb"         -> runKb args
         "sys"        -> gets curRewriteSystem >>= (liftIO . putStrLn . showSet "RULES" . rules)
         "eqs"        -> gets curEquations >>= (liftIO. putStrLn . showSet "EQUATIONS")
+        "norm"       -> replNormalize args >>= (liftIO . putStrLn . showSet "NORMALIZED")
         _ -> liftIO $ putStrLn "Command not found."  
 
 setSig :: [String] -> ReplM () 
@@ -140,3 +149,10 @@ weight w (T f ts) = w f + sum (map (weight w) ts)
 
 showSet :: (Foldable t, Show a) => String -> t a -> [Char]
 showSet name es = "\n" ++ name ++ "(\n" ++ concatMap (\s -> "\t" ++ show s ++ "\n") es ++ ")\n" 
+
+replNormalize :: [String] -> ReplM [Term]
+replNormalize st = do 
+    rewriteSystem <- gets curRewriteSystem
+    sig <- gets signature
+    let terms = map (getTerm (map head sig)) st
+    return $ map (normalize rewriteSystem) terms
