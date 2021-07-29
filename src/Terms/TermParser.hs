@@ -1,11 +1,13 @@
-{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE InstanceSigs, LambdaCase #-}
+{-# OPTIONS_GHC -Wall -Wno-unused-top-binds -Wno-incomplete-patterns #-}
 
 module Terms.TermParser where 
 
-import Terms.Terms
-import Control.Applicative
-import Data.Char
-import Control.Monad
+import Terms.Terms         ( Term(..) )
+import Control.Applicative ( Alternative((<|>), empty, many) )
+import Data.Foldable       ( asum )
+import Data.Char           ( isSpace )
+import Control.Monad       ()
 
 newtype Parser a = P (String -> [(a, String)])
 
@@ -31,7 +33,7 @@ instance Monad Parser where
 
 instance Alternative Parser where
     empty :: Parser a 
-    empty = P $ \inp -> []
+    empty = P $ const []
 
     (<|>) :: Parser a -> Parser a -> Parser a 
     (<|>) p q = P $ \inp -> case parse p inp of 
@@ -39,15 +41,15 @@ instance Alternative Parser where
         [(v,out)] -> [(v,out)] 
 
 parse :: Parser a -> String -> [(a, String)]
-parse (P p) inp = p inp
+parse (P p) = p
 
 item :: Parser Char 
-item = P $ \inp -> case inp of 
+item = P $ \case
     []     -> []
     (x:xs) -> [(x, xs)]
 
 sat :: (Char -> Bool) -> Parser Char
-sat pred = item >>= (\x -> if pred x then pure x else empty)
+sat charPred = item >>= (\x -> if charPred x then pure x else empty)
 
 space :: Parser ()
 space = many (sat isSpace) >> pure ()
@@ -68,7 +70,7 @@ parens :: Parser [Char] -> Parser [Char]
 parens = between (symbol "(") (symbol ")")
 
 choice :: [Parser a] -> Parser a
-choice = foldr (<|>) empty 
+choice = asum
 
 sep :: Parser a -> Parser s -> Parser [a]
 sep p s =  (:) <$> p <*> many (s >> p) <|> pure [] 
@@ -77,13 +79,13 @@ isRoot :: Foldable t => t Char -> Parser Char
 isRoot sig = sat (`elem` sig)
 
 rootSym :: Foldable t => t Char -> Parser ([Term] -> Term)
-rootSym sig = T <$> ((:[]) <$> (isRoot sig))
+rootSym sig = T <$> ((:[]) <$> isRoot sig)
 
 var :: [Char] -> Parser Term 
 var _ = V <$> ((,) <$> item <*> pure 1)
 
 rootParser :: [Char] -> Parser Term 
-rootParser sig = (rootSym sig <* (symbol "(")) <*> sep (topLevel sig) (symbol ",") <* (symbol ")")
+rootParser sig = (rootSym sig <* symbol "(") <*> sep (topLevel sig) (symbol ",") <* symbol ")"
 
 constSym :: [Char] -> Parser Term 
 constSym sig = rootSym sig <*> pure [] 
