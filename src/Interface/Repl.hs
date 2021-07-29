@@ -43,6 +43,7 @@ commands = ["[exit]"
     , "[kb lpo|mpo|kbo]"
     , "[sys]"
     , "[eqs]"
+    , "[clear-eqs]"
     , "[norm]"]
 
 repl :: IO ()
@@ -82,6 +83,7 @@ processCommand command args = do
         "sys"        -> gets curRewriteSystem >>= (liftIO . putStrLn . showSet "RULES" . rules)
         "eqs"        -> gets curEquations >>= (liftIO. putStrLn . showSet "EQUATIONS")
         "norm"       -> replNormalize args >>= (liftIO . putStrLn . showSet "NORMALIZED")
+        "clear-eqs"  -> modify $ \env -> env { curEquations = [] }
         _ -> liftIO $ putStrLn "Command not found."  
 
 setSig :: [String] -> ReplM () 
