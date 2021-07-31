@@ -14,7 +14,7 @@ spec = do
     describe "The criticalPair function" $ do 
         describe "when given the rule f(f(x)) --> g(x), a renamed variant, and the position 1" $ do 
             it "should produce the critical pair <g(f(x)), f(g(x))>" $ do
-                 let term = getTerm ['f', 'g']
+                 let term = getTerm ["f", "g"]
 
                  let rho = Rule{ lhs=term "f(f(x))", rhs=term "g(x)" }
 
@@ -24,7 +24,7 @@ spec = do
 
         describe "when given the rules f(x) --> g(x), h(x) --> g(x), and the position \"\"" $ do 
             it "should produce Nothing" $ do 
-                let term = getTerm ['f', 'g', 'h']
+                let term = getTerm ["f", "g", "h"]
 
                 let rho1 = Rule{ lhs=term "f(x)", rhs=term "g(x)" }
                 let rho2 = Rule{ lhs=term "h(x)", rhs=term "g(x)" }
@@ -36,7 +36,7 @@ spec = do
     describe "The criticalPairs function" $ do 
         describe "when given the rules f(f(x,y),z) --> f(x,f(y,z)), f(x,1) --> x" $ do 
             it "should produce a list of all critical pairs found by overlapping the first rule with the second" $ do 
-                let term = getTerm ['f', '1']
+                let term = getTerm ["f", "1"]
 
                 let rho1 = Rule{ lhs=term "f(f(x,y),z)", rhs=term "f(x,f(y,z))" }
                 let rho2 = Rule{ lhs=term"f(x,1)", rhs=term "x" }
@@ -52,7 +52,7 @@ spec = do
     describe "The allCriticalPairs function" $ do 
         describe "when given the term-rewriting system representing groups axioms" $ do 
             it "should produce the set of all critical pairs of the rewrite system" $ do 
-                let term = getTerm ['f', 'i', '1']
+                let term = getTerm ["f", "i", "1"]
                 
                 let asoc = Rule { lhs = term "f(f(x,y),z)", rhs = term "f(x,f(y,z))"  }
                 let inv  = Rule { lhs = term "f(i(x),x)", rhs = term "1" }

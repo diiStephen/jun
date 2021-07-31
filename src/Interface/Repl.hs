@@ -97,11 +97,8 @@ addEqn e = do
     if null sig 
     then liftIO $ putStrLn "Error: Signature is empty."
     else do
-        liftIO $ putStrLn e
         let (eqLHS, eqRHS) = second (drop 1) . break (=='=') $ e  
-        liftIO $ print (eqLHS, eqRHS)
-        let newEq = eqMap (getTerm (map head sig)) (eqLHS :~: eqRHS)
-        liftIO $ print newEq
+        let newEq = eqMap (getTerm sig) (eqLHS :~: eqRHS)
         modify $ \env -> env { curEquations = newEq:curEquations env }
 
 showEnv :: ReplM () 
@@ -159,5 +156,5 @@ replNormalize :: String -> ReplM Term
 replNormalize st = do 
     rewriteSystem <- gets curRewriteSystem
     sig <- gets signature
-    let terms = getTerm (map head sig) st
+    let terms = getTerm sig st
     return $ normalize rewriteSystem terms

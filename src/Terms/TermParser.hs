@@ -78,23 +78,23 @@ choice = asum
 sep :: Parser a -> Parser s -> Parser [a]
 sep p s =  (:) <$> p <*> many (s >> p) <|> pure [] 
 
-isRoot :: Foldable t => t Char -> Parser Char 
-isRoot sig = sat (`elem` sig)
+isRoot :: [String] -> Parser String
+isRoot sig = choice (map string sig)
 
-rootSym :: Foldable t => t Char -> Parser ([Term] -> Term)
-rootSym sig = T <$> ((:[]) <$> isRoot sig)
+rootSym :: [String] -> Parser ([Term] -> Term)
+rootSym sig = T <$> isRoot sig
 
-var :: [Char] -> Parser Term 
+var :: [String] -> Parser Term 
 var _ = V <$> ((,) <$> item <*> pure 1)
 
-rootParser :: [Char] -> Parser Term 
+rootParser :: [String] -> Parser Term 
 rootParser sig = (rootSym sig <* symbol "(") <*> sep (topLevel sig) (symbol ",") <* symbol ")"
 
-constSym :: [Char] -> Parser Term 
+constSym :: [String] -> Parser Term 
 constSym sig = rootSym sig <*> pure [] 
 
-topLevel :: [Char] -> Parser Term 
+topLevel :: [String] -> Parser Term 
 topLevel sig = space *> choice [rootParser sig, constSym sig, var sig]
 
-getTerm :: [Char] -> String -> Term
+getTerm :: [String] -> String -> Term
 getTerm sig s = fst $ head $ parse (topLevel sig) s
