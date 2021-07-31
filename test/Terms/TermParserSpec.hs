@@ -23,3 +23,6 @@ spec = do
 
         it "should parse a string representation with spaces of the term    f  (     x,    y  )   " $ do 
             parse (topLevel ['f']) "   f  (     x,    y  )   " `shouldBe` [(T "f" [V ('x',1), V ('y', 1)], "")] 
+        
+        it "should parse a string representation with spaces of the term    x   " $ do 
+            parse (topLevel []) "   x   " `shouldBe` [(V('x',1), "   ")]

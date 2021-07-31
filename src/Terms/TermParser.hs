@@ -88,13 +88,13 @@ var :: [Char] -> Parser Term
 var _ = V <$> ((,) <$> item <*> pure 1)
 
 rootParser :: [Char] -> Parser Term 
-rootParser sig = space *> (rootSym sig <* symbol "(") <*> sep (topLevel sig) (symbol ",") <* symbol ")"
+rootParser sig = (rootSym sig <* symbol "(") <*> sep (topLevel sig) (symbol ",") <* symbol ")"
 
 constSym :: [Char] -> Parser Term 
 constSym sig = rootSym sig <*> pure [] 
 
 topLevel :: [Char] -> Parser Term 
-topLevel sig = choice [rootParser sig, constSym sig, var sig]
+topLevel sig = space *> choice [rootParser sig, constSym sig, var sig]
 
 getTerm :: [Char] -> String -> Term
 getTerm sig s = fst $ head $ parse (topLevel sig) s

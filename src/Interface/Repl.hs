@@ -16,6 +16,8 @@ import Control.Monad              ( void )
 import Control.Monad.RWS          ( RWST, liftIO, gets, runRWST, modify, get )
 import System.IO                  ( hFlush, stdout ) 
 import Data.List                  ( intercalate )
+import Data.Char                  ( isSpace )
+import Data.Bifunctor             ( second )
 
 type Log = [String]
 
@@ -60,7 +62,7 @@ runRepl :: ReplM ()
 runRepl = do
     cEnv <- get
     c <- liftIO $ prompt (defaultPrompt cEnv)
-    let (com:args) = words c
+    let (com,args) = break isSpace c
     case com of
         "exit" -> liftIO $ void $ putStrLn "Shutting down!"
         _ -> processCommand com args >> runRepl
@@ -71,7 +73,7 @@ prompt p = do
     hFlush stdout 
     getLine
 
-processCommand :: String -> [String] -> ReplM ()
+processCommand :: String -> String -> ReplM ()
 processCommand command args = do 
     case command of 
         "add"        -> addEqn args
@@ -81,22 +83,25 @@ processCommand command args = do
         "kb"         -> runKb args
         "sys"        -> gets curRewriteSystem >>= (liftIO . putStrLn . showSet "RULES" . rules)
         "eqs"        -> gets curEquations >>= (liftIO. putStrLn . showSet "EQUATIONS")
-        "norm"       -> replNormalize args >>= (liftIO . putStrLn . showSet "NORMALIZED")
+        "norm"       -> replNormalize args >>= (liftIO . putStrLn . showSet "NORMALIZED" . (:[]))
         "clear-eqs"  -> modify $ \env -> env { curEquations = [] }
         _ -> liftIO $ putStrLn "Command not found."  
 
-setSig :: [String] -> ReplM () 
+setSig :: String -> ReplM () 
 setSig symbols = do 
-    modify $ \env -> env {signature = symbols}
+    modify $ \env -> env {signature = words symbols}
 
-addEqn :: [String] -> ReplM () 
+addEqn :: String -> ReplM () 
 addEqn e = do
     sig <- gets signature
     if null sig 
     then liftIO $ putStrLn "Error: Signature is empty."
     else do
-        let (eqLHS, eqRHS) = (e !! 0, e !! 2)  
+        liftIO $ putStrLn e
+        let (eqLHS, eqRHS) = second (drop 1) . break (=='=') $ e  
+        liftIO $ print (eqLHS, eqRHS)
         let newEq = eqMap (getTerm (map head sig)) (eqLHS :~: eqRHS)
+        liftIO $ print newEq
         modify $ \env -> env { curEquations = newEq:curEquations env }
 
 showEnv :: ReplM () 
@@ -104,10 +109,10 @@ showEnv = do
     env <- get 
     liftIO $ print env 
 
-runKb :: [String] -> ReplM ()
+runKb :: String -> ReplM ()
 runKb args = do
     eqsToComplete <- gets curEquations
-    ord <- getOrdFromInput (head args) -- TODO: Head is an unsafe function, fix this.  
+    ord <- getOrdFromInput $ drop 1 args
     let (result, complEnv, trace) = complete eqsToComplete ord
     liftIO $ mapM_ putStrLn trace
     case result of 
@@ -150,9 +155,9 @@ weight w (T f ts) = w f + sum (map (weight w) ts)
 showSet :: (Foldable t, Show a) => String -> t a -> [Char]
 showSet name es = "\n" ++ name ++ "(\n" ++ concatMap (\s -> "\t" ++ show s ++ "\n") es ++ ")\n" 
 
-replNormalize :: [String] -> ReplM [Term]
+replNormalize :: String -> ReplM Term
 replNormalize st = do 
     rewriteSystem <- gets curRewriteSystem
     sig <- gets signature
-    let terms = map (getTerm (map head sig)) st
-    return $ map (normalize rewriteSystem) terms
+    let terms = getTerm (map head sig) st
+    return $ normalize rewriteSystem terms
