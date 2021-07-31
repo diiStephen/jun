@@ -51,6 +51,9 @@ item = P $ \case
 sat :: (Char -> Bool) -> Parser Char
 sat charPred = item >>= (\x -> if charPred x then pure x else empty)
 
+stringSat :: (String -> Bool) -> Parser String
+stringSat stringPred = many item >>= (\x -> if stringPred x then pure x else empty) 
+
 space :: Parser ()
 space = many (sat isSpace) >> pure ()
 
@@ -85,7 +88,7 @@ var :: [Char] -> Parser Term
 var _ = V <$> ((,) <$> item <*> pure 1)
 
 rootParser :: [Char] -> Parser Term 
-rootParser sig = (rootSym sig <* symbol "(") <*> sep (topLevel sig) (symbol ",") <* symbol ")"
+rootParser sig = space *> (rootSym sig <* symbol "(") <*> sep (topLevel sig) (symbol ",") <* symbol ")"
 
 constSym :: [Char] -> Parser Term 
 constSym sig = rootSym sig <*> pure [] 
