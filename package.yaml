@@ -26,7 +26,6 @@ dependencies:
 - mtl >= 2.2.2
 - containers
 - hspec-discover
-- monad-loops
 
 library:
   source-dirs: src
