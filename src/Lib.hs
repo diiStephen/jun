@@ -1,6 +1,8 @@
-module Lib
-    ( someFunc
-    ) where
+module Lib ( 
+    entry
+) where
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+import Interface.Repl ( repl )
+
+entry :: IO ()
+entry = repl

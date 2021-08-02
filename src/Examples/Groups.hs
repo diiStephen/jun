@@ -27,7 +27,7 @@ symWeight f | f == "1" = 1
             | otherwise = 0
 
 groupTermParser :: String -> Term
-groupTermParser = getTerm ['1', 'i', 'f']
+groupTermParser = getTerm groupSig
 
 getGroupAxioms :: [Equation Term Term]
 getGroupAxioms = map (eqMap groupTermParser) [assoc, inv, id]

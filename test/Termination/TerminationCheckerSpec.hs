@@ -12,7 +12,7 @@ spec = do
     describe "The TerminationChecker" $ do 
         describe "when given the R_ack TRS " $ do 
             it "should determine it is terminating with an lpo" $ do 
-                let sig = ['0','s','a'] 
+                let sig = ["0","s","a"] 
                 
                 -- a(0, y) --> s(y)
                 let l1    = getTerm sig "a(0,y)"
@@ -39,7 +39,7 @@ spec = do
             it "should fail to determine it is terminating with mpo and lpo" $ do 
 
                 -- f(x,y) --> f(y,x)
-                let sig = ['f']
+                let sig = ["f"]
                 let l = getTerm sig "f(x,y)"
                 let r = getTerm sig "f(y,x)"
                 let r1 = Rule l r 

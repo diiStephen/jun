@@ -13,7 +13,7 @@ example77Sig :: OrderedSig
 example77Sig = ["f"]
 
 p :: String -> Term
-p = getTerm ['f']
+p = getTerm ["f"]
 
 example77Axioms :: [Equation Term Term]
 example77Axioms = [invol, ax3, assoc]

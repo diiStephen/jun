@@ -13,7 +13,7 @@ centralGroupoidSig :: OrderedSig
 centralGroupoidSig = ["f"]
 
 parser :: String -> Term
-parser = getTerm ['f']
+parser = getTerm ["f"]
 
 getCGAxioms :: [Equation Term Term]
 getCGAxioms = [cg]
