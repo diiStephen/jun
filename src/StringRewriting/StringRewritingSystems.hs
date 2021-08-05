@@ -9,17 +9,13 @@ module StringRewriting.StringRewritingSystems (
     , stringToTerm2
     , rewrite
     , rewriteAt
-    , suf
     , lefts
     , rights 
-    , delta
-    , gamma
 ) where
 
 import Terms.Terms    ( Term(..) )
 import Data.Bifunctor ( Bifunctor(..) )
 import Data.Kind      ( Type )
-import Data.List      ( tails )
 
 type StringRewriteRule :: Type -> Type -> Type
 data StringRewriteRule a b where 
@@ -50,15 +46,6 @@ rewriteAt (l :->: r) s p = before ++ rewrite (l :->: r) redex ++ after
     where 
         (before, suffix) = splitAt (p-1) s
         (redex, after) = splitAt (length l) suffix
-
-suf :: String -> [String]
-suf = tails 
-
-gamma :: StringRewriteSystem String String -> [String]
-gamma = undefined 
-
-delta :: Alphabet -> [String]
-delta = undefined
 
 lefts :: StringRewriteSystem a b -> [a]
 lefts = map lhs
