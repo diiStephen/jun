@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE GADTs, StandaloneKindSignatures #-}
 {-# OPTIONS_GHC -Wall #-}
 
 module StringRewriting.StringRewritingSystems (
@@ -7,11 +7,15 @@ module StringRewriting.StringRewritingSystems (
     , StringRewriteSystem
     , stringToTerm
     , stringToTerm2
+    , rewrite
+    , rewriteAt
 ) where
 
 import Terms.Terms    ( Term(..) )
 import Data.Bifunctor ( Bifunctor(..) )
+import Data.Kind      ( Type )
 
+type StringRewriteRule :: Type -> Type -> Type
 data StringRewriteRule a b where 
     (:->:) :: a -> b -> StringRewriteRule a b
     deriving (Eq)
@@ -31,3 +35,12 @@ stringToTerm s = go (reverse s)
 
 stringToTerm2 :: Foldable t => t Char -> Term
 stringToTerm2 = foldl (\t c -> T [c] [t]) (V ('x',1))
+
+rewrite :: StringRewriteRule String String -> String -> String
+rewrite (l :->: r) s = if l == s then r else s
+
+rewriteAt :: StringRewriteRule String String -> String -> Int -> String
+rewriteAt (l :->: r) s p = before ++ rewrite (l :->: r) redex ++ after
+    where 
+        (before, suffix) = splitAt (p-1) s
+        (redex, after) = splitAt (length l) suffix
