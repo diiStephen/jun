@@ -11,16 +11,19 @@ module StringRewriting.StringRewritingSystems (
     , rewriteAt
     , lefts
     , rights 
+    , rewriteAll
+    , normalize
 ) where
 
 import Terms.Terms    ( Term(..) )
 import Data.Bifunctor ( Bifunctor(..) )
 import Data.Kind      ( Type )
+import Data.Maybe     ( fromMaybe )
 
 type StringRewriteRule :: Type -> Type -> Type
 data StringRewriteRule a b where 
     (:->:) :: a -> b -> StringRewriteRule a b
-    deriving (Eq)
+    deriving (Eq, Show)
 
 instance Bifunctor StringRewriteRule where 
     bimap f g (s :->: t) = f s :->: g t
@@ -38,11 +41,11 @@ stringToTerm s = go (reverse s)
 stringToTerm2 :: Foldable t => t Char -> Term
 stringToTerm2 = foldl (\t c -> T [c] [t]) (V ('x',1))
 
-rewrite :: StringRewriteRule String String -> String -> String
-rewrite (l :->: r) s = if l == s then r else s
+rewrite :: StringRewriteRule String String -> String -> Maybe String
+rewrite (l :->: r) s = if l == s then Just r else Nothing
 
 rewriteAt :: StringRewriteRule String String -> String -> Int -> String
-rewriteAt (l :->: r) s p = before ++ rewrite (l :->: r) redex ++ after
+rewriteAt (l :->: r) s p = before ++ fromMaybe redex (rewrite (l :->: r) redex) ++ after
     where 
         (before, suffix) = splitAt (p-1) s
         (redex, after) = splitAt (length l) suffix
@@ -58,3 +61,17 @@ rights = map rhs
 
 rhs :: StringRewriteRule a b -> b 
 rhs (_ :->: r) = r
+
+rewriteAll :: StringRewriteSystem String String -> String -> Maybe String
+rewriteAll [] _ = Nothing 
+rewriteAll (r:rs) s = case rewrite r s of  
+    Just contr -> Just contr
+    Nothing    -> rewriteAll rs s
+
+-- Currently incorrect because the entire suffix is attempted to be matched against the rule. 
+normalize :: StringRewriteSystem String String -> String -> String 
+normalize _ [] = []
+normalize srs (s:ss) = let u = s : normalize srs ss in 
+    case rewriteAll srs u of  
+        Just contr -> normalize srs contr 
+        Nothing    -> u
