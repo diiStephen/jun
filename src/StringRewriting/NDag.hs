@@ -6,7 +6,7 @@ module StringRewriting.NDag (
     , suf
 ) where
 
-import StringRewriting.StringRewritingSystems (StringRewriteSystem, Alphabet )
+import StringRewriting.StringRewritingSystems ( StringRewriteSystem, Alphabet )
 import Data.List                              ( tails )
 
 suf :: String -> [String]
