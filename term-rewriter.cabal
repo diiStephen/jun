@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7cd46ecb3eacaa1d37b91c2e16d145a216861f22ae4058dcf53003dd8a1f83f8
+-- hash: 3f5dda4f9fadc987eb8515ef132c779e10b35c0e519c81539e3ab4d3026e49d1
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -12,6 +12,7 @@ description:    Please see the README on GitHub at <https://github.com/githubuse
 homepage:       https://github.com/diiStephen/term-rewriter#readme
 bug-reports:    https://github.com/diiStephen/term-rewriter/issues
 author:         Daniel S. Hono II
+maintainer:     Daniel S. Hono II
 copyright:      2021 Daniel S. Hono II
 license:        BSD3
 license-file:   LICENSE

@@ -3,7 +3,7 @@ version:             0.1.0.0
 github:              "diiStephen/term-rewriter"
 license:             BSD3
 author:              "Daniel S. Hono II"
-maintainer:          ""
+maintainer:          "Daniel S. Hono II"
 copyright:           "2021 Daniel S. Hono II"
 
 extra-source-files:
