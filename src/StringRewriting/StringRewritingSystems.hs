@@ -44,6 +44,12 @@ stringToTerm2 = foldl (\t c -> T [c] [t]) (V ('x',1))
 rewrite :: StringRewriteRule String String -> String -> Maybe String
 rewrite (l :->: r) s = if l == s then Just r else Nothing
 
+--Rewrites strings of the form lw where l->r is the rule and w \in \Sigma^*
+--This may not be the correct definition as redex are defined as strings of the form wl
+rewrite2 :: StringRewriteRule String String -> String -> Maybe String 
+rewrite2 (l :->: r) s = if take len s == l then Just (r ++ drop len s) else Nothing 
+    where len = length l
+
 rewriteAt :: StringRewriteRule String String -> String -> Int -> String
 rewriteAt (l :->: r) s p = before ++ fromMaybe redex (rewrite (l :->: r) redex) ++ after
     where 
@@ -64,7 +70,7 @@ rhs (_ :->: r) = r
 
 rewriteAll :: StringRewriteSystem String String -> String -> Maybe String
 rewriteAll [] _ = Nothing 
-rewriteAll (r:rs) s = case rewrite r s of  
+rewriteAll (r:rs) s = case rewrite2 r s of  
     Just contr -> Just contr
     Nothing    -> rewriteAll rs s
 
