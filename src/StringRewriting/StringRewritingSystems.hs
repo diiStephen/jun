@@ -76,13 +76,13 @@ rewriteAll (r:rs) s = case reduce r s of
     Just contr -> Just contr
     Nothing    -> rewriteAll rs s
 
--- Needs to add an end marker, $, at the end of string. 
 normalize :: StringRewriteSystem String String -> String -> String 
-normalize srs s = take (length u - 1) u
-    where u = normalizer srs "" (s ++ "$")  
+normalize srs = normalizer srs "" 
 
 normalizer :: StringRewriteSystem String String -> String -> String -> String
-normalizer _ prefix [] = prefix
+normalizer srs prefix [] = case rewriteAll srs prefix of 
+    Nothing -> prefix 
+    Just contr -> normalizer srs "" contr
 normalizer srs prefix (t:ts) = case rewriteAll srs prefix of 
     Just s  -> normalizer srs (normalizer srs [] s) (t:ts)
     Nothing -> normalizer srs (prefix ++ [t]) ts
