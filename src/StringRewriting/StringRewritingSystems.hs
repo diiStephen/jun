@@ -13,7 +13,7 @@ module StringRewriting.StringRewritingSystems (
     , rights 
     , rewriteAll
     , normalize
-    , rewrite2
+    , reduce
 ) where
 
 import Terms.Terms    ( Term(..) )
@@ -47,9 +47,9 @@ rewrite :: StringRewriteRule String String -> String -> Maybe String
 rewrite (l :->: r) s = if l == s then Just r else Nothing
 
 -- Rewrites redexes of the form wl to wr 
-rewrite2 :: StringRewriteRule String String -> String -> Maybe String 
-rewrite2 _ [] = Nothing 
-rewrite2 (l :->: r) s = if drop prefix s == l then Just (take prefix s ++ r) else Nothing 
+reduce :: StringRewriteRule String String -> String -> Maybe String 
+reduce _ [] = Nothing 
+reduce (l :->: r) s = if drop prefix s == l then Just (take prefix s ++ r) else Nothing 
     where prefix = length s - length l
 
 rewriteAt :: StringRewriteRule String String -> String -> Int -> String
@@ -72,7 +72,7 @@ rhs (_ :->: r) = r
 
 rewriteAll :: StringRewriteSystem String String -> String -> Maybe String
 rewriteAll [] _ = Nothing 
-rewriteAll (r:rs) s = case rewrite2 r s of  
+rewriteAll (r:rs) s = case reduce r s of  
     Just contr -> Just contr
     Nothing    -> rewriteAll rs s
 
