@@ -83,5 +83,5 @@ normalize srs s = take (length u - 1) u
 normalizer :: StringRewriteSystem String String -> String -> String -> String
 normalizer _ prefix [] = prefix
 normalizer srs prefix (t:ts) = case rewriteAll srs prefix of 
-    Just s -> normalizer srs (normalizer srs [] s) (t:ts)
+    Just s  -> normalizer srs (normalizer srs [] s) (t:ts)
     Nothing -> normalizer srs (prefix ++ [t]) ts
