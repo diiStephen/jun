@@ -13,6 +13,7 @@ module StringRewriting.StringRewritingSystems (
     , rights 
     , rewriteAll
     , normalize
+    , rewrite3
 ) where
 
 import Terms.Terms    ( Term(..) )
@@ -20,6 +21,7 @@ import Data.Bifunctor ( Bifunctor(..) )
 import Data.Kind      ( Type )
 import Data.Maybe     ( fromMaybe )
 
+--This type should be generalized to RewriteRule and specialized to String and Term rewriting systems. 
 type StringRewriteRule :: Type -> Type -> Type
 data StringRewriteRule a b where 
     (:->:) :: a -> b -> StringRewriteRule a b
@@ -50,6 +52,12 @@ rewrite2 :: StringRewriteRule String String -> String -> Maybe String
 rewrite2 (l :->: r) s = if take len s == l then Just (r ++ drop len s) else Nothing 
     where len = length l
 
+-- Rewrites redexes of the form wl to wr 
+rewrite3 :: StringRewriteRule String String -> String -> Maybe String 
+rewrite3 _ [] = Nothing 
+rewrite3 (l :->: r) s = if drop prefix s == l then Just (take prefix s ++ r) else Nothing 
+    where prefix = length s - length l
+
 rewriteAt :: StringRewriteRule String String -> String -> Int -> String
 rewriteAt (l :->: r) s p = before ++ fromMaybe redex (rewrite (l :->: r) redex) ++ after
     where 
@@ -70,14 +78,25 @@ rhs (_ :->: r) = r
 
 rewriteAll :: StringRewriteSystem String String -> String -> Maybe String
 rewriteAll [] _ = Nothing 
-rewriteAll (r:rs) s = case rewrite2 r s of  
+rewriteAll (r:rs) s = case rewrite3 r s of  
     Just contr -> Just contr
     Nothing    -> rewriteAll rs s
 
--- Currently incorrect because the entire suffix is attempted to be matched against the rule. 
+{--- Currently incorrect because the entire suffix is attempted to be matched against the rule. 
 normalize :: StringRewriteSystem String String -> String -> String 
 normalize _ [] = []
 normalize srs (s:ss) = let u = s : normalize srs ss in 
     case rewriteAll srs u of  
         Just contr -> normalize srs contr 
         Nothing    -> u
+-}
+
+normalize :: StringRewriteSystem String String -> String -> String 
+normalize srs s = take (length u - 1) u
+    where u = normalizer srs "" (s ++ "$")  
+
+normalizer :: StringRewriteSystem String String -> String -> String -> String
+normalizer _ prefix [] = prefix
+normalizer srs prefix (t:ts) = case rewriteAll srs prefix of 
+    Just s -> normalizer srs (normalizer srs [] s) (t:ts)
+    Nothing -> normalizer srs (prefix ++ [t]) ts
