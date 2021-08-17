@@ -3,7 +3,8 @@ module StringRewriting.StringRewritingSystemsSpec (spec) where
 import Test.Hspec                             ( hspec, describe, it, shouldBe, Spec ) 
 import Test.QuickCheck                        () 
 import Control.Exception                      ( evaluate )
-import StringRewriting.StringRewritingSystems ( StringRewriteRule(..), normalize )
+import StringRewriting.StringRewritingSystems ( StringRewriteRule(..), normalize, stringToTerm )
+import Terms.Terms                            ( Term(..) )
 
 spec :: Spec 
 spec = do 
@@ -20,3 +21,10 @@ spec = do
                 let expected = "abbac"
                 let result = normalize srs "bbbbbac"
                 result `shouldBe` expected
+    
+        describe "The stringToTerm function" $ do 
+            it "should translate the string abc to the term c(b(a(x)))" $ do 
+                let string = "abc"
+                let expectedTerm = T "c" [T "b" [T "a" [V ('x',1)]]]
+                let result = stringToTerm string
+                result `shouldBe` expectedTerm
