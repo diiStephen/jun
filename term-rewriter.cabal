@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3f5dda4f9fadc987eb8515ef132c779e10b35c0e519c81539e3ab4d3026e49d1
+-- hash: b38d5de7f3c98e951c48038baa377b6c37cfa51ce559460557345bc807aab298
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -92,6 +92,7 @@ test-suite unit-tests
       Orders.MonadicRecursivePathOrdersSpec
       Orders.PolyOrdersSpec
       Orders.RecursivePathOrdersSpec
+      StringRewriting.StringRewritingSystemsSpec
       Termination.TerminationCheckerSpec
       TermRewriting.RewriteSpec
       Terms.TermParserSpec

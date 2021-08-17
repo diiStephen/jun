@@ -14,3 +14,9 @@ spec = do
                 let expected = "cc"
                 let result = normalize srs "abab"
                 result `shouldBe` expected
+
+            it "should normalize the string bbbbbac to abbac module {bbb -> a}" $ do 
+                let srs = ["bbb" :->: "a"]
+                let expected = "abbac"
+                let result = normalize srs "bbbbbac"
+                result `shouldBe` expected
