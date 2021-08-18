@@ -3,7 +3,7 @@ module StringRewriting.StringRewritingSystemsSpec (spec) where
 import Test.Hspec                             ( hspec, describe, it, shouldBe, Spec ) 
 import Test.QuickCheck                        () 
 import Control.Exception                      ( evaluate )
-import StringRewriting.StringRewritingSystems ( StringRewriteRule(..), normalize, stringToTerm )
+import StringRewriting.StringRewritingSystems ( StringRewriteRule(..), normalize, stringToTerm, stringToTerm2 )
 import Terms.Terms                            ( Term(..) )
 
 spec :: Spec 
@@ -39,4 +39,23 @@ spec = do
                 let string = ""
                 let expectedTerm = V ('x', 1)
                 let result = stringToTerm string
+                result `shouldBe` expectedTerm
+        
+        describe "The stringToTerm2 function" $ do
+            it "should translate the string abc to the term c(b(a(x)))" $ do 
+                let string = "abc"
+                let expectedTerm = T "c" [T "b" [T "a" [V ('x',1)]]]
+                let result = stringToTerm2 string
+                result `shouldBe` expectedTerm
+            
+            it "should translate the string a to the term a(x)" $ do 
+                let string = "a"
+                let expectedTerm = T "a" [V ('x',1)]
+                let result = stringToTerm2 string
+                result `shouldBe` expectedTerm
+
+            it "should translate the empty string to the term x" $ do 
+                let string = ""
+                let expectedTerm = V ('x', 1)
+                let result = stringToTerm2 string
                 result `shouldBe` expectedTerm
