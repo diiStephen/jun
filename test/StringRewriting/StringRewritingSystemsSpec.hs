@@ -28,3 +28,15 @@ spec = do
                 let expectedTerm = T "c" [T "b" [T "a" [V ('x',1)]]]
                 let result = stringToTerm string
                 result `shouldBe` expectedTerm
+            
+            it "should translate the string a to the term a(x)" $ do 
+                let string = "a"
+                let expectedTerm = T "a" [V ('x',1)]
+                let result = stringToTerm string
+                result `shouldBe` expectedTerm
+
+            it "should translate the empty string to the term x" $ do 
+                let string = ""
+                let expectedTerm = V ('x', 1)
+                let result = stringToTerm string
+                result `shouldBe` expectedTerm
