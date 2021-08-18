@@ -3,7 +3,7 @@ module StringRewriting.StringRewritingSystemsSpec (spec) where
 import Test.Hspec                             ( hspec, describe, it, shouldBe, Spec ) 
 import Test.QuickCheck                        () 
 import Control.Exception                      ( evaluate )
-import StringRewriting.StringRewritingSystems ( StringRewriteRule(..), normalize, stringToTerm, stringToTerm2 )
+import StringRewriting.StringRewritingSystems ( StringRewriteRule(..), normalize, stringToTerm, stringToTerm2, reduce, rewriteAt )
 import Terms.Terms                            ( Term(..) )
 
 spec :: Spec 
@@ -59,3 +59,27 @@ spec = do
                 let expectedTerm = V ('x', 1)
                 let result = stringToTerm2 string
                 result `shouldBe` expectedTerm
+
+        describe "The reduce function" $ do 
+            it "should contract the redex ccaab to ccc" $ do 
+                let rule = "aab" :->: "c"
+                let redex = "ccaab" 
+                let expectedReduct = Just "ccc"
+                let result = reduce rule redex 
+                result `shouldBe` expectedReduct
+            
+            it "should return Nothing for the irreducible string bb" $ do 
+                let rule = "aa" :->: "a"
+                let irreducible = "bb"
+                let expectedResult = Nothing 
+                let result = reduce rule irreducible
+                result `shouldBe` expectedResult
+        
+        describe "The rewrite at function" $ do 
+            it "should reduce the string abba to aaa by rewriting at position 2" $ do 
+                let rule = "bb" :->: "a"
+                let string = "abba"
+                let position = 2
+                let expectedResult = "aaa"
+                let result = rewriteAt rule string position
+                result `shouldBe` expectedResult
