@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b38d5de7f3c98e951c48038baa377b6c37cfa51ce559460557345bc807aab298
+-- hash: 2c1ace0496242ceceb8b6a346339e02c0b5758e776f37c397140da64d9d4c5dc
 
 name:           term-rewriter
 version:        0.1.0.0
@@ -37,6 +37,7 @@ library
       Examples.CentralGroupoids
       Examples.Example77
       Examples.Groups
+      ForwardClosure.Closure
       Interface.Repl
       Lib
       Orders.KnuthBendixOrder
