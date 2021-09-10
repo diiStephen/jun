@@ -2,13 +2,15 @@ module ForwardClosure.Closure (
       computeFowardClosure
     , forwardOverlap
     , forwardOverlaps 
+    , fov
 ) where
 
-import TermRewriting.Rewrite      ( RewriteSystem, RewriteRule (..), mkDisjointVars )
+import TermRewriting.Rewrite      ( RewriteSystem (..), RewriteRule (..), mkDisjointVars )
 import Unification.Unification    ( unify' )
 import Substitution.Substitutions ( applyLifted )
 import Terms.Terms                ( get, set, label, isNonVar ) 
 import Data.Maybe                 ( catMaybes ) 
+import Data.List                  ( union )
 
 data ForwardClosureEnv = Env {
       newRules :: RewriteSystem
@@ -29,4 +31,4 @@ forwardOverlaps rho1 rho2 = forwardOverlap (mkDisjointVars rho1 rho2) rho2 <$> n
     where nonVarPos = snd <$> filter (isNonVar . fst) (label (rhs rho1))
 
 fov :: RewriteSystem -> RewriteSystem -> [RewriteRule]
-fov r1 r2 = undefined
+fov r1 r2 = catMaybes (foldr union [] [forwardOverlaps rho1 rho2 | rho1 <- rules r1, rho2 <- rules r2])
