@@ -63,9 +63,9 @@ isInstance rho1 rho2 = let matches = (match' (lhs rho1) (lhs rho2), match' (rhs 
 -- Forward closure
 fc :: [RewriteRule] -> Int -> [RewriteRule]
 fc r 0 = r
-fc r k = fc r (k-1) `union` nr (k+1) r
+fc r k = fc r (k-1) `union` nr k r
 
 -- New rules 
 nr :: Int -> [RewriteRule] -> [RewriteRule]
 nr 0 r = r
-nr k r = n (nr (k-1) r) r (fc r (k+1))
+nr k r = n (nr (k-1) r) r (fc r (k-1))
