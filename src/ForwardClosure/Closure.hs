@@ -10,7 +10,7 @@ import Unification.Unification    ( unify' )
 import Substitution.Substitutions ( applyLifted )
 import Terms.Terms                ( get, set, label, isNonVar ) 
 import Data.Maybe                 ( catMaybes ) 
-import Data.List                  ( union )
+import Data.List                  ( union, delete )
 
 computeFowardClosure :: RewriteSystem -> RewriteSystem 
 computeFowardClosure = undefined 
@@ -39,7 +39,8 @@ isRedundant rho r = isInstanceSystem rho r || isStricklyRedundant rho r
 -- l -> r is strickly redundant in R where l is reducible 
 -- and r is a normal form of l iff a proper subterm of l is reducible  
 isStricklyRedundant :: RewriteRule -> [RewriteRule] -> Bool 
-isStricklyRedundant = undefined 
+isStricklyRedundant rho rs = undefined
+    where properSubtermPos = delete "" (snd <$> filter (isNonVar . fst) (label (lhs rho)))
 
 isInstanceSystem :: RewriteRule -> [RewriteRule] -> Bool 
 isInstanceSystem = undefined
