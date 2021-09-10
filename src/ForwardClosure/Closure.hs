@@ -3,9 +3,10 @@ module ForwardClosure.Closure (
     , forwardOverlap
     , forwardOverlaps 
     , fov
+    , isStricklyRedundant
 ) where
 
-import TermRewriting.Rewrite      ( RewriteSystem (..), RewriteRule (..), mkDisjointVars )
+import TermRewriting.Rewrite      ( RewriteSystem (..), RewriteRule (..), mkDisjointVars, rewriteAll )
 import Unification.Unification    ( unify' )
 import Substitution.Substitutions ( applyLifted )
 import Terms.Terms                ( get, set, label, isNonVar ) 
@@ -39,8 +40,12 @@ isRedundant rho r = isInstanceSystem rho r || isStricklyRedundant rho r
 -- l -> r is strickly redundant in R where l is reducible 
 -- and r is a normal form of l iff a proper subterm of l is reducible  
 isStricklyRedundant :: RewriteRule -> [RewriteRule] -> Bool 
-isStricklyRedundant rho rs = undefined
+isStricklyRedundant rho rs = go properSubtermPos
     where properSubtermPos = delete "" (snd <$> filter (isNonVar . fst) (label (lhs rho)))
+          go [] = False 
+          go (p:ps) = case rewriteAll rs (get (lhs rho) p) of 
+              Just t -> True 
+              Nothing -> go ps
 
 isInstanceSystem :: RewriteRule -> [RewriteRule] -> Bool 
 isInstanceSystem = undefined
