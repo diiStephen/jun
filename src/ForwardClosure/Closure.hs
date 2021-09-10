@@ -12,11 +12,6 @@ import Terms.Terms                ( get, set, label, isNonVar )
 import Data.Maybe                 ( catMaybes ) 
 import Data.List                  ( union )
 
-data ForwardClosureEnv = Env {
-      newRules :: RewriteSystem
-    , killswitch :: Int 
-}
-
 computeFowardClosure :: RewriteSystem -> RewriteSystem 
 computeFowardClosure = undefined 
 
