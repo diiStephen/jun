@@ -41,6 +41,8 @@ n r1 r2 r3 = [rho | rho <- fov r1 r2, not (isRedundant rho r3)]
 isRedundant :: RewriteRule ->  [RewriteRule] -> Bool 
 isRedundant rho r = isInstanceSystem rho r || isStricklyRedundant rho r  
 
+-- l -> r is strickly redundant in R where l is reducible 
+-- and r is a normal form of l iff a proper subterm of l is reducible  
 isStricklyRedundant :: RewriteRule -> [RewriteRule] -> Bool 
 isStricklyRedundant = undefined 
 
