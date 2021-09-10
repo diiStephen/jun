@@ -7,14 +7,14 @@ module ForwardClosure.Closure (
 ) where
 
 import TermRewriting.Rewrite      ( RewriteSystem (..), RewriteRule (..), mkDisjointVars, rewriteAll )
-import Unification.Unification    ( unify' )
+import Unification.Unification    ( unify', match' )
 import Substitution.Substitutions ( applyLifted )
 import Terms.Terms                ( get, set, label, isNonVar ) 
 import Data.Maybe                 ( catMaybes ) 
 import Data.List                  ( union, delete )
 
 computeFowardClosure :: RewriteSystem -> RewriteSystem 
-computeFowardClosure = undefined 
+computeFowardClosure = undefined  
 
 -- Assume Var(rho1) \cap Var(rho2) = \varnothing 
 forwardOverlap :: RewriteRule -> RewriteRule -> String -> Maybe RewriteRule 
@@ -48,10 +48,14 @@ isStricklyRedundant rho rs = go properSubtermPos
               Nothing -> go ps
 
 isInstanceSystem :: RewriteRule -> [RewriteRule] -> Bool 
-isInstanceSystem = undefined
+isInstanceSystem _ [] = False 
+isInstanceSystem rho (r:rs) = isInstance rho r || isInstanceSystem rho rs  
 
 isInstance :: RewriteRule -> RewriteRule -> Bool 
-isInstance = undefined
+isInstance rho1 rho2 = let matches = (match' (lhs rho1) (lhs rho2), match' (rhs rho1) (rhs rho2)) in
+    case matches of 
+        (Just _, Just _) -> True 
+        _ -> False 
 
 -- Forward closure
 fc :: Int -> [RewriteRule] -> [RewriteRule] 
