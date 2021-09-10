@@ -1,5 +1,5 @@
 module ForwardClosure.Closure (
-      computeFowardClosure
+      computeForwardClosure
     , forwardOverlap
     , forwardOverlaps
     , fov
@@ -15,8 +15,8 @@ import Terms.Terms                ( get, set, label, isNonVar )
 import Data.Maybe                 ( catMaybes )
 import Data.List                  ( union, delete )
 
-computeFowardClosure :: Int -> RewriteSystem -> RewriteSystem
-computeFowardClosure limit rs = Rules $ foldr (union . fc (rules rs)) [] range
+computeForwardClosure :: Int -> RewriteSystem -> RewriteSystem
+computeForwardClosure limit rs = Rules $ foldr (union . fc (rules rs)) [] range
     where range = take limit [1..]
 
 -- Assume Var(rho1) \cap Var(rho2) = \varnothing 
