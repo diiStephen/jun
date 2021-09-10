@@ -30,5 +30,32 @@ forwardOverlaps :: RewriteRule -> RewriteRule -> [Maybe RewriteRule]
 forwardOverlaps rho1 rho2 = forwardOverlap (mkDisjointVars rho1 rho2) rho2 <$> nonVarPos
     where nonVarPos = snd <$> filter (isNonVar . fst) (label (rhs rho1))
 
-fov :: RewriteSystem -> RewriteSystem -> [RewriteRule]
-fov r1 r2 = catMaybes (foldr union [] [forwardOverlaps rho1 rho2 | rho1 <- rules r1, rho2 <- rules r2])
+-- FOV(R_1, R_2)
+fov :: [RewriteRule] -> [RewriteRule] -> [RewriteRule]
+fov r1 r2 = catMaybes (foldr union [] [forwardOverlaps rho1 rho2 | rho1 <- r1, rho2 <- r2])
+
+-- N(R_1, R_2, R_3)
+n :: [RewriteRule] -> [RewriteRule] -> [RewriteRule] -> [RewriteRule]
+n r1 r2 r3 = [rho | rho <- fov r1 r2, not (isRedundant rho r3)]
+
+isRedundant :: RewriteRule ->  [RewriteRule] -> Bool 
+isRedundant rho r = isInstanceSystem rho r || isStricklyRedundant rho r  
+
+isStricklyRedundant :: RewriteRule -> [RewriteRule] -> Bool 
+isStricklyRedundant = undefined 
+
+isInstanceSystem :: RewriteRule -> [RewriteRule] -> Bool 
+isInstanceSystem = undefined
+
+isInstance :: RewriteRule -> RewriteRule -> Bool 
+isInstance = undefined
+
+-- Forward closure
+fc :: Int -> [RewriteRule] -> [RewriteRule] 
+fc 0 r = r 
+fc k r = fc (k-1) r `union` nr (k+1) r 
+
+-- New rules 
+nr :: Int -> [RewriteRule] -> [RewriteRule]
+nr 0 r = r
+nr k r = n (nr (k-1) r) r (fc (k+1) r)
