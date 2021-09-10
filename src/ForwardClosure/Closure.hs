@@ -40,14 +40,14 @@ n r1 r2 r3 = [rho | rho <- fov r1 r2, not (isRedundant rho r3)]
 isRedundant :: RewriteRule ->  [RewriteRule] -> Bool
 isRedundant rho r = isInstanceSystem rho r || isStrictlyRedundant rho r
 
--- l -> r is strickly redundant in R where l is reducible 
+-- l -> r is strictly redundant in R where l is reducible
 -- and r is a normal form of l iff a proper subterm of l is reducible  
 isStrictlyRedundant :: RewriteRule -> [RewriteRule] -> Bool
 isStrictlyRedundant rho rs = go properSubtermPos
     where properSubtermPos = delete "" (snd <$> filter (isNonVar . fst) (label (lhs rho)))
           go [] = False
           go (p:ps) = case rewriteAll rs (get (lhs rho) p) of
-              Just t -> True
+              Just _ -> True
               Nothing -> go ps
 
 isInstanceSystem :: RewriteRule -> [RewriteRule] -> Bool
