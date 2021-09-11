@@ -18,9 +18,11 @@ import Data.Coerce                ( coerce )
 
 data RewriteRule 
     = Rule { lhs :: Term, rhs :: Term } 
-    deriving (Eq)
+    deriving (Eq, Ord)
     
-newtype RewriteSystem = Rules { rules :: [RewriteRule] }
+newtype RewriteSystem
+  = Rules { rules :: [RewriteRule] }
+  deriving (Eq)
 
 instance Show RewriteRule where 
     show r = show (lhs r) ++ " --> " ++ show (rhs r)
