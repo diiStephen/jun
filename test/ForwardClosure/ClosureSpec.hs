@@ -11,7 +11,7 @@ spec :: Spec
 spec = do
   describe "The Closure module" $ do
     describe "the computeFowardClosure function" $ do
-      it "should compute the forward closure of the example term rewriting system" $ do
+      it "should compute the forward closure of example1 term rewriting system" $ do
         let sig = ["f", "s"]
         let rho1 = Rule (getTerm sig "f(s(x))") (getTerm sig "f(x)")
         let rho2 = Rule (getTerm sig "s(s(s(x)))") (getTerm sig "x")
@@ -22,3 +22,12 @@ spec = do
         let expectedResult = Rules [rho1Expected, rho2Expected, rho3Expected]
         let result = computeForwardClosure 2 ex
         Set.fromList (rules result) `shouldBe` Set.fromList (rules expectedResult)
+
+      it "should come the forward closure of example2 term rewriting system" $ do
+        let sig = ["f", "g", "b", "c", "i"]
+        let rho1 = Rule (getTerm sig "f(x,i(x))") (getTerm sig "g(x)")
+        let rho2 = Rule (getTerm sig "g(b)") (getTerm sig "c")
+        let rho3 = Rule (getTerm sig "f(b,i(b))") (getTerm sig "c")
+        let honoDefenseExample = Rules [rho1, rho2, rho3]
+        let result = computeForwardClosure 2 honoDefenseExample
+        result `shouldBe` honoDefenseExample
