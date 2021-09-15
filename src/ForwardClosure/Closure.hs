@@ -41,7 +41,8 @@ isRedundant :: RewriteRule ->  [RewriteRule] -> Bool
 isRedundant rho r = isInstanceSystem rho r || isStrictlyRedundant rho r
 
 -- l -> r is strictly redundant in R where l is reducible
--- and r is a normal form of l iff a proper subterm of l is reducible  
+-- and r is a normal form of l iff a proper subterm of l is reducible
+-- See "Forward Closure and the Finite Variant Property" 
 isStrictlyRedundant :: RewriteRule -> [RewriteRule] -> Bool
 isStrictlyRedundant rho rs = go properSubtermPos
     where properSubtermPos = delete "" (snd <$> filter (isNonVar . fst) (label (lhs rho)))
