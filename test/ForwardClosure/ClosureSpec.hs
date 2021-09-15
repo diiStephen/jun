@@ -20,8 +20,10 @@ spec = do
         let rho2Expected = Rule (getTerm sig "s(s(s(x)))") (getTerm sig "x")
         let rho3Expected = Rule (getTerm sig "f(s(s(x)))") (getTerm sig "f(x)")
         let expectedResult = Rules [rho1Expected, rho2Expected, rho3Expected]
-        let result = computeForwardClosure 2 ex
-        Set.fromList (rules result) `shouldBe` Set.fromList (rules expectedResult)
+        let result2 = computeForwardClosure 2 ex
+        let result3 = computeForwardClosure 3 ex
+        Set.fromList (rules result2) `shouldBe` Set.fromList (rules expectedResult)
+        Set.fromList (rules result3) `shouldBe` Set.fromList (rules result2)
 
       it "should return the input system if the system is already forward closed" $ do
         let sig = ["f", "g", "b", "c", "i"]
