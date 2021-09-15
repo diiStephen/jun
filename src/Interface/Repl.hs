@@ -12,6 +12,7 @@ import Completion.HuetCompletion  ( CompletionEnv(..), complete)
 import Completion.CompletionUtils ( TermOrder )
 import Orders.RecursivePathOrders ( lpo, mpo )
 import Orders.KnuthBendixOrder    ( kbo )
+import ForwardClosure.Closure     ( computeForwardClosure )
 import Control.Monad              ( void )
 import Control.Monad.RWS          ( RWST, liftIO, gets, runRWST, modify, get )
 import System.IO                  ( hFlush, stdout ) 
@@ -46,7 +47,9 @@ commands = ["[exit]"
     , "[sys]"
     , "[eqs]"
     , "[clear-eqs]"
-    , "[norm]"]
+    , "[norm]"
+    , "[fc Int]"
+    , "[help]"]
 
 repl :: IO ()
 repl = do
@@ -85,6 +88,8 @@ processCommand command args = do
         "eqs"        -> gets curEquations >>= (liftIO. putStrLn . showSet "EQUATIONS")
         "norm"       -> replNormalize args >>= (liftIO . putStrLn . showSet "NORMALIZED" . (:[]))
         "clear-eqs"  -> modify $ \env -> env { curEquations = [] }
+        "fc"         -> runFC (read args)
+        "help"       -> liftIO $ mapM_ (\s -> putStr (" " ++ s ++ " ")) commands >> putStrLn ""
         _ -> liftIO $ putStrLn "Command not found."  
 
 setSig :: String -> ReplM () 
@@ -158,3 +163,9 @@ replNormalize st = do
     sig <- gets signature
     let terms = getTerm sig st
     return $ normalize rewriteSystem terms
+
+runFC :: Int -> ReplM ()
+runFC steps = do
+  rewriteSystem <- gets curRewriteSystem
+  let fcResult = computeForwardClosure steps rewriteSystem
+  modify $ \env -> env { curRewriteSystem = fcResult }

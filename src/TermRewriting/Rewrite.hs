@@ -16,8 +16,13 @@ import Control.Applicative        ()
 import Data.List                  ( intercalate )
 import Data.Coerce                ( coerce )
 
-data RewriteRule      = Rule { lhs :: Term, rhs :: Term }
-newtype RewriteSystem = Rules { rules :: [RewriteRule] }
+data RewriteRule 
+    = Rule { lhs :: Term, rhs :: Term } 
+    deriving (Eq, Ord)
+    
+newtype RewriteSystem
+  = Rules { rules :: [RewriteRule] }
+  deriving (Eq)
 
 instance Show RewriteRule where 
     show r = show (lhs r) ++ " --> " ++ show (rhs r)
