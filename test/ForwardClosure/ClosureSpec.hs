@@ -23,7 +23,7 @@ spec = do
         let result = computeForwardClosure 2 ex
         Set.fromList (rules result) `shouldBe` Set.fromList (rules expectedResult)
 
-      it "should come the forward closure of example2 term rewriting system" $ do
+      it "should return the input system if the system is already forward closed" $ do
         let sig = ["f", "g", "b", "c", "i"]
         let rho1 = Rule (getTerm sig "f(x,i(x))") (getTerm sig "g(x)")
         let rho2 = Rule (getTerm sig "g(b)") (getTerm sig "c")
