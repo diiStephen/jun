@@ -1,6 +1,8 @@
 module Orders.KnuthBendixOrder (
       kbo
     , isUnaryPower
+    , termWeight
+    , weightFromTuples
 ) where
 
 import Terms.Terms                ( Term(..), OrderedSig, FSym, subterms, isVar, root, occurs, collectAndCountVars )
@@ -43,3 +45,12 @@ kbo2bc symOrder weight (T f ss) (T g ts) = case sym symOrder f g of
     E -> lexOrd (kbo symOrder weight) ss ts 
     NGE -> NGE
 kbo2bc _ _ _ _ = NGE
+
+termWeight :: (FSym -> Int) -> Term -> Int
+termWeight _ (V _) = 1
+termWeight w (T f ts) = w f + sum (map (termWeight w) ts)
+
+weightFromTuples :: [(FSym, Int)] -> FSym -> Int
+weightFromTuples symbolWeights f = case lookup f symbolWeights of
+    Just i -> i
+    Nothing -> -1
