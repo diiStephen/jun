@@ -5,7 +5,9 @@ import Test.QuickCheck           ()
 import Terms.TermParser          ( getTerm)
 import Orders.KnuthBendixOrder   ( weightFromTuples, termWeight, kbo )
 import Orders.PolyOrders         ( Order(..) )
+import Terms.Terms               ( Term )
 
+getGroupWeightFunction :: Term -> Int
 getGroupWeightFunction = termWeight (weightFromTuples [("1", 1), ("f", 0), ("i", 1)])
 
 spec :: Spec
