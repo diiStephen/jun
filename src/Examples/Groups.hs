@@ -9,16 +9,12 @@ import Terms.TermParser           ( getTerm )
 import Equations.BasicEquation    ( Equation(..), eqMap )
 import Completion.HuetCompletion  ( CompletionEnv(..), complete )
 import Orders.RecursivePathOrders ( rpo, lpo, mpo )
-import Orders.KnuthBendixOrder    ( kbo )
+import Orders.KnuthBendixOrder    ( kbo, termWeight )
 import Orders.PolyOrders          (lexOrd, multiOrder)
 import Completion.CompletionUtils ( TermOrder )
 
 groupSig :: OrderedSig
 groupSig = ["1", "f", "i"]
-
-weight :: Term -> Int
-weight (V x) = 1 
-weight (T f ts) = symWeight f + sum (map weight ts)
 
 symWeight :: FSym -> Int
 symWeight f | f == "1" = 1
@@ -37,7 +33,7 @@ getGroupAxioms = map (eqMap groupTermParser) [assoc, inv, id]
         id    = "f(1,x)" :~: "x"
 
 groupKBOrder :: TermOrder 
-groupKBOrder = kbo groupSig weight
+groupKBOrder = kbo groupSig (termWeight symWeight)
 
 runGroupExample :: IO ()
 runGroupExample = do 
