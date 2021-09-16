@@ -11,7 +11,7 @@ import Equations.BasicEquation    ( Equation(..), eqMap )
 import Completion.HuetCompletion  ( CompletionEnv(..), complete)
 import Completion.CompletionUtils ( TermOrder )
 import Orders.RecursivePathOrders ( lpo, mpo )
-import Orders.KnuthBendixOrder    ( kbo )
+import Orders.KnuthBendixOrder    ( kbo, termWeight, weightFromTuples )
 import ForwardClosure.Closure     ( computeForwardClosure )
 import Control.Monad              ( void )
 import Control.Monad.RWS          ( RWST, liftIO, gets, runRWST, modify, get )
@@ -134,7 +134,7 @@ getKbOrder :: ReplM TermOrder
 getKbOrder = do 
     sig <- gets signature
     symWeights <- getSymWeights sig
-    return $ kbo sig (weight (weightFromTuples symWeights))
+    return $ kbo sig (termWeight (weightFromTuples symWeights))
 
 getSymWeights :: OrderedSig -> ReplM [(FSym, Int)]
 getSymWeights = mapM readSymWeight 
@@ -143,16 +143,6 @@ readSymWeight :: FSym -> ReplM (FSym, Int)
 readSymWeight f = do 
     i <- liftIO $ prompt ("w(" ++ f ++ "): ")
     return (f, read i)
-
-weightFromTuples :: [(FSym, Int)] -> FSym -> Int 
-weightFromTuples symbolWeights f = case lookup f symbolWeights of
-    Just i -> i 
-    Nothing -> -1
-
--- This should be refactored utility for KB orders. 
-weight :: (FSym -> Int) -> Term -> Int
-weight _ (V _) = 1 
-weight w (T f ts) = w f + sum (map (weight w) ts)
 
 showSet :: (Foldable t, Show a) => String -> t a -> [Char]
 showSet name es = "\n" ++ name ++ "(\n" ++ concatMap (\s -> "\t" ++ show s ++ "\n") es ++ ")\n" 
