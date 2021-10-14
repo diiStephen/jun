@@ -1,5 +1,5 @@
 # Jun (純)
-A Haskell based tool for term rewriting and automated deduction. 
+This repository contains Jun, a Haskell based tool for term rewriting and automated deduction. 
 
 # Prerequisties 
 Jun is built with [Haskell Stack](https://docs.haskellstack.org/en/stable/README/). The easiest way to install Haskell Stack is with the following curl command 
