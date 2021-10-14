@@ -28,7 +28,7 @@ All of Jun's module can be loaded into the ghci for testing and research via the
 
     stack repl
 
-we reccomend setting the prompt to reduce clutter by e.g. running
+we recommend setting the prompt to reduce clutter by e.g. running
 
     :set prompt "ghci: "
 
