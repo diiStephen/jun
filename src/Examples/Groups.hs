@@ -9,7 +9,7 @@ import Terms.TermParser           ( getTerm )
 import Equations.BasicEquation    ( Equation(..), eqMap )
 import Completion.HuetCompletion  ( CompletionEnv(..), complete )
 import Orders.RecursivePathOrders ( rpo, lpo, mpo )
-import Orders.KnuthBendixOrder    ( kbo, termWeight )
+import Orders.KnuthBendixOrder    ( kbo, termWeight, weightFromTuples )
 import Orders.PolyOrders          (lexOrd, multiOrder)
 import Completion.CompletionUtils ( TermOrder )
 
@@ -17,10 +17,7 @@ groupSig :: OrderedSig
 groupSig = ["1", "f", "i"]
 
 symWeight :: FSym -> Int
-symWeight f | f == "1" = 1
-            | f == "i" = 0 
-            | f == "f" = 0
-            | otherwise = 0
+symWeight = weightFromTuples [("1",1), ("i",0), ("f",0)]
 
 groupTermParser :: String -> Term
 groupTermParser = getTerm groupSig

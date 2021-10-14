@@ -2,10 +2,12 @@ module Substitution.Substitutions (
     Subst,
     apply,
     applyLifted,
-    indom
+    indom,
+    displaySubst
 ) where 
 
 import Terms.Terms
+import Data.List (intercalate)
 
 type Subst = [(VName, Term)]
 
@@ -21,3 +23,6 @@ indom :: Subst -> VName -> Bool
 indom [] v = False 
 indom (s:ss) v = if fst s == v then True else indom ss v
 
+displaySubst :: Subst -> String
+displaySubst subs = "{ " ++ intercalate " , " (map displayMapping subs) ++ " }"
+  where displayMapping (x, t) = [(fst x)] ++ " |-> " ++ show t

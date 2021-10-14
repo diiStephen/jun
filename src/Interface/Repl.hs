@@ -43,7 +43,7 @@ commands = ["[exit]"
     , "[signature]"
     , "[env]"
     , "[precedence]"
-    , "[kb lpo|mpo|kbo]"
+    , "[complete lpo|mpo|kbo]"
     , "[sys]"
     , "[eqs]"
     , "[clear-eqs]"
@@ -83,7 +83,7 @@ processCommand command args = do
         "signature"  -> setSig args
         "env"        -> showEnv
         "precedence" -> setSig args
-        "kb"         -> runKb args
+        "complete"   -> runKb args
         "sys"        -> gets curRewriteSystem >>= (liftIO . putStrLn . showSet "RULES" . rules)
         "eqs"        -> gets curEquations >>= (liftIO. putStrLn . showSet "EQUATIONS")
         "norm"       -> replNormalize args >>= (liftIO . putStrLn . showSet "NORMALIZED" . (:[]))

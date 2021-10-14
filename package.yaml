@@ -1,4 +1,4 @@
-name:                term-rewriter
+name:                jun
 version:             0.1.0.0
 github:              "diiStephen/term-rewriter"
 license:             BSD3
@@ -31,7 +31,7 @@ library:
   source-dirs: src
 
 executables:
-  term-rewriter-exe:
+  jun:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -39,7 +39,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - term-rewriter
+    - jun
 
 tests:
   unit-tests:
@@ -50,4 +50,4 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - term-rewriter
+      - jun

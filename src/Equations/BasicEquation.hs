@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, TypeOperators, DataKinds #-}
+{-# LANGUAGE GADTs #-}
 
 module Equations.BasicEquation (
       Equation(..)
