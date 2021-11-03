@@ -24,4 +24,4 @@ cabal.project.local~
 scratch.txt
 .idea/
 *.iml
-./release/*
+release/*
