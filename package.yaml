@@ -41,6 +41,18 @@ executables:
     dependencies:
     - jun
 
+  jun-release:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+      - -static
+    ld-options: -static
+    dependencies:
+      - jun
+
 tests:
   unit-tests:
     main: Spec.hs
