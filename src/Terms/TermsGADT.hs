@@ -1,7 +1,6 @@
-{-# LANGUAGE GADTs, StandaloneKindSignatures, DataKinds, 
-    StandaloneDeriving, DerivingStrategies, ScopedTypeVariables, RankNTypes, TypeOperators #-}
+{-# LANGUAGE GADTs, StandaloneKindSignatures, DataKinds, StandaloneDeriving, DerivingStrategies, ScopedTypeVariables, RankNTypes #-}
 
-module Terms.TermsGADT (HList(..), h1) where
+module Terms.TermsGADT () where
 
 import Data.Kind   ( Type )
 import Terms.Terms ( FSym )
@@ -27,12 +26,3 @@ sym (f :> _) = f
 
 subterms :: Term APP a -> [ExTerm a]
 subterms (_ :> ts) = map MkET ts
-
-type HList :: [Type] -> Type
-data HList xs where
-    HNil :: HList '[]
-    (:&) :: x -> HList xs -> HList (x : xs)
-infixr 5 :&
-
-h1 :: HList [Integer, String, Bool]
-h1 = 42 :& "Hello" :& True :& HNil
